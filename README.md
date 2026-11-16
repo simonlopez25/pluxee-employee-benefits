@@ -1,19 +1,65 @@
-# React + Vite
+# Pluxee Employee Benefits
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Monorepo con el frontend y el backend de la aplicación de beneficios para empleados.
 
-Currently, two official plugins are available:
+## Estructura
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+pluxee-employee-benefits/
+├── frontend/          ← React 19 + Vite (JavaScript)
+│   └── src/
+│       ├── components/    ← Atomic Design (atoms, molecules, organisms, templates)
+│       ├── pages/         ← páginas de la app
+│       ├── hooks/         ← hooks personalizados
+│       ├── services/      ← cliente de la API
+│       ├── styles/        ← estilos globales
+│       ├── utils/         ← helpers
+│       └── assets/        ← imágenes y estáticos
+├── backend/           ← Node.js + Express (API REST)
+│   └── src/
+│       ├── config/        ← variables de entorno
+│       ├── routes/        ← endpoints
+│       ├── controllers/   ← manejo de req/res
+│       ├── services/      ← lógica de negocio
+│       ├── models/        ← esquemas / datos
+│       ├── middleware/     ← errores, auth...
+│       └── utils/         ← helpers
+├── package.json       ← scripts de conveniencia
+└── README.md
+```
 
-## React Compiler
+## Requisitos
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- Node.js 18+
+- npm
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+## Puesta en marcha
 
-## Expanding the ESLint configuration
+```bash
+# 1. Instalar dependencias
+npm install --prefix frontend
+npm install --prefix backend
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# 2. Configurar el backend (variables de entorno)
+copy backend\.env.example backend\.env   # Linux/macOS: cp backend/.env.example backend/.env
+
+# 3. Arrancar (cada servicio en su terminal)
+npm run dev        # frontend → http://localhost:5173
+npm run dev:api    # backend  → http://localhost:4000
+```
+
+El frontend tiene configurado un **proxy** en `vite.config.js`: las llamadas a `/api/*` se redirigen al backend en el puerto `4000`.
+
+## Scripts disponibles
+
+| Script | Descripción |
+|--------|-------------|
+| `npm run dev` | Arranca el frontend (Vite) |
+| `npm run dev:api` | Arranca el backend (nodemon) |
+| `npm run build` | Build de producción del frontend |
+| `npm run lint` | Lint del frontend (ESLint) |
+| `npm run start:api` | Arranca el backend en producción |
+
+## Metodología UI
+
+Los componentes siguen **Atomic Design** — ver [frontend/src/components/README.md](frontend/src/components/README.md).
