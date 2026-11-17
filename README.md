@@ -13,25 +13,37 @@ pluxee-employee-benefits/
 │       ├── hooks/         ← hooks personalizados
 │       ├── services/      ← cliente de la API
 │       ├── styles/        ← estilos globales
-│       ├── utils/         ← helpers
 │       └── assets/        ← imágenes y estáticos
 ├── backend/           ← Node.js + Express (API REST)
 │   └── src/
-│       ├── config/        ← variables de entorno
-│       ├── routes/        ← endpoints
-│       ├── controllers/   ← manejo de req/res
+│       ├── app/            ← arranque y instancia de Express
+│       │   ├── app.js          ← instancia Express + middlewares + rutas
+│       │   └── server.js       ← arranque del servidor (listen)
+│       ├── core/          ← infraestructura transversal
+│       │   ├── config/        ← variables de entorno
+│       │   ├── db/            ← pool de conexión PostgreSQL
+│       │   ├── errors/        ← AppError y errores centralizados
+│       │   └── middleware/    ← errorHandler, validate, auth...
+│       ├── routes/        ← endpoints (capa api)
+│       ├── controllers/   ← manejo de req/res (delgados)
 │       ├── services/      ← lógica de negocio
-│       ├── models/        ← esquemas / datos
-│       ├── middleware/     ← errores, auth...
-│       └── utils/         ← helpers
+│       ├── schemas/       ← validación de entrada/salida (zod)
+│       └── models/        ← queries SQL / acceso a datos
 ├── package.json       ← scripts de conveniencia
 └── README.md
+```
+
+Flujo de una petición:
+
+```
+routes → validate(schema) → controller → service → model (SQL) → PostgreSQL
 ```
 
 ## Requisitos
 
 - Node.js 18+
 - npm
+- PostgreSQL (opcional para desarrollo: solo necesario al consultar la BD)
 
 ## Puesta en marcha
 
