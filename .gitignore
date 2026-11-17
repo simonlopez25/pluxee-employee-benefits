@@ -26,3 +26,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python (commit-msg guardian)
+__pycache__/
+*.pyc
