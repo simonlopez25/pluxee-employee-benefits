@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     def database_url(self) -> URL:
         """URL de conexión a PostgreSQL para SQLAlchemy."""
         return URL.create(
-            "postgresql+psycopg2",
+            "postgresql+psycopg",
             username=self.db_user,
             password=self.db_password,
             host=self.db_host,
