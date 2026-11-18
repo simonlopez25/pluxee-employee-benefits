@@ -16,7 +16,15 @@ backend/
 │   ├── routes/                ← definición de endpoints (/api/...)
 │   ├── schemas/               ← validación de entrada/salida (Pydantic)
 │   ├── services/              ← lógica de negocio
-│   └── models/                ← queries SQL / acceso a datos
+│   └── models/                ← 14 modelos SQLAlchemy (una tabla por archivo)
+│       ├── __init__.py            ← importa los 14 (requisito del autogenerate)
+│       ├── department.py          ├── global_budget.py
+│       ├── user.py                ├── benefit.py
+│       ├── package.py             ├── package_benefit.py
+│       ├── department_budget.py   ├── department_assignment.py
+│       ├── employee_assignment.py ├── expense.py
+│       ├── expense_allocation.py  ├── attachment.py
+│       ├── expense_history.py     └── audit_log.py
 ├── alembic/                   ← migraciones (Alembic)
 │   ├── env.py                     ← conecta Alembic con .env y Base.metadata
 │   └── versions/                  ← archivos de migración generados
@@ -84,6 +92,23 @@ cd backend
 > El autogenerate solo detecta cambios en modelos importados desde
 > `app.core.database.Base` — si agregas un modelo nuevo, impórtalo en
 > `app/models/__init__.py` para que lo incluya.
+
+## Tablas (esquema)
+
+14 tablas (ver el DDL completo en la migración baseline `alembic/versions/*_initial_schema.py`):
+
+| Grupo | Tablas |
+|-------|--------|
+| Estructura | `departments`, `users` |
+| Catálogos | `benefits`, `packages`, `package_benefits` |
+| Presupuestos | `global_budgets`, `department_budgets` |
+| Asignaciones | `department_assignments`, `employee_assignments` |
+| Transaccional | `expenses`, `expense_allocations`, `attachments` |
+| Auditoría | `expense_history`, `audit_logs` |
+
+Los constraints (CHECK, FK compuestas, UNIQUE) están declarados **con sus nombres
+exactos** en los modelos (`app/models/`) y en la migración baseline — `alembic
+revision --autogenerate` contra una BD al día debe quedar **vacío**.
 
 ## Endpoints
 
