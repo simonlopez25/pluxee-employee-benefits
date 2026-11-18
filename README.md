@@ -1,3 +1,8 @@
+<img width="2172" height="724" alt="Plataforma Pluxee de beneficios laborales" src="https://github.com/user-attachments/assets/fcad27ef-6ff8-46df-88c8-d176b007d153" />
+
+
+
+
 # Pluxee Employee Benefits
 
 Monorepo con el frontend y el backend de la aplicación de beneficios para empleados.
