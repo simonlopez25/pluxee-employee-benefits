@@ -14,21 +14,18 @@ pluxee-employee-benefits/
 │       ├── services/      ← cliente de la API
 │       ├── styles/        ← estilos globales
 │       └── assets/        ← imágenes y estáticos
-├── backend/           ← Node.js + Express (API REST)
-│   └── src/
-│       ├── app/            ← arranque y instancia de Express
-│       │   ├── app.js          ← instancia Express + middlewares + rutas
-│       │   └── server.js       ← arranque del servidor (listen)
-│       ├── core/          ← infraestructura transversal
-│       │   ├── config/        ← variables de entorno
-│       │   ├── db/            ← pool de conexión PostgreSQL
-│       │   ├── errors/        ← AppError y errores centralizados
-│       │   └── middleware/    ← errorHandler, validate, auth...
-│       ├── routes/        ← endpoints (capa api)
-│       ├── controllers/   ← manejo de req/res (delgados)
-│       ├── services/      ← lógica de negocio
-│       ├── schemas/       ← validación de entrada/salida (zod)
-│       └── models/        ← queries SQL / acceso a datos
+├── backend/           ← Python + FastAPI (API REST)
+│   └── app/
+│       ├── main.py          ← instancia FastAPI + middlewares + handlers
+│       ├── server.py        ← arranque del servidor (uvicorn)
+│       ├── core/            ← infraestructura transversal
+│       │   ├── config.py        ← variables de entorno (pydantic-settings)
+│       │   ├── database.py      ← engine + sesión PostgreSQL (SQLAlchemy 2.0)
+│       │   └── errors.py        ← AppError y errores centralizados
+│       ├── routes/          ← endpoints (capa API)
+│       ├── schemas/         ← validación de entrada/salida (Pydantic)
+│       ├── services/        ← lógica de negocio
+│       └── models/          ← queries SQL / acceso a datos
 ├── package.json       ← scripts de conveniencia
 └── README.md
 ```
@@ -36,28 +33,31 @@ pluxee-employee-benefits/
 Flujo de una petición:
 
 ```
-routes → validate(schema) → controller → service → model (SQL) → PostgreSQL
+routes → schema (Pydantic) → service → model (SQL) → PostgreSQL
 ```
 
 ## Requisitos
 
-- Node.js 18+
-- npm
+- Python 3.11+ (probado con 3.14)
+- npm (solo para el frontend)
 - PostgreSQL (opcional para desarrollo: solo necesario al consultar la BD)
 
 ## Puesta en marcha
 
 ```bash
-# 1. Instalar dependencias
+# 1. Frontend
 npm install --prefix frontend
-npm install --prefix backend
 
-# 2. Configurar el backend (variables de entorno)
-copy backend\.env.example backend\.env   # Linux/macOS: cp backend/.env.example backend/.env
+# 2. Backend: entorno virtual + dependencias
+cd backend
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt   # Linux/macOS: .venv/bin/pip install -r requirements.txt
+copy .env.example .env                          # Linux/macOS: cp .env.example .env
+cd ..
 
 # 3. Arrancar (cada servicio en su terminal)
 npm run dev        # frontend → http://localhost:5173
-npm run dev:api    # backend  → http://localhost:4000
+npm run dev:api    # backend  → http://localhost:4000  (docs en /docs)
 ```
 
 El frontend tiene configurado un **proxy** en `vite.config.js`: las llamadas a `/api/*` se redirigen al backend en el puerto `4000`.
@@ -67,10 +67,25 @@ El frontend tiene configurado un **proxy** en `vite.config.js`: las llamadas a `
 | Script | Descripción |
 |--------|-------------|
 | `npm run dev` | Arranca el frontend (Vite) |
-| `npm run dev:api` | Arranca el backend (nodemon) |
+| `npm run dev:api` | Arranca el backend (uvicorn con reload) |
 | `npm run build` | Build de producción del frontend |
 | `npm run lint` | Lint del frontend (ESLint) |
 | `npm run start:api` | Arranca el backend en producción |
+
+Tests del backend:
+
+```bash
+cd backend
+.venv\Scripts\python -m pytest   # Linux/macOS: .venv/bin/python -m pytest
+```
+
+Al agregar una dependencia nueva al backend:
+
+```bash
+cd backend
+.venv\Scripts\pip install <paquete>
+.venv\Scripts\pip freeze > requirements.txt
+```
 
 ## Metodología UI
 
