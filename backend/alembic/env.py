@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.core.config import settings  # noqa: E402
 from app.core.database import Base  # noqa: E402
+from app import models  # noqa: F401 — registra las 14 tablas en Base.metadata
 
 # Este es el objeto Alembic Config, que da acceso a los valores del .ini
 config = context.config
