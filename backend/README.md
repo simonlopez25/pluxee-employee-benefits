@@ -1,67 +1,74 @@
 # Pluxee Backend
 
-API REST con **Node.js + Express** (JavaScript, ES Modules) y **PostgreSQL**.
+API REST con **Python + FastAPI** y **PostgreSQL** (SQLAlchemy 2.0).
 
 ## Estructura
 
 ```
 backend/
-├── src/
-│   ├── app/                    ← arranque y instancia de Express
-│   │   ├── app.js              ← instancia Express (middlewares + rutas)
-│   │   └── server.js           ← arranque del servidor
+├── app/
+│   ├── main.py                ← instancia FastAPI (middlewares + rutas + handlers)
+│   ├── server.py              ← arranque del servidor (uvicorn)
 │   ├── core/                  ← infraestructura transversal
-│   │   ├── config/            ← variables de entorno
-│   │   ├── db/                ← pool de conexión PostgreSQL (pg)
-│   │   ├── errors/            ← AppError (errores con código HTTP)
-│   │   └── middleware/        ← errorHandler, notFound, validate...
+│   │   ├── config.py          ← variables de entorno (pydantic-settings + .env)
+│   │   ├── database.py        ← engine + sesión PostgreSQL (SQLAlchemy 2.0)
+│   │   └── errors.py          ← AppError (errores con código HTTP)
 │   ├── routes/                ← definición de endpoints (/api/...)
-│   ├── controllers/           ← manejo de req/res (delgados)
+│   ├── schemas/               ← validación de entrada/salida (Pydantic)
 │   ├── services/              ← lógica de negocio
-│   ├── schemas/               ← validación de entrada/salida (zod)
-│   ├── models/                ← queries SQL / acceso a datos
+│   └── models/                ← queries SQL / acceso a datos
+├── tests/                     ← tests con pytest
 ├── .env.example               ← plantilla de variables de entorno
-└── package.json
+├── pytest.ini                 ← configuración de pytest
+└── requirements.txt           ← dependencias (pip)
 ```
 
 ## Flujo de una petición
 
 ```
-routes → validate(schema) → controller → service → model (SQL) → PostgreSQL
-   │                          │            │            │
-   │                          │            │            └─ queries SQL con pg
-   │                          │            └─ lógica de negocio
-   │                          └─ solo req/res, llama al service
-   └─ endpoint + validación con zod (core/middleware/validate)
+routes → schema (Pydantic) → service → model (SQL) → PostgreSQL
+   │            │               │            │
+   │            │               │            └─ queries SQL con SQLAlchemy
+   │            │               └─ lógica de negocio
+   │            └─ validación/serialización de la respuesta
+   └─ endpoint (FastAPI) + inyección de sesión con get_db
 ```
 
-Errores centralizados en `core/middleware/errorHandler.js` usando `core/errors/AppError.js`.
+Errores centralizados: los services lanzan `AppError` (ver `app/core/errors.py`) y
+`app/main.py` los convierte en respuesta JSON con su código HTTP.
 
 ## Puesta en marcha
 
 ```bash
 cd backend
-npm install
-copy .env.example .env   # Windows (en Linux/macOS: cp .env.example .env)
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt   # Linux/macOS: .venv/bin/pip install -r requirements.txt
+copy .env.example .env                          # Linux/macOS: cp .env.example .env
 # Edita .env con tus datos de PostgreSQL
-npm run dev              # arranca con nodemon en http://localhost:4000
+.venv\Scripts\python -m uvicorn app.main:app --reload   # → http://localhost:4000 (docs: /docs)
 ```
 
-> Nota: los archivos de `src/` están vacíos (plantilla de estructura). Rellenarlos en este orden:
-> `core/config` → `core/db` → `core/middleware` → `models` → `schemas` → `services` → `controllers` → `routes` → `app/app.js` → `app/server.js`.
+## Tests
+
+```bash
+cd backend
+.venv\Scripts\python -m pytest   # Linux/macOS: .venv/bin/python -m pytest
+```
 
 ## Endpoints
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/api/health` | Estado del servidor |
+| GET | `/api/health` | Estado del servidor y de PostgreSQL |
+| GET | `/docs` | Documentación OpenAPI (Swagger) |
 
 ## Variables de entorno
 
 | Variable | Descripción | Default |
 |----------|-------------|---------|
 | `PORT` | Puerto del servidor | `4000` |
-| `NODE_ENV` | Entorno | `development` |
+| `APP_ENV` | Entorno (`development` \| `production` \| `test`) | `development` |
+| `CORS_ORIGINS` | Orígenes CORS permitidos (separados por coma) | `http://localhost:5173` |
 | `DB_HOST` | Host de PostgreSQL | `localhost` |
 | `DB_PORT` | Puerto de PostgreSQL | `5432` |
 | `DB_USER` | Usuario de PostgreSQL | `postgres` |
