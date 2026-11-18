@@ -17,6 +17,10 @@ backend/
 │   ├── schemas/               ← validación de entrada/salida (Pydantic)
 │   ├── services/              ← lógica de negocio
 │   └── models/                ← queries SQL / acceso a datos
+├── alembic/                   ← migraciones (Alembic)
+│   ├── env.py                     ← conecta Alembic con .env y Base.metadata
+│   └── versions/                  ← archivos de migración generados
+├── alembic.ini                ← configuración de Alembic
 ├── tests/                     ← tests con pytest
 ├── .env.example               ← plantilla de variables de entorno
 ├── pytest.ini                 ← configuración de pytest
@@ -54,6 +58,32 @@ copy .env.example .env                          # Linux/macOS: cp .env.example .
 cd backend
 .venv\Scripts\python -m pytest   # Linux/macOS: .venv/bin/python -m pytest
 ```
+
+## Migraciones (Alembic)
+
+El esquema de la BD se gestiona con **Alembic**. La URL y los modelos se
+cargan desde `app/core/config.py` y `app/core/database.py` (ver `alembic/env.py`);
+**no** editar `sqlalchemy.url` en `alembic.ini`.
+
+```bash
+cd backend
+
+# 1. Editas/agregas modelos en app/models/ (heredan de Base)
+# 2. Generar la revisión (compara contra la BD actual):
+.venv\Scripts\python -m alembic revision --autogenerate -m "descripcion del cambio"
+
+# 3. Revisar el archivo generado en alembic/versions/ y aplicar:
+.venv\Scripts\python -m alembic upgrade head
+
+# Comandos útiles
+.venv\Scripts\python -m alembic current     # versión aplicada a la BD
+.venv\Scripts\python -m alembic history     # todas las revisiones
+.venv\Scripts\python -m alembic downgrade base   # retroceder todo (¡cuidado!)
+```
+
+> El autogenerate solo detecta cambios en modelos importados desde
+> `app.core.database.Base` — si agregas un modelo nuevo, impórtalo en
+> `app/models/__init__.py` para que lo incluya.
 
 ## Endpoints
 

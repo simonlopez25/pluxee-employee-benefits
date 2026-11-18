@@ -26,6 +26,7 @@ pluxee-employee-benefits/
 │       ├── schemas/         ← validación de entrada/salida (Pydantic)
 │       ├── services/        ← lógica de negocio
 │       └── models/          ← queries SQL / acceso a datos
+│   └── alembic/           ← migraciones de BD (Alembic)
 ├── package.json       ← scripts de conveniencia
 └── README.md
 ```
@@ -86,6 +87,8 @@ cd backend
 .venv\Scripts\pip install <paquete>
 .venv\Scripts\pip freeze > requirements.txt
 ```
+
+Migraciones de base de datos con **Alembic**: ver [backend/README.md](backend/README.md).
 
 ## Metodología UI
 
