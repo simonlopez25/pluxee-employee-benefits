@@ -117,6 +117,26 @@ Comprobación: abre `http://localhost:4000/api/health` →
 - `neon.ts` define la política de ramas (las ramas no-default expiran a los
   7 días); se aplica con `neon deploy`.
 
+## Datos de prueba (seed)
+
+`backend/seed.sql` contiene datos inventados (3 departamentos, 7 usuarios,
+presupuestos de noviembre de 2026, gastos y justificantes de ejemplo) para
+desarrollo, pruebas y demo — **nunca** para producción. Contraseña de prueba
+de todos los usuarios: `Prueba123!`.
+
+```bash
+npm run seed              # si la BD está vacía
+npm run seed -- --reset   # borra los datos (TRUNCATE) y vuelve a sembrar
+```
+
+El runner (`backend/scripts/seed.py`) usa la misma conexión que la app, así
+que sirve igual para **Neon** que para la **Postgres local**. Al terminar
+comprueba los recuentos de las 14 tablas y el saldo de Lucía: debe dar
+**Comida = 70,00** y **Transporte = 10,00** (`SEED RESULT: PASS`).
+
+También se puede ejecutar a mano en **pgAdmin** (F5) sobre una BD local ya
+migrada con `alembic upgrade head`: pega el contenido de `backend/seed.sql`.
+
 ## Checklist del nuevo colaborador
 
 Copia y pega en orden (los pasos 4 y 8 son los que suelen olvidarse):

@@ -29,6 +29,9 @@ backend/
 │   ├── env.py                     ← conecta Alembic con .env y Base.metadata
 │   └── versions/                  ← archivos de migración generados
 ├── alembic.ini                ← configuración de Alembic
+├── seed.sql                   ← datos de prueba (ver «Datos de prueba»)
+├── scripts/
+│   └── seed.py                    ← runner del seed (npm run seed [--reset])
 ├── tests/                     ← tests con pytest
 ├── .env.example               ← plantilla de variables de entorno
 ├── pytest.ini                 ← configuración de pytest
@@ -116,6 +119,24 @@ revision --autogenerate` contra una BD al día debe quedar **vacío**.
 |--------|------|-------------|
 | GET | `/api/health` | Estado del servidor y de PostgreSQL |
 | GET | `/docs` | Documentación OpenAPI (Swagger) |
+
+## Datos de prueba (seed)
+
+`seed.sql` trae datos inventados (3 departamentos, 7 usuarios, presupuestos de
+noviembre de 2026, gastos y justificantes de ejemplo) para desarrollo y demo —
+**nunca** para producción. Contraseña de prueba de todos los usuarios:
+`Prueba123!`.
+
+```bash
+# Desde la raíz del repo — usa la conexión de la app (Neon o local)
+npm run seed              # si la BD está vacía
+npm run seed -- --reset   # TRUNCATE de las 14 tablas y vuelve a sembrar
+```
+
+En **pgAdmin** (Postgres local migrada con `alembic upgrade head`): pega
+`seed.sql` en el Query Tool y ejecuta con F5. La comprobación final debe dar
+a Lucía **Comida = 70,00** y **Transporte = 10,00** (el runner imprime
+`SEED RESULT: PASS`).
 
 ## Variables de entorno
 
