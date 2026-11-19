@@ -9,7 +9,13 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import settings
 
-engine = create_engine(settings.database_url, pool_pre_ping=True)
+engine = create_engine(
+    settings.app_database_url,
+    pool_pre_ping=True,
+    # PgBouncer de Neon trabaja en modo transacción y no soporta prepared
+    # statements: psycopg3 los desactiva para no romper consultas repetidas
+    connect_args={"prepare_threshold": 0},
+)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 

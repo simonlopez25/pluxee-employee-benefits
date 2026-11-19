@@ -37,7 +37,7 @@ target_metadata = Base.metadata
 def run_migrations_offline() -> None:
     """Corre migraciones en modo offline (genera SQL sin conectar a la BD)."""
     context.configure(
-        url=str(settings.database_url),
+        url=str(settings.migration_database_url),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -52,7 +52,11 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     """Corre migraciones en modo online (conecta a PostgreSQL)."""
     # Engine creado directamente desde settings (.env), sin pasar por alembic.ini
-    connectable = create_engine(settings.database_url, poolclass=pool.NullPool)
+    # migration_database_url: endpoint directo de Neon (las migraciones no van
+    # por el pooler — PgBouncer en modo transacción no soporta sesión)
+    connectable = create_engine(
+        settings.migration_database_url, poolclass=pool.NullPool
+    )
 
     with connectable.connect() as connection:
         context.configure(
