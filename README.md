@@ -117,6 +117,60 @@ Comprobación: abre `http://localhost:4000/api/health` →
 - `neon.ts` define la política de ramas (las ramas no-default expiran a los
   7 días); se aplica con `neon deploy`.
 
+## Checklist del nuevo colaborador
+
+Copia y pega en orden (los pasos 4 y 8 son los que suelen olvidarse):
+
+```bash
+# 1. Clonar
+git clone https://github.com/simonlopez25/pluxee-employee-benefits.git
+cd pluxee-employee-benefits
+
+# 2. Frontend
+npm install --prefix frontend
+
+# 3. Backend (Linux/macOS: .venv/bin/pip y "cp" en lugar de "copy")
+cd backend
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+copy .env.example .env
+cd ..
+
+# 4. BD compartida en Neon — pide acceso antes por Neon Console → Members
+npm i -g neon@latest
+neon login
+neon env pull --project-id fancy-glitter-51900277 --branch production   # en la raíz
+
+# 5. Arrancar (cada servicio en su terminal)
+npm run dev        # frontend → http://localhost:5173
+npm run dev:api    # backend  → http://localhost:4000
+
+# 6. Verificar: abre http://localhost:4000/api/health
+#    → {"status":"ok","database":"up"}
+
+# 7. Tests (Linux/macOS: .venv/bin/python)
+cd backend
+.venv\Scripts\python -m pytest
+cd ..
+
+# 8. Guardian de commits — ANTES de tu primer commit (no viaja con el repo)
+pip install pre-commit
+pre-commit install
+
+# 9. Commit y push (el guardian exige inglés: feat(scope): minúsculas, sin punto)
+git add <archivos>
+git commit -m "feat(scope): describe your change"
+git push
+```
+
+> ⚠️ **Nunca subas** `.env.local` ni `backend/.env` (ya están en `.gitignore`)
+> ni pegues claves en el código, los commits ni los chats.
+> **¿Tocas `app/models/`?** Aplica y verifica migraciones desde `backend/`:
+> `.venv\Scripts\python -m alembic upgrade head` y después
+> `.venv\Scripts\python -m alembic check` (debe quedar sin cambios).
+> **¿Mantenedor que usa `neon deploy`?** Ejecuta también `npm install` en la
+> raíz (dependencias con las que se evalúa `neon.ts`).
+
 ## Scripts disponibles
 
 | Script | Descripción |
