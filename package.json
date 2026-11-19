@@ -8,5 +8,9 @@
     "build": "npm run build --prefix frontend",
     "lint": "npm run lint --prefix frontend",
     "start:api": "cd backend && .venv\\Scripts\\python -m app.server"
+  },
+  "dependencies": {
+    "@neon/config": "^1.14.4",
+    "@neon/env": "^2.1.7"
   }
 }
