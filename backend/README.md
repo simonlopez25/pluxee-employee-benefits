@@ -124,8 +124,15 @@ revision --autogenerate` contra una BD al día debe quedar **vacío**.
 | `PORT` | Puerto del servidor | `4000` |
 | `APP_ENV` | Entorno (`development` \| `production` \| `test`) | `development` |
 | `CORS_ORIGINS` | Orígenes CORS permitidos (separados por coma) | `http://localhost:5173` |
-| `DB_HOST` | Host de PostgreSQL | `localhost` |
-| `DB_PORT` | Puerto de PostgreSQL | `5432` |
-| `DB_USER` | Usuario de PostgreSQL | `postgres` |
-| `DB_PASSWORD` | Contraseña de PostgreSQL | `` |
-| `DB_NAME` | Base de datos | `pluxee` |
+| `DB_HOST` | Host de PostgreSQL (fallback local) | `localhost` |
+| `DB_PORT` | Puerto de PostgreSQL (fallback local) | `5432` |
+| `DB_USER` | Usuario de PostgreSQL (fallback local) | `postgres` |
+| `DB_PASSWORD` | Contraseña de PostgreSQL (fallback local) | `` |
+| `DB_NAME` | Base de datos (fallback local) | `pluxee` |
+| `DATABASE_URL` | URL completa de Neon para la app (pooled); si falta, se lee de `../.env.local` en la raíz | `` |
+| `DATABASE_URL_UNPOOLED` | URL directa de Neon para Alembic (sin pooler); si falta, se usa `DATABASE_URL` | `` |
+
+> La BD compartida del equipo vive en **Neon**: `neon env pull` escribe
+> `../.env.local` en la raíz y la app la detecta sin tocar `backend/.env`
+> (ver [README principal](../README.md#base-de-datos-compartida-neon)).
+> Si no hay ninguna `DATABASE_URL`, se usa la Postgres local (`DB_*`).
