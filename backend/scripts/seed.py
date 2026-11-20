@@ -7,7 +7,7 @@ Uso (desde la raíz del repo):
 
 Funciona igual contra Neon (BD compartida) o contra la Postgres local: usa la
 misma resolución de URL que el backend (app.core.config). Al terminar comprueba
-los recuentos de las 14 tablas y el saldo de Lucía (Comida=70, Transporte=10).
+los recuentos de las 13 tablas y el saldo de Lucía (Comida=70, Transporte=10).
 
 El bloque de reset vive DENTRO de seed.sql entre los marcadores
 SEED_RESET_BEGIN / SEED_RESET_END (comentado). El runner lo extrae de ahí:
@@ -34,16 +34,15 @@ SEED_FILE = BACKEND_ROOT / "seed.sql"
 RESET_BEGIN = "-- SEED_RESET_BEGIN"
 RESET_END = "-- SEED_RESET_END"
 
-# Recuentos esperados tras sembrar (14 tablas)
+# Recuentos esperados tras sembrar (13 tablas)
 EXPECTED_COUNTS: dict[str, int] = {
     "departments": 3,
     "users": 7,
     "benefits": 4,
-    "packages": 5,
-    "package_benefits": 6,
+    "packages": 6,
+    "package_benefits": 8,
     "global_budgets": 1,
     "department_budgets": 3,
-    "department_assignments": 6,
     "employee_assignments": 10,
     "expenses": 6,
     "expense_allocations": 6,
@@ -112,7 +111,7 @@ def connect() -> psycopg.Connection:
 
 def check_counts(conn: psycopg.Connection) -> bool:
     """Comprueba que cada tabla tiene las filas esperadas."""
-    print("\n[2/3] Recuentos de las 14 tablas")
+    print("\n[2/3] Recuentos de las 13 tablas")
     print(f"      {'tabla':<24}{'real':>6}{'esperado':>10}   ok")
     all_ok = True
     for table, expected in EXPECTED_COUNTS.items():
@@ -149,7 +148,7 @@ def main() -> int:
     parser.add_argument(
         "--reset",
         action="store_true",
-        help="TRUNCATE de las 14 tablas antes de sembrar (volver a empezar)",
+        help="TRUNCATE de las 13 tablas antes de sembrar (volver a empezar)",
     )
     args = parser.parse_args()
 
@@ -169,7 +168,7 @@ def main() -> int:
                 if not reset_sql.strip():
                     raise SystemExit("seed.sql: bloque de reset vacío")
                 conn.execute(reset_sql)
-                print("      reset: TRUNCATE de las 14 tablas + RESTART IDENTITY")
+                print("      reset: TRUNCATE de las 13 tablas + RESTART IDENTITY")
             try:
                 conn.execute(main_sql)
             except psycopg.errors.UniqueViolation as exc:

@@ -1,4 +1,9 @@
-"""Modelo de la tabla employee_assignments (paquetes de cada empleado)."""
+"""Modelo de la tabla employee_assignments (paquetes de cada empleado).
+
+Cada fila es un paquete concreto asignado a un empleado, con su importe
+particular (puede diferir del `default_amount` del paquete). Un empleado
+tiene como mucho UNA asignación por paquete.
+"""
 
 from __future__ import annotations
 
@@ -21,12 +26,6 @@ class EmployeeAssignment(Base):
     __tablename__ = "employee_assignments"
     __table_args__ = (
         ForeignKeyConstraint(
-            ["department_assignment_id"],
-            ["department_assignments.id"],
-            name="fk_employee_assignments_department_assignment",
-            ondelete="RESTRICT",
-        ),
-        ForeignKeyConstraint(
             ["package_id"],
             ["packages.id"],
             name="fk_employee_assignments_package",
@@ -39,23 +38,16 @@ class EmployeeAssignment(Base):
             ondelete="RESTRICT",
         ),
         UniqueConstraint(
-            "department_assignment_id",
+            "package_id",
             "user_id",
-            name="uq_employee_assignments_assignment_user",
+            name="uq_employee_assignments_package_user",
         ),
+        # La usan las FK compuestas de expense_allocations
         UniqueConstraint("id", "package_id", name="uq_employee_assignments_id_package"),
-        # FK compuesta: el paquete es el mismo que el de la asignación del departamento
-        ForeignKeyConstraint(
-            ["department_assignment_id", "package_id"],
-            ["department_assignments.id", "department_assignments.package_id"],
-            name="fk_employee_assignments_assignment_package",
-            ondelete="RESTRICT",
-        ),
         CheckConstraint("assigned_amount >= 0", name="ck_employee_assignments_amount"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    department_assignment_id: Mapped[int]
     package_id: Mapped[int]
     user_id: Mapped[int]
     assigned_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2))

@@ -32,7 +32,7 @@
 --
 -- SEED_RESET_BEGIN
 -- TRUNCATE audit_logs, expense_history, attachments, expense_allocations,
---          expenses, employee_assignments, department_assignments,
+--          expenses, employee_assignments,
 --          department_budgets, package_benefits, packages, benefits,
 --          users, global_budgets, departments
 -- RESTART IDENTITY;
@@ -99,19 +99,24 @@ INSERT INTO benefits (id, name, description, is_basic) VALUES
 -- ---------------------------------------------------------------------
 -- 4. Paquetes y beneficios que cubre cada uno
 -- ---------------------------------------------------------------------
-INSERT INTO packages (id, name, description, default_amount) VALUES
-    (1, 'Comida y transporte', 'Saldo compartido entre comida y transporte', 100.00),
-    (2, 'Comida',              NULL,                                          60.00),
-    (3, 'Transporte',          NULL,                                          50.00),
-    (4, 'Formación',           NULL,                                         150.00),
-    (5, 'Guardería',           NULL,                                         300.00);
+INSERT INTO packages (id, name, description, default_amount, department_id) VALUES
+    (1, 'Comida y transporte', 'Saldo compartido entre comida y transporte', 100.00, 1),
+    (2, 'Comida',              NULL,                                          60.00, 1),
+    (3, 'Transporte',          NULL,                                          50.00, 2),
+    (4, 'Formación',           NULL,                                         150.00, 2),
+    (5, 'Guardería',           NULL,                                         300.00, 3),
+    -- Un paquete va dirigido a UN grupo de empleados: si Marketing necesita
+    -- lo mismo que Ventas, se crea otro paquete (el nombre es único).
+    (6, 'Comida y transporte flexible',
+         'Saldo compartido entre comida y transporte',                       100.00, 3);
 
 INSERT INTO package_benefits (package_id, benefit_id) VALUES
     (1, 1), (1, 2),   -- Comida y transporte: multibeneficio
     (2, 1),           -- Comida: monobeneficio
     (3, 2),           -- Transporte: monobeneficio
     (4, 3),           -- Formación: monobeneficio
-    (5, 4);           -- Guardería: monobeneficio
+    (5, 4),           -- Guardería: monobeneficio
+    (6, 1), (6, 2);   -- Comida y transporte flexible: multibeneficio
 
 
 -- ---------------------------------------------------------------------
@@ -128,38 +133,27 @@ INSERT INTO department_budgets (id, global_budget_id, department_id, amount) VAL
 
 
 -- ---------------------------------------------------------------------
--- 6. Paquetes asignados a cada departamento en noviembre
+-- 6. Paquetes de cada empleado activo (Pedro está de baja: no recibe)
+--    Un paquete ⇒ un grupo; cada empleado puede tener varios paquetes.
 -- ---------------------------------------------------------------------
-INSERT INTO department_assignments (id, department_budget_id, package_id, amount_per_employee) VALUES
-    (1, 1, 1, 100.00),   -- Ventas: Comida y transporte
-    (2, 1, 2,  60.00),   -- Ventas: Comida
-    (3, 2, 4, 150.00),   -- Ingeniería: Formación
-    (4, 2, 3,  50.00),   -- Ingeniería: Transporte
-    (5, 3, 1, 100.00),   -- Marketing: Comida y transporte
-    (6, 3, 5, 300.00);   -- Marketing: Guardería
-
-
--- ---------------------------------------------------------------------
--- 7. Paquetes de cada empleado activo (Pedro está de baja: no recibe)
--- ---------------------------------------------------------------------
-INSERT INTO employee_assignments (id, department_assignment_id, package_id, user_id, assigned_amount) VALUES
+INSERT INTO employee_assignments (id, package_id, user_id, assigned_amount) VALUES
     -- Ventas: el ejemplo de Pablo (paquete de 100 € de comida y transporte + paquete de 60 € de comida)
-    (1, 1, 1, 2, 100.00),   -- Lucía: Comida y transporte
-    (2, 2, 2, 2,  60.00),   -- Lucía: Comida
-    (3, 1, 1, 3, 100.00),   -- Carlos: Comida y transporte
-    (4, 2, 2, 3,  60.00),   -- Carlos: Comida
+    (1, 1, 2, 100.00),   -- Lucía: Comida y transporte
+    (2, 2, 2,  60.00),   -- Lucía: Comida
+    (3, 1, 3, 100.00),   -- Carlos: Comida y transporte
+    (4, 2, 3,  60.00),   -- Carlos: Comida
     -- Ingeniería
-    (5, 3, 4, 4, 150.00),   -- Javier: Formación
-    (6, 4, 3, 4,  50.00),   -- Javier: Transporte
-    (7, 3, 4, 5, 150.00),   -- Sara: Formación
-    (8, 4, 3, 5,  50.00),   -- Sara: Transporte
+    (5, 4, 4, 150.00),   -- Javier: Formación
+    (6, 3, 4,  50.00),   -- Javier: Transporte
+    (7, 4, 5, 150.00),   -- Sara: Formación
+    (8, 3, 5,  50.00),   -- Sara: Transporte
     -- Marketing: Elena tiene el importe de comida y transporte ajustado (caso particular)
-    (9,  5, 1, 6,  80.00),  -- Elena: Comida y transporte (ajustado de 100 € a 80 €)
-    (10, 6, 5, 6, 300.00);  -- Elena: Guardería
+    (9,  6, 6,  80.00),  -- Elena: Comida y transporte flexible (ajustado de 100 € a 80 €)
+    (10, 5, 6, 300.00);  -- Elena: Guardería
 
 
 -- ---------------------------------------------------------------------
--- 8. Gastos, con su reparto entre paquetes (expense_allocations)
+-- 7. Gastos, con su reparto entre paquetes (expense_allocations)
 -- ---------------------------------------------------------------------
 INSERT INTO expenses (id, user_id, benefit_id, amount, expense_date, description,
                       status, rejection_reason, reviewed_by_id, reviewed_at, created_at) VALUES
@@ -189,11 +183,11 @@ INSERT INTO expense_allocations (id, expense_id, employee_assignment_id, package
     (3, 3, 4,  2, 1,  20.00),   -- Carlos: gasto denegado; no cuenta en el saldo porque está REJECTED
     (4, 4, 5,  4, 3, 120.00),   -- Javier: del paquete Formación
     (5, 5, 10, 5, 4, 300.00),   -- Elena: del paquete Guardería
-    (6, 6, 9,  1, 1,  15.00);   -- Elena: del paquete Comida y transporte
+    (6, 6, 9,  6, 1,  15.00);   -- Elena: del paquete Comida y transporte flexible
 
 
 -- ---------------------------------------------------------------------
--- 9. Justificantes (solo la ruta; los archivos no existen en estos datos de prueba)
+-- 8. Justificantes (solo la ruta; los archivos no existen en estos datos de prueba)
 -- ---------------------------------------------------------------------
 INSERT INTO attachments (id, expense_id, storage_path, original_name, mime_type, uploaded_at) VALUES
     (1, 1, 'uploads/2026/11/expense_1_abono_tren.pdf',      'abono_tren_noviembre.pdf', 'application/pdf', '2026-11-03 09:15:00+01'),
@@ -205,7 +199,7 @@ INSERT INTO attachments (id, expense_id, storage_path, original_name, mime_type,
 
 
 -- ---------------------------------------------------------------------
--- 10. Histórico de cambios de estado (solo de los gastos ya revisados)
+-- 9. Histórico de cambios de estado (solo de los gastos ya revisados)
 -- ---------------------------------------------------------------------
 INSERT INTO expense_history (id, expense_id, actor_id, previous_status, new_status, reason, created_at) VALUES
     (1, 1, 1, 'PENDING', 'APPROVED', NULL, '2026-11-04 10:00:00+01'),
@@ -215,7 +209,7 @@ INSERT INTO expense_history (id, expense_id, actor_id, previous_status, new_stat
 
 
 -- ---------------------------------------------------------------------
--- 11. Auditoría de algunas acciones del administrador
+-- 10. Auditoría de algunas acciones del administrador
 -- ---------------------------------------------------------------------
 INSERT INTO audit_logs (id, actor_id, entity_type, entity_id, action, detail, created_at) VALUES
     (1, 1, 'global_budgets',       1, 'create',     '{"period": "2026-11-01", "amount": 10000.00}', '2026-11-01 09:00:00+01'),
@@ -225,7 +219,7 @@ INSERT INTO audit_logs (id, actor_id, entity_type, entity_id, action, detail, cr
 
 
 -- ---------------------------------------------------------------------
--- 12. Poner al día los contadores de id
+-- 11. Poner al día los contadores de id
 --     Como arriba hemos escrito los id a mano, le decimos a cada contador
 --     (SERIAL) por qué número va. Así la app podrá crear filas nuevas
 --     sin chocar con un id que ya existe.
@@ -236,7 +230,6 @@ SELECT setval(pg_get_serial_sequence('benefits',               'id'), (SELECT MA
 SELECT setval(pg_get_serial_sequence('packages',               'id'), (SELECT MAX(id) FROM packages));
 SELECT setval(pg_get_serial_sequence('global_budgets',         'id'), (SELECT MAX(id) FROM global_budgets));
 SELECT setval(pg_get_serial_sequence('department_budgets',     'id'), (SELECT MAX(id) FROM department_budgets));
-SELECT setval(pg_get_serial_sequence('department_assignments', 'id'), (SELECT MAX(id) FROM department_assignments));
 SELECT setval(pg_get_serial_sequence('employee_assignments',   'id'), (SELECT MAX(id) FROM employee_assignments));
 SELECT setval(pg_get_serial_sequence('expenses',               'id'), (SELECT MAX(id) FROM expenses));
 SELECT setval(pg_get_serial_sequence('expense_allocations',    'id'), (SELECT MAX(id) FROM expense_allocations));
