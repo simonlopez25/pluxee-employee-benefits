@@ -1,34 +1,40 @@
-"""Esquemas de Pydantic para el CRUD y gestión de departamentos."""
+"""Schemas de los endpoints de departamentos."""
+
 from __future__ import annotations
 
 from datetime import datetime
-from decimal import Decimal
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Annotated
 
-class DepartmentCreate(BaseModel):
-    """Esquema de entrada para crear un departamento existente."""
+from pydantic import BaseModel, ConfigDict, StringConstraints
 
-    name: str = Field(..., min_length=2, max_length=100, description="Nombre único del grupo o departamento")
-    currency: str = Field("EUR", min_length=3, max_length=3, description="Código de divisa (ISO 4217, por defecto EUR)")
+DepartmentName = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)
+]
+CurrencyCode = Annotated[
+    str, StringConstraints(pattern=r"^[A-Za-z]{3}$", to_upper=True)
+]
 
 
-class DepartmentUpdate(BaseModel):
-    """Esquema de entrada para editar un departamento existente."""
+class DepartmentBase(BaseModel):
+    """Campos que comparten crear y editar."""
 
-    name: str | None = Field(None, min_length=2, max_length=100, description="Nuevo nombre del departamento")
-    currency: str | None = Field(None, min_length=3, max_length=3, description="Nueva divisa")
-    is_active: bool | None = Field(None, description="Estado de activación del departamento")
+    name: DepartmentName
+    currency: CurrencyCode
 
-class DepartmentDetailResponse(BaseModel):
-    """Esquema de respuesta detallada para las tarjetas de la vista 02 Grupos."""
 
-    id: int
-    name: str
-    currency: str
-    is_active: bool
-    created_at: datetime
-    assigned_employees_count: int = Field(0, description="Número de empleados activos asignados al grupo")
-    total_budget: Decimal = Field(Decimal("0.00"), description="Presupuesto asignado al departamento")
-    package_count: int = Field(0, description="Número de paquetes asociados")
+class DepartmentCreate(DepartmentBase):
+    """Cuerpo de POST /api/departments."""
+
+
+class DepartmentUpdate(DepartmentBase):
+    """Cuerpo de PUT /api/departments/{id}."""
+
+
+class DepartmentResponse(DepartmentBase):
+    """Departamento tal como lo devuelve la API."""
 
     model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    is_active: bool
+    created_at: datetime
