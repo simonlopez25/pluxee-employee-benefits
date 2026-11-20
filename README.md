@@ -1,19 +1,250 @@
-# React + Vite
+<img width="2172" height="724" alt="Plataforma Pluxee de beneficios laborales" src="https://github.com/user-attachments/assets/fcad27ef-6ff8-46df-88c8-d176b007d153" />
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## React Compiler
+# Pluxee Employee Benefits
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Monorepo con el frontend y el backend de la aplicación de beneficios para empleados.
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+## Estructura
 
-## Expanding the ESLint configuration
+```
+pluxee-employee-benefits/
+├── frontend/          ← React 19 + Vite (JavaScript)
+│   └── src/
+│       ├── components/    ← Atomic Design (atoms, molecules, organisms, templates)
+│       ├── pages/         ← páginas de la app
+│       ├── hooks/         ← hooks personalizados
+│       ├── services/      ← cliente de la API
+│       ├── styles/        ← estilos globales
+│       └── assets/        ← imágenes y estáticos
+├── backend/           ← Python + FastAPI (API REST)
+│   └── app/
+│       ├── main.py          ← instancia FastAPI + middlewares + handlers
+│       ├── server.py        ← arranque del servidor (uvicorn)
+│       ├── core/            ← infraestructura transversal
+│       │   ├── config.py        ← variables de entorno (pydantic-settings)
+│       │   ├── database.py      ← engine + sesión PostgreSQL (SQLAlchemy 2.0)
+│       │   └── errors.py        ← AppError y errores centralizados
+│       ├── routes/          ← endpoints (capa API)
+│       ├── schemas/         ← validación de entrada/salida (Pydantic)
+│       ├── services/        ← lógica de negocio
+│       └── models/          ← queries SQL / acceso a datos
+│   └── alembic/           ← migraciones de BD (Alembic)
+├── package.json       ← scripts de conveniencia
+└── README.md
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Flujo de una petición:
+
+```
+routes → schema (Pydantic) → service → model (SQL) → PostgreSQL
+```
+
+## Requisitos
+
+- Python 3.11+ (probado con 3.14)
+- npm (solo para el frontend)
+- Cuenta Neon (la BD compartida vive en la nube; ver [Base de datos compartida](#base-de-datos-compartida-neon))
+
+## Puesta en marcha
+
+```bash
+# 1. Frontend
+npm install --prefix frontend
+
+# 2. Backend: entorno virtual + dependencias
+cd backend
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt   # Linux/macOS: .venv/bin/pip install -r requirements.txt
+copy .env.example .env                          # Linux/macOS: cp .env.example .env
+cd ..
+
+# 3. Arrancar (cada servicio en su terminal)
+npm run dev        # frontend → http://localhost:5173
+npm run dev:api    # backend  → http://localhost:4000  (docs en /docs)
+```
+
+El frontend tiene configurado un **proxy** en `vite.config.js`: las llamadas a `/api/*` se redirigen al backend en el puerto `4000`.
+
+## Base de datos compartida (Neon)
+
+La BD es **Postgres 18 en la nube (Neon)**: todos los compañeros trabajan
+contra los mismos datos desde su máquina local. La CLI de Neon escribe las
+credenciales en `.env.local` (raíz del repo) y `backend/app/core/config.py` la
+detecta automáticamente — no hay que copiar nada a mano.
+
+**Proyecto**: `pluxee` (`fancy-glitter-51900277`) · **rama**: `production` ·
+**región**: `aws-us-east-2` (Ohio, EE. UU.)
+
+### Puesta en marcha de un compañero
+
+```bash
+# 1. CLI de Neon (solo la primera vez; sin npm global usa `npx neon@latest`)
+npm i -g neon@latest
+
+# 2. Login en el navegador (sesión propia: nunca compartas la cuenta)
+neon login
+
+# 3. Desde la raíz del repo: baja DATABASE_URL a .env.local
+neon env pull --project-id fancy-glitter-51900277 --branch production
+
+# 4. Arrancar como siempre
+npm run dev        # frontend → http://localhost:5173
+npm run dev:api    # backend  → http://localhost:4000 (contra Neon)
+```
+
+Comprobación: abre `http://localhost:4000/api/health` →
+`{"status":"ok","database":"up"}`.
+
+### Seguridad de las claves
+
+- `.env.local` (raíz) y `backend/.env` están en `.gitignore`: **nunca se suben**
+  al repo. No pegues credenciales en código, commits ni chats.
+- Cada persona usa su propia sesión (`neon login`). Si prefieres una API key:
+  `neon profile create work --api-key <KEY>` — guárdala fuera del repo.
+- Para dar de alta a alguien, invítalo desde Neon Console → **Members** en vez
+  de enviar la connection string.
+
+### Comportamiento
+
+- Sin `.env.local`, el backend cae a la Postgres local (`DB_*` en
+  `backend/.env`) como fallback.
+- Las migraciones de **Alembic** usan la conexión directa
+  (`DATABASE_URL_UNPOOLED`) automáticamente:
+  `cd backend && .venv\Scripts\python -m alembic upgrade head`.
+- `neon.ts` define la política de ramas (las ramas no-default expiran a los
+  7 días); se aplica con `neon deploy`.
+
+## Datos de prueba (seed)
+
+`backend/seed.sql` contiene datos inventados (3 departamentos, 7 usuarios,
+presupuestos de noviembre de 2026, gastos y justificantes de ejemplo) para
+desarrollo, pruebas y demo — **nunca** para producción. Contraseña de prueba
+de todos los usuarios: `Prueba123!`.
+
+```bash
+npm run seed              # si la BD está vacía
+npm run seed -- --reset   # borra los datos (TRUNCATE) y vuelve a sembrar
+```
+
+El runner (`backend/scripts/seed.py`) usa la misma conexión que la app, así
+que sirve igual para **Neon** que para la **Postgres local**. Al terminar
+comprueba los recuentos de las 13 tablas y el saldo de Lucía: debe dar
+**Comida = 70,00** y **Transporte = 10,00** (`SEED RESULT: PASS`).
+
+También se puede ejecutar a mano en **pgAdmin** (F5) sobre una BD local ya
+migrada con `alembic upgrade head`: pega el contenido de `backend/seed.sql`.
+
+## Checklist del nuevo colaborador
+
+Copia y pega en orden (los pasos 4 y 8 son los que suelen olvidarse):
+
+```bash
+# 1. Clonar
+git clone https://github.com/simonlopez25/pluxee-employee-benefits.git
+cd pluxee-employee-benefits
+
+# 2. Frontend
+npm install --prefix frontend
+
+# 3. Backend (Linux/macOS: .venv/bin/pip y "cp" en lugar de "copy")
+cd backend
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+copy .env.example .env
+cd ..
+
+# 4. BD compartida en Neon — pide acceso antes por Neon Console → Members
+npm i -g neon@latest
+neon login
+neon env pull --project-id fancy-glitter-51900277 --branch production   # en la raíz
+
+# 5. Arrancar (cada servicio en su terminal)
+npm run dev        # frontend → http://localhost:5173
+npm run dev:api    # backend  → http://localhost:4000
+
+# 6. Verificar: abre http://localhost:4000/api/health
+#    → {"status":"ok","database":"up"}
+
+# 7. Tests (Linux/macOS: .venv/bin/python)
+cd backend
+.venv\Scripts\python -m pytest
+cd ..
+
+# 8. Guardian de commits — ANTES de tu primer commit (no viaja con el repo)
+pip install pre-commit
+pre-commit install
+
+# 9. Commit y push (el guardian exige inglés: feat(scope): minúsculas, sin punto)
+git add <archivos>
+git commit -m "feat(scope): describe your change"
+git push
+```
+
+> ⚠️ **Nunca subas** `.env.local` ni `backend/.env` (ya están en `.gitignore`)
+> ni pegues claves en el código, los commits ni los chats.
+> **¿Tocas `app/models/`?** Aplica y verifica migraciones desde `backend/`:
+> `.venv\Scripts\python -m alembic upgrade head` y después
+> `.venv\Scripts\python -m alembic check` (debe quedar sin cambios).
+> **¿Mantenedor que usa `neon deploy`?** Ejecuta también `npm install` en la
+> raíz (dependencias con las que se evalúa `neon.ts`).
+
+## Scripts disponibles
+
+| Script | Descripción |
+|--------|-------------|
+| `npm run dev` | Arranca el frontend (Vite) |
+| `npm run dev:api` | Arranca el backend (uvicorn con reload) |
+| `npm run build` | Build de producción del frontend |
+| `npm run lint` | Lint del frontend (ESLint) |
+| `npm run start:api` | Arranca el backend en producción |
+
+Tests del backend:
+
+```bash
+cd backend
+.venv\Scripts\python -m pytest   # Linux/macOS: .venv/bin/python -m pytest
+```
+
+Al agregar una dependencia nueva al backend:
+
+```bash
+cd backend
+.venv\Scripts\pip install <paquete>
+.venv\Scripts\pip freeze > requirements.txt
+```
+
+Migraciones de base de datos con **Alembic**: ver [backend/README.md](backend/README.md).
+
+## Metodología UI y Frontend
+
+El frontend sigue **Atomic Design** organizado en carpetas modulares por componente (cada componente agrupa su `.jsx`, su `.css` y su `index.js`).
+
+Ver detalle en [frontend/src/components/README.md](frontend/src/components/README.md).
+
+### Catálogo de Beneficios (HU-09 / PEB-48)
+
+La pantalla principal de administración de beneficios incluye:
+
+1. **Barra de navegación lateral (`AdminSidebar`):**
+   * Estilo corporativo (Índigo `#221C46` y verde activo `#00EB5E`).
+   * Enlaces directos vía `react-router-dom`: `/dashboard`, `/groups`, `/budgets`, `/catalog`, `/assignments`, `/expenses`.
+   * Botón para alternar rol ("Ver como empleado") y tarjeta de perfil de usuario.
+
+2. **Catálogo de beneficios (`BenefitsCatalogSection`):**
+   * Encabezado con título descriptivo y botón de acción principal `+ Nuevo beneficio`.
+   * Filtros rápidos por estado con contadores dinámicos: *Todos*, *Activos*, *Inactivos*, *Básicos*.
+   * Cuadrícula responsiva de tarjetas (`BenefitCard`) con badges de estado, atenuación visual para inactivos, acción rápida de activación/desactivación sin borrado físico y botón de edición.
+   * Modal de formulario (`BenefitFormModal`) para crear y editar beneficios con validación en cliente y captura de errores del backend (especialmente `409 Conflict` cuando el nombre ya existe).
+   * Contenedor inferior preparado para la integración de paquetes (**HU-10**).
+
+### Flujo de comunicación completa
+
+```text
+Frontend (localhost:5173) 
+  ──(Petición fetch /api/benefits)──> Vite Proxy 
+  ──(Reenvío puerto 4000)───────────> FastAPI (app.routes.benefit) 
+  ──(SQLAlchemy 2.0)────────────────> PostgreSQL (Neon en aws-us-east-2)
+```

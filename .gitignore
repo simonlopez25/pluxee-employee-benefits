@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Entorno
+.env
+.env.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -23,14 +27,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# Entorno y secretos
-.env
-.env.*
-!.env.example
-
-# Caché y entornos de Python
+# Python
 __pycache__/
-*.py[cod]
-.pytest_cache/
+*.pyc
 .venv/
 venv/
+.pytest_cache/
+*.egg-info/
+.neon
