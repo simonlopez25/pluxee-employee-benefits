@@ -16,15 +16,15 @@ backend/
 │   ├── routes/                ← definición de endpoints (/api/...)
 │   ├── schemas/               ← validación de entrada/salida (Pydantic)
 │   ├── services/              ← lógica de negocio
-│   └── models/                ← 14 modelos SQLAlchemy (una tabla por archivo)
-│       ├── __init__.py            ← importa los 14 (requisito del autogenerate)
+│   └── models/                ← 13 modelos SQLAlchemy (una tabla por archivo)
+│       ├── __init__.py            ← importa los 13 (requisito del autogenerate)
 │       ├── department.py          ├── global_budget.py
 │       ├── user.py                ├── benefit.py
 │       ├── package.py             ├── package_benefit.py
-│       ├── department_budget.py   ├── department_assignment.py
-│       ├── employee_assignment.py ├── expense.py
-│       ├── expense_allocation.py  ├── attachment.py
+│       ├── department_budget.py   ├── employee_assignment.py
+│       ├── expense.py             ├── expense_allocation.py
 │       ├── expense_history.py     └── audit_log.py
+│       └── attachment.py
 ├── alembic/                   ← migraciones (Alembic)
 │   ├── env.py                     ← conecta Alembic con .env y Base.metadata
 │   └── versions/                  ← archivos de migración generados
@@ -98,19 +98,26 @@ cd backend
 
 ## Tablas (esquema)
 
-14 tablas (ver el DDL completo en la migración baseline `alembic/versions/*_initial_schema.py`):
+13 tablas (el DDL completo está en `alembic/versions/`: baseline
+`4957b7117a5c` + `5f2c8a91e4d7`):
 
 | Grupo | Tablas |
 |-------|--------|
 | Estructura | `departments`, `users` |
 | Catálogos | `benefits`, `packages`, `package_benefits` |
 | Presupuestos | `global_budgets`, `department_budgets` |
-| Asignaciones | `department_assignments`, `employee_assignments` |
+| Asignaciones | `employee_assignments` |
 | Transaccional | `expenses`, `expense_allocations`, `attachments` |
 | Auditoría | `expense_history`, `audit_logs` |
 
-Los constraints (CHECK, FK compuestas, UNIQUE) están declarados **con sus nombres
-exactos** en los modelos (`app/models/`) y en la migración baseline — `alembic
+Relación paquete ↔ grupo de empleados (departamento): **N paquetes por
+grupo, un grupo por paquete** — `packages.department_id NOT NULL`. Si dos
+grupos necesitan la misma asignación, se crean dos paquetes distintos. El
+presupuesto con el que se cruzan se deriva:
+`departments → department_budgets(department_id) → global_budgets(period)`.
+
+Los constraints (CHECK, FK, UNIQUE) están declarados **con sus nombres
+exactos** en los modelos (`app/models/`) y en las migraciones — `alembic
 revision --autogenerate` contra una BD al día debe quedar **vacío**.
 
 ## Endpoints
@@ -130,7 +137,7 @@ noviembre de 2026, gastos y justificantes de ejemplo) para desarrollo y demo —
 ```bash
 # Desde la raíz del repo — usa la conexión de la app (Neon o local)
 npm run seed              # si la BD está vacía
-npm run seed -- --reset   # TRUNCATE de las 14 tablas y vuelve a sembrar
+npm run seed -- --reset   # TRUNCATE de las 13 tablas y vuelve a sembrar
 ```
 
 En **pgAdmin** (Postgres local migrada con `alembic upgrade head`): pega
