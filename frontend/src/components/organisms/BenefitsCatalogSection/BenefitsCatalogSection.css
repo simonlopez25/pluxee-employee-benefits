@@ -1,0 +1,251 @@
+.catalogSection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.catalogHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.catalogHeaderContent {
+  flex: 1;
+  min-width: 260px;
+}
+
+.catalogTitle {
+  margin: 0 0 6px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #221c46;
+  letter-spacing: -0.02em;
+}
+
+.catalogSubtitle {
+  margin: 0;
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.catalogHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.catalogAlertSuccess,
+.catalogAlertError {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  animation: catalogAlertFadeIn 0.25s ease-out;
+}
+
+.catalogAlertSuccess {
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.catalogAlertError {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.catalogAlertIcon {
+  display: inline-flex;
+}
+
+.catalogAlertText {
+  flex: 1;
+  font-weight: 500;
+}
+
+.catalogAlertDismiss {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: inline-flex;
+  padding: 4px;
+  opacity: 0.7;
+}
+
+.catalogAlertDismiss:hover {
+  opacity: 1;
+}
+
+.catalogRetryButton {
+  margin-left: 8px;
+}
+
+.catalogSubheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.catalogSectionLabel {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #221c46;
+}
+
+.catalogFiltersWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.catalogGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+@media (min-width: 1440px) {
+  .catalogGrid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.catalogEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background-color: #ffffff;
+  border: 2px dashed #e5e7eb;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.catalogEmptyIconWrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #f4f5f8;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.catalogEmptyTitle {
+  margin: 0 0 6px 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.catalogEmptySubtitle {
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  color: #6b7280;
+  max-width: 380px;
+  line-height: 1.45;
+}
+
+.catalogLoadingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.catalogCardSkeleton {
+  background-color: #ffffff;
+  border: 1px solid #edf0f5;
+  border-radius: 16px;
+  padding: 20px;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.skeletonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeletonIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: #f1f3f7;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonBadge {
+  width: 50px;
+  height: 20px;
+  border-radius: 9999px;
+  background-color: #f1f3f7;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonTitle {
+  width: 60%;
+  height: 18px;
+  border-radius: 6px;
+  background-color: #f1f3f7;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonText {
+  width: 85%;
+  height: 14px;
+  border-radius: 6px;
+  background-color: #f1f3f7;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonFooter {
+  margin-top: auto;
+  width: 100%;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes catalogAlertFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
