@@ -17,6 +17,17 @@ def create_app() -> FastAPI:
         title="Pluxee Employee Benefits API",
         version="0.1.0",
         docs_url="/docs",
+        description="API del catálogo de beneficios para empleados (HU-09).",
+        openapi_tags=[
+            {
+                "name": "benefits",
+                "description": "Catálogo de beneficios.",
+            },
+            {
+                "name": "health",
+                "description": "Estado del servidor.",
+            },
+        ],
     )
 
     app.add_middleware(

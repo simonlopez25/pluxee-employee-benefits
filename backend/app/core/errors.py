@@ -27,3 +27,10 @@ class NotFoundError(AppError):
 
     def __init__(self, message: str = "resource not found") -> None:
         super().__init__(message, status_code=404, code="not_found")
+
+
+class ConflictError(AppError):
+    """Conflicto con el estado actual del recurso (409)."""
+
+    def __init__(self, message: str = "resource conflict") -> None:
+        super().__init__(message, status_code=409, code="conflict")
