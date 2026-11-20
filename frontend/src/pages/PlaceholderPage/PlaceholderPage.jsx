@@ -22,3 +22,4 @@ export function PlaceholderPage({ title, description }) {
     </AdminLayout>
   )
 }
+
