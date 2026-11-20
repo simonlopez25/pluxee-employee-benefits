@@ -35,7 +35,7 @@ class Package(Base):
             ondelete="RESTRICT",
         ),
         CheckConstraint("default_amount >= 0", name="ck_packages_default_amount"),
-        UniqueConstraint("name", name="packages_name_key"),
+        UniqueConstraint("name", "department_id", name="uq_package_name_department"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
