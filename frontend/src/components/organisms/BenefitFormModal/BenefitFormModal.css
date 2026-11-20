@@ -1,0 +1,266 @@
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(34, 28, 70, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  animation: modalBackdropFadeIn 0.2s ease-out;
+}
+
+.modalContainer {
+  background-color: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 40px rgba(34, 28, 70, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalContainerSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.modalHeaderInfo {
+  flex: 1;
+}
+
+.modalTitle {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #221c46;
+  letter-spacing: -0.01em;
+}
+
+.modalSubtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.modalCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f4f5f8;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modalCloseButton:hover {
+  background-color: #e5e7eb;
+  color: #1e1b3a;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.modalBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: calc(85vh - 150px);
+  overflow-y: auto;
+}
+
+.modalAlertConflict {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.modalAlertIcon {
+  display: inline-flex;
+  margin-top: 1px;
+}
+
+.modalAlertText {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.formRequiredMark {
+  color: #dc2626;
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1e1b3a;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  border-color: #221c46;
+  box-shadow: 0 0 0 3px rgba(34, 28, 70, 0.1);
+}
+
+.formInputError {
+  border-color: #dc2626;
+}
+
+.formInputError:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.formErrorMessage {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.formTogglesGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #f9fafb;
+  border: 1px solid #f0f2f5;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.formCheckboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.formCheckboxInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.formCheckboxCustom {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 2px solid #cbd5e1;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.formCheckboxInput:checked + .formCheckboxCustom {
+  background-color: #221c46;
+  border-color: #221c46;
+}
+
+.formCheckboxInput:checked + .formCheckboxCustom::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.formCheckboxTextGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.formCheckboxTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.formCheckboxDescription {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.35;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #fcfdfe;
+  border-top: 1px solid #f1f3f7;
+}
+
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalContainerSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+

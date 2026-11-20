@@ -1,0 +1,104 @@
+.benefitCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  padding: 20px;
+  min-height: 190px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.benefitCardActive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(34, 28, 70, 0.08);
+  border-color: #dbe0ea;
+}
+
+.benefitCardInactive {
+  opacity: 0.65;
+  background-color: #fafbfc;
+  border-style: dashed;
+  border-color: #d1d5db;
+}
+
+.benefitCardInactive:hover {
+  opacity: 0.85;
+}
+
+.benefitCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.benefitCardIconWrapper {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #f4f5f8;
+  color: #221c46;
+  flex-shrink: 0;
+}
+
+.benefitCardInactive .benefitCardIconWrapper {
+  background-color: #e5e7eb;
+  color: #6b7280;
+}
+
+.benefitCardIcon {
+  color: inherit;
+}
+
+.benefitCardBadges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.benefitCardBody {
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.benefitCardTitle {
+  margin: 0 0 6px 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e1b3a;
+  letter-spacing: -0.01em;
+}
+
+.benefitCardInactive .benefitCardTitle {
+  color: #4b5563;
+}
+
+.benefitCardDescription {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #6b7280;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.benefitCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f3f7;
+}
+
