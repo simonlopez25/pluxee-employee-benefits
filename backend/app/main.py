@@ -24,6 +24,10 @@ def create_app() -> FastAPI:
                 "description": "Catálogo de beneficios.",
             },
             {
+                "name": "packages",
+                "description": "Paquetes de beneficios (mono y multibeneficio).",
+            },
+            {
                 "name": "health",
                 "description": "Estado del servidor.",
             },
