@@ -1,0 +1,52 @@
+.placeholderPageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.placeholderPageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.placeholderPageTitle {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #221c46;
+  letter-spacing: -0.02em;
+}
+
+.placeholderPageSubtitle {
+  margin: 0;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+.placeholderPageContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.placeholderPageCard {
+  background-color: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.placeholderCardHeading {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #221c46;
+}
+
+.placeholderCardText {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
