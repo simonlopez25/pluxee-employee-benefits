@@ -1,0 +1,1 @@
+export { BenefitsCatalogSection } from './BenefitsCatalogSection'

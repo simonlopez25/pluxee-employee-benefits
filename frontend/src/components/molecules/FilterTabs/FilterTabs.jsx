@@ -33,4 +33,3 @@ export function FilterTabs({ activeFilter, onFilterChange, counts = {} }) {
     </div>
   )
 }
-

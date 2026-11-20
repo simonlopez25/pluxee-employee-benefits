@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button } from '../atoms/Button'
-import { Icon } from '../atoms/Icon'
-import { BenefitCard } from '../molecules/BenefitCard'
-import { FilterTabs } from '../molecules/FilterTabs'
-import { BenefitFormModal } from './BenefitFormModal'
+import { Button } from '../../atoms/Button'
+import { Icon } from '../../atoms/Icon'
+import { BenefitCard } from '../../molecules/BenefitCard'
+import { FilterTabs } from '../../molecules/FilterTabs'
+import { BenefitFormModal } from '../BenefitFormModal'
 import {
   createBenefit,
   getBenefits,
   toggleBenefitStatus,
   updateBenefit,
-} from '../../services/benefitService'
+} from '../../../services/benefitService'
 import './BenefitsCatalogSection.css'
 
 export function BenefitsCatalogSection() {

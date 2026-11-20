@@ -1,4 +1,4 @@
-import { AdminLayout } from '../components/templates/AdminLayout'
+import { AdminLayout } from '../../components/templates/AdminLayout'
 import './PlaceholderPage.css'
 
 export function PlaceholderPage({ title, description }) {

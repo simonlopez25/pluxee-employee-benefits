@@ -1,6 +1,6 @@
-import { Badge } from '../atoms/Badge'
-import { Button } from '../atoms/Button'
-import { Icon } from '../atoms/Icon'
+import { Badge } from '../../atoms/Badge'
+import { Button } from '../../atoms/Button'
+import { Icon } from '../../atoms/Icon'
 import './BenefitCard.css'
 
 const getIconNameByBenefitName = (name = '') => {
@@ -77,4 +77,3 @@ export function BenefitCard({
     </article>
   )
 }
-

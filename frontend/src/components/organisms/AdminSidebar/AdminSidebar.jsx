@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Icon } from '../atoms/Icon'
+import { Icon } from '../../atoms/Icon'
 import './AdminSidebar.css'
 
 export function AdminSidebar() {

@@ -1,5 +1,5 @@
-import { AdminLayout } from '../components/templates/AdminLayout'
-import { BenefitsCatalogSection } from '../components/organisms/BenefitsCatalogSection'
+import { AdminLayout } from '../../components/templates/AdminLayout'
+import { BenefitsCatalogSection } from '../../components/organisms/BenefitsCatalogSection'
 import './BenefitsCatalogPage.css'
 
 export function BenefitsCatalogPage() {

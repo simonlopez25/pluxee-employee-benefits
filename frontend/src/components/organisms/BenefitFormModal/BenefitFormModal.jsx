@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button } from '../atoms/Button'
-import { Icon } from '../atoms/Icon'
+import { Button } from '../../atoms/Button'
+import { Icon } from '../../atoms/Icon'
 import './BenefitFormModal.css'
 
 function BenefitFormDialogContent({
