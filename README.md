@@ -131,7 +131,7 @@ npm run seed -- --reset   # borra los datos (TRUNCATE) y vuelve a sembrar
 
 El runner (`backend/scripts/seed.py`) usa la misma conexión que la app, así
 que sirve igual para **Neon** que para la **Postgres local**. Al terminar
-comprueba los recuentos de las 14 tablas y el saldo de Lucía: debe dar
+comprueba los recuentos de las 13 tablas y el saldo de Lucía: debe dar
 **Comida = 70,00** y **Transporte = 10,00** (`SEED RESULT: PASS`).
 
 También se puede ejecutar a mano en **pgAdmin** (F5) sobre una BD local ya

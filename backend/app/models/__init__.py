@@ -8,7 +8,6 @@ from app.models.attachment import Attachment
 from app.models.audit_log import AuditLog
 from app.models.benefit import Benefit
 from app.models.department import Department
-from app.models.department_assignment import DepartmentAssignment
 from app.models.department_budget import DepartmentBudget
 from app.models.employee_assignment import EmployeeAssignment
 from app.models.expense import Expense
@@ -24,7 +23,6 @@ __all__ = [
     "AuditLog",
     "Benefit",
     "Department",
-    "DepartmentAssignment",
     "DepartmentBudget",
     "EmployeeAssignment",
     "Expense",
