@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     app_env: str = "development"
     port: int = 4000
     cors_origins: str = "http://localhost:5173"
+    
+    # JWT (HU-03)
+    jwt_secret: str = ""
+    jwt_algorithm: str = "HS256"
+    jwt_expires_minutes: int = 480
 
     # URL completas (Neon u override manual). Vacío => se construyen con DB_*.
     database_url: str = ""
