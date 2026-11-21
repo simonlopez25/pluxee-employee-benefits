@@ -218,6 +218,33 @@ cd backend
 
 Migraciones de base de datos con **Alembic**: ver [backend/README.md](backend/README.md).
 
-## Metodología UI
+## Metodología UI y Frontend
 
-Los componentes siguen **Atomic Design** — ver [frontend/src/components/README.md](frontend/src/components/README.md).
+El frontend sigue **Atomic Design** organizado en carpetas modulares por componente (cada componente agrupa su `.jsx`, su `.css` y su `index.js`).
+
+Ver detalle en [frontend/src/components/README.md](frontend/src/components/README.md).
+
+### Catálogo de Beneficios (HU-09 / PEB-48)
+
+La pantalla principal de administración de beneficios incluye:
+
+1. **Barra de navegación lateral (`AdminSidebar`):**
+   * Estilo corporativo (Índigo `#221C46` y verde activo `#00EB5E`).
+   * Enlaces directos vía `react-router-dom`: `/dashboard`, `/groups`, `/budgets`, `/catalog`, `/assignments`, `/expenses`.
+   * Botón para alternar rol ("Ver como empleado") y tarjeta de perfil de usuario.
+
+2. **Catálogo de beneficios (`BenefitsCatalogSection`):**
+   * Encabezado con título descriptivo y botón de acción principal `+ Nuevo beneficio`.
+   * Filtros rápidos por estado con contadores dinámicos: *Todos*, *Activos*, *Inactivos*, *Básicos*.
+   * Cuadrícula responsiva de tarjetas (`BenefitCard`) con badges de estado, atenuación visual para inactivos, acción rápida de activación/desactivación sin borrado físico y botón de edición.
+   * Modal de formulario (`BenefitFormModal`) para crear y editar beneficios con validación en cliente y captura de errores del backend (especialmente `409 Conflict` cuando el nombre ya existe).
+   * Contenedor inferior preparado para la integración de paquetes (**HU-10**).
+
+### Flujo de comunicación completa
+
+```text
+Frontend (localhost:5173) 
+  ──(Petición fetch /api/benefits)──> Vite Proxy 
+  ──(Reenvío puerto 4000)───────────> FastAPI (app.routes.benefit) 
+  ──(SQLAlchemy 2.0)────────────────> PostgreSQL (Neon en aws-us-east-2)
+```

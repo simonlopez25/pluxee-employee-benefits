@@ -1,0 +1,2 @@
+export { BenefitsCatalogPage } from './BenefitsCatalogPage'
+
