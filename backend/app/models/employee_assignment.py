@@ -1,8 +1,6 @@
-"""Modelo de la tabla employee_assignments (paquetes de cada empleado).
+"""Modelo de employee_assignments: paquete asignado a un empleado.
 
-Cada fila es un paquete concreto asignado a un empleado, con su importe
-particular (puede diferir del `default_amount` del paquete). Un empleado
-tiene como mucho UNA asignación por paquete.
+Un empleado tiene como mucho una asignación por paquete, con importe propio.
 """
 
 from __future__ import annotations

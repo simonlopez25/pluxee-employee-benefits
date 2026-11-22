@@ -4,11 +4,7 @@ from __future__ import annotations
 
 
 class AppError(Exception):
-    """Error con código HTTP y código legible por máquina.
-
-    Se lanza desde services/ y se captura en app/main.py
-    para devolver una respuesta JSON consistente.
-    """
+    """Error con código HTTP y código legible; se lanza en services y se captura en main."""
 
     def __init__(
         self,
