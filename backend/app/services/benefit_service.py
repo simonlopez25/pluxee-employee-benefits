@@ -1,10 +1,7 @@
 """Lógica de negocio del catálogo de beneficios.
 
-Reglas clave:
-- El nombre es único sin distinguir mayúsculas/minúsculas.
-- Nunca se borran registros: la baja es lógica (is_active = False),
-  porque expenses, expense_allocations y package_benefits referencian
-  benefits con ON DELETE RESTRICT.
+Nombre único sin distinguir mayúsculas y baja lógica (nunca DELETE), porque
+expenses y package_benefits referencian benefits con ON DELETE RESTRICT.
 """
 
 from __future__ import annotations
@@ -120,11 +117,7 @@ def _ensure_name_is_available(
 
 
 def _save(db: Session, benefit: Benefit) -> Benefit:
-    """Añade, persiste y refresca el beneficio.
-
-    El UNIQUE de benefits.name es la última línea de defensa ante
-    condiciones de carrera: cualquier IntegrityError se traduce en 409.
-    """
+    """Añade, persiste y refresca; el UNIQUE de name convierte IntegrityError en 409."""
     db.add(benefit)  # en create es un INSERT; en update es un no-op
     try:
         db.commit()

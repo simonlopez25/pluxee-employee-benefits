@@ -1,10 +1,7 @@
-"""Lógica de negocio del módulo de presupuestos (HU-11 / PEB-19).
+"""Lógica de negocio de presupuestos (HU-11 / PEB-19).
 
-Reglas financieras:
-- Cada mes es un ciclo independiente: el saldo no gastado nunca se traslada al mes siguiente.
-- Suelo (control hacia abajo): el presupuesto global de un mes no puede bajar de lo ya repartido entre sus departamentos.
-- Techo (control hacia arriba): un departamento no puede recibir presupuesto de un mes sin global_budget creado, y la suma de todos los departamentos de ese mes no puede superar el total_amount del global_budget.
-- Las referencias por beneficio son únicamente informativas: no tocan el presupuesto ni bloquean nada.
+Meses independientes sin arrastre de saldo: el global no baja de lo ya
+repartido (suelo) y la suma departamental no lo supera (techo).
 """
 
 from __future__ import annotations
@@ -53,18 +50,10 @@ def _month_range(period: date) -> tuple[date, date]:
     return start, end
 
 
-# ---------------------------------------------------------------------
-# Presupuesto global mensual
-# ---------------------------------------------------------------------
-
 def upsert_global_budget(
     db: Session, period: date, total_amount: Decimal
 ) -> GlobalBudget:
-    """Crea o actualiza el presupuesto global de un mes.
-
-    Rechaza con 409 si el nuevo total es menor que lo ya repartido entre
-    los departamentos de ese mes (regla de suelo).
-    """
+    """Crea o actualiza el global; 409 si bajaría de lo ya repartido (suelo)."""
     period = _first_day(period)
     row = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
     if row is None:
@@ -115,22 +104,13 @@ def _global_budget_response(db: Session, row: GlobalBudget) -> GlobalBudgetRespo
     )
 
 
-# ---------------------------------------------------------------------
-# Presupuesto por departamento
-# ---------------------------------------------------------------------
-
 def upsert_department_budget(
     db: Session,
     department_id: int,
     period: date,
     allocated_amount: Decimal,
 ) -> DepartmentBudget:
-    """Crea o actualiza el presupuesto mensual de un departamento.
-
-    Valida que el departamento exista y esté activo, que exista el
-    global_budget del mes y que la nueva suma departamental no exceda el
-    techo global (regla de techo).
-    """
+    """Crea o actualiza el presupuesto de un departamento; valida activo, global y techo."""
     period = _first_day(period)
 
     department = db.get(Department, department_id)
@@ -186,11 +166,7 @@ def upsert_department_budget(
 
 
 def _consumed_amount(db: Session, department_id: int, period: date) -> Decimal:
-    """Suma de gastos aprobados del mes de empleados de ese departamento.
-
-    0.00 cuando no hay datos (no hay tabla de asignaciones de gasto
-    vinculada a presupuestos, por lo que se deriva de expenses).
-    """
+    """Suma de gastos aprobados del mes de los empleados del departamento."""
     start, end = _month_range(period)
     return (
         db.scalar(
@@ -247,19 +223,13 @@ def _department_budget_detail(
     )
 
 
-# ---------------------------------------------------------------------
-# Referencias orientativas por beneficio
-# ---------------------------------------------------------------------
-
 def upsert_benefit_references(
     db: Session,
     department_id: int,
     period: date,
     references: list[BenefitReferenceItemIn],
 ) -> list[BenefitReferenceItem]:
-    """Guarda o actualiza los importes orientativos por beneficio de un
-    departamento y mes, sin imponer topes respecto al presupuesto del grupo.
-    """
+    """Guarda las referencias orientativas por beneficio, sin topes."""
     period = _first_day(period)
 
     department = db.get(Department, department_id)
@@ -284,16 +254,14 @@ def upsert_benefit_references(
             f"(create it first before adding benefit references)"
         )
 
-    # Normalizar: rechazar importes negativos (Pydantic ya lo hace con ge=0,
-    # pero defendemos a nivel de servicio también).
+    # Pydantic ya valida ge=0; aquí se refuerza a nivel de servicio.
     for ref in references:
         if ref.indicative_amount < 0:
             raise ConflictError(
                 f"indicative_amount for benefit {ref.benefit_id} cannot be negative"
             )
 
-    # Borrar referencias existentes de este presupuesto departamental y
-    # insertar las nuevas (upsert por lote, idempotente).
+    # Reemplaza todas las referencias del mes (upsert por lote).
     db.execute(
         delete(BenefitBudgetReference).where(
             BenefitBudgetReference.department_budget_id == department_budget.id
@@ -317,16 +285,8 @@ def upsert_benefit_references(
     return _benefit_references(db, department_budget.id)
 
 
-# ---------------------------------------------------------------------
-# Vista consolidada de un mes
-# ---------------------------------------------------------------------
-
 def get_monthly_budget_overview(db: Session, period: date) -> MonthlyBudgetOverview:
-    """Devuelve el resumen completo del mes solicitado.
-
-    Si el mes aún no tiene presupuesto global configurado, devuelve una
-    estructura limpia con total_amount: 0 sin lanzar error 500.
-    """
+    """Resumen del mes; sin global devuelve ceros en vez de error 500."""
     period = _first_day(period)
 
     global_budget = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
@@ -339,7 +299,7 @@ def get_monthly_budget_overview(db: Session, period: date) -> MonthlyBudgetOverv
             departments=[],
         )
 
-    # Presupuestos departamentales del mes (solo departamentos activos, ordenados por nombre).
+    # Presupuestos departamentales del mes, ordenados por nombre.
     department_budgets = db.execute(
         select(DepartmentBudget)
         .join(Department, Department.id == DepartmentBudget.department_id)
