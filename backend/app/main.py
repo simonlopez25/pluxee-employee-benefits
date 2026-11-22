@@ -28,6 +28,10 @@ def create_app() -> FastAPI:
             "description": "Presupuestos en 2 niveles y referencias informativas por beneficio.",
         },
         {
+            "name": "departments",
+            "description": "Departamentos de la plantilla.",
+        },
+        {
             "name": "health",
             "description": "Estado del servidor.",
         },
