@@ -1,8 +1,4 @@
-"""Endpoints de presupuestos: /api/budgets (HU-11 / PEB-19).
-
-Presupuestos en 2 niveles (global mensual + por departamento) y
-referencias informativas por beneficio.
-"""
+"""Endpoints de presupuestos: /api/budgets (HU-11 / PEB-19)."""
 
 from __future__ import annotations
 
@@ -31,10 +27,7 @@ from app.services import budget_service
 
 router = APIRouter(tags=["budgets"])
 
-# ---------------------------------------------------------------------
-# Documentación de errores en Swagger (cuerpo real de la respuesta)
-# ---------------------------------------------------------------------
-
+# Errores documentados en Swagger (cuerpo real de la respuesta)
 _ERROR_CONFLICT = {
     "description": "409 - Conflicto de presupuesto (techo/suelo/global no creado)",
     "content": {
@@ -65,9 +58,6 @@ _ERROR_VALIDATION = {
     },
 }
 
-# TODO (PEB-12): Inyectar dependencia de autorización para rol ADMIN
-# en las rutas de escritura (PUT).
-
 PeriodQuery = Annotated[
     date | None,
     Query(
@@ -81,10 +71,6 @@ def _today_first_day() -> date:
     return today.replace(day=1)
 
 
-# ---------------------------------------------------------------------
-# GET /api/budgets — resumen completo de un mes
-# ---------------------------------------------------------------------
-
 @router.get(
     "/budgets",
     response_model=MonthlyBudgetOverview,
@@ -95,19 +81,11 @@ def get_monthly_budget(
     period: PeriodQuery = None,
     db: Session = Depends(get_db),
 ) -> MonthlyBudgetOverview:
-    """Devuelve el estado completo de presupuestos del mes.
-
-    Si no se envía `period`, se usa el día 1 del mes actual. Si el mes
-    aún no tiene presupuesto global, devuelve total_amount 0 sin error.
-    """
+    """Sin `period` usa el mes actual; un mes sin global devuelve ceros, sin error."""
     if period is None:
         period = _today_first_day()
     return budget_service.get_monthly_budget_overview(db, period)
 
-
-# ---------------------------------------------------------------------
-# PUT /api/budgets/global — presupuesto global mensual
-# ---------------------------------------------------------------------
 
 @router.put(
     "/budgets/global",
@@ -119,19 +97,10 @@ def get_monthly_budget(
 def upsert_global_budget(
     payload: GlobalBudgetUpsert, db: Session = Depends(get_db)
 ) -> GlobalBudgetResponse:
-    """Crea o actualiza el presupuesto mensual global de un mes.
-
-    Rechaza con 409 si el nuevo total es menor que lo ya repartido entre
-    los departamentos de ese mes (regla de suelo).
-    """
-    # TODO (PEB-12): Inyectar dependencia de autorización para rol ADMIN
+    """Crea o actualiza el global; 409 si bajaría de lo ya repartido (suelo)."""
     row = budget_service.upsert_global_budget(db, payload.period, payload.total_amount)
     return budget_service._global_budget_response(db, row)
 
-
-# ---------------------------------------------------------------------
-# PUT /api/budgets/departments/{department_id} — presupuesto por departamento
-# ---------------------------------------------------------------------
 
 @router.put(
     "/budgets/departments/{department_id}",
@@ -145,23 +114,12 @@ def upsert_department_budget(
     payload: DepartmentBudgetUpsert,
     db: Session = Depends(get_db),
 ) -> DepartmentBudgetResponse:
-    """Fija o actualiza el presupuesto mensual de un departamento en un mes.
-
-    Rechaza con 409 si:
-    - el departamento no existe o no está activo,
-    - no existe presupuesto global para ese mes,
-    - la nueva suma de departamentos excede el techo global (regla de techo).
-    """
-    # TODO (PEB-12): Inyectar dependencia de autorización para rol ADMIN
+    """Fija el presupuesto de un departamento; 409 si no hay global o se excede el techo."""
     row = budget_service.upsert_department_budget(
         db, department_id, payload.period, payload.allocated_amount
     )
     return budget_service._department_budget_detail(db, row)
 
-
-# ---------------------------------------------------------------------
-# PUT /api/budgets/departments/{department_id}/references — referencias por beneficio
-# ---------------------------------------------------------------------
 
 @router.put(
     "/budgets/departments/{department_id}/references",
@@ -175,19 +133,11 @@ def upsert_benefit_references(
     payload: BenefitReferenceBulkUpdate,
     db: Session = Depends(get_db),
 ) -> DepartmentBudgetResponse:
-    """Guarda o actualiza los importes orientativos (indicative_amount) por
-    beneficio de un departamento y mes.
-
-    Es estrictamente informativo: no suma al presupuesto del departamento,
-    no exige que coincida con allocated_amount y no bloquea asignaciones ni
-    gastos reales.
-    """
-    # TODO (PEB-12): Inyectar dependencia de autorización para rol ADMIN
+    """Guarda las referencias orientativas por beneficio (solo informativas)."""
     budget_service.upsert_benefit_references(
         db, department_id, payload.period, payload.references
     )
 
-    # Devolver el detalle del departamento (con sus referencias actualizadas).
     period = budget_service._first_day(payload.period)
     global_budget = db.scalar(
         select(GlobalBudget).where(GlobalBudget.period == period)
