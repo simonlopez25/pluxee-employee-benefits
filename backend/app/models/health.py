@@ -1,7 +1,4 @@
-"""Acceso a datos del endpoint de salud.
-
-Los modelos ORM de SQLAlchemy heredan de app.core.database.Base.
-"""
+"""Acceso a datos del endpoint de salud."""
 
 from __future__ import annotations
 
