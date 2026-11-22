@@ -6,15 +6,9 @@ from datetime import date, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query, status
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models import (
-    Department,
-    DepartmentBudget,
-    GlobalBudget,
-)
 from app.schemas.budget import (
     BenefitReferenceBulkUpdate,
     DepartmentBudgetResponse,
@@ -66,11 +60,6 @@ PeriodQuery = Annotated[
 ]
 
 
-def _today_first_day() -> date:
-    today = datetime.now().date()
-    return today.replace(day=1)
-
-
 @router.get(
     "/budgets",
     response_model=MonthlyBudgetOverview,
@@ -83,7 +72,7 @@ def get_monthly_budget(
 ) -> MonthlyBudgetOverview:
     """Sin `period` usa el mes actual; un mes sin global devuelve ceros, sin error."""
     if period is None:
-        period = _today_first_day()
+        period = budget_service.first_day(datetime.now().date())
     return budget_service.get_monthly_budget_overview(db, period)
 
 
@@ -134,18 +123,6 @@ def upsert_benefit_references(
     db: Session = Depends(get_db),
 ) -> DepartmentBudgetResponse:
     """Guarda las referencias orientativas por beneficio (solo informativas)."""
-    budget_service.upsert_benefit_references(
+    return budget_service.upsert_benefit_references(
         db, department_id, payload.period, payload.references
     )
-
-    period = budget_service._first_day(payload.period)
-    global_budget = db.scalar(
-        select(GlobalBudget).where(GlobalBudget.period == period)
-    )
-    department_budget = db.scalar(
-        select(DepartmentBudget).where(
-            DepartmentBudget.global_budget_id == global_budget.id,
-            DepartmentBudget.department_id == department_id,
-        )
-    )
-    return budget_service._department_budget_detail(db, department_budget)
