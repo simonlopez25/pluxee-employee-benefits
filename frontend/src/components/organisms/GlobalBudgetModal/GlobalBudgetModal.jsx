@@ -1,22 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Button } from '../../atoms/Button'
 import { Icon } from '../../atoms/Icon'
+import { formatCurrency } from '../../../utils/format'
+import { MONTH_NAMES } from '../../../utils/dates'
 import './GlobalBudgetModal.css'
-
-const MONTH_NAMES = [
-  'enero',
-  'febrero',
-  'marzo',
-  'abril',
-  'mayo',
-  'junio',
-  'julio',
-  'agosto',
-  'septiembre',
-  'octubre',
-  'noviembre',
-  'diciembre',
-]
 
 function GlobalBudgetFormContent({
   period,
@@ -100,10 +87,7 @@ function GlobalBudgetFormContent({
             <div className="globalModalFloorText">
               <span>Suelo mínimo asignado: </span>
               <strong>
-                {allocatedFloor.toLocaleString('es-ES', {
-                  style: 'currency',
-                  currency: 'EUR',
-                })}
+                {formatCurrency(allocatedFloor)}
               </strong>
               <p className="globalModalFloorHint">
                 Ya ha sido asignado a departamentos. El global no puede ser inferior.

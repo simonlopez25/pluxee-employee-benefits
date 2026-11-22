@@ -1,48 +1,27 @@
 import { Button } from '../../atoms/Button'
 import { Icon } from '../../atoms/Icon'
+import { MONTH_NAMES_CAPITALIZED, firstDayOfMonth } from '../../../utils/dates'
 import './MonthSelector.css'
-
-const MONTH_NAMES = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre',
-]
 
 export function MonthSelector({ selectedPeriod, onPeriodChange }) {
   const currentDate = new Date(selectedPeriod)
   const year = currentDate.getFullYear()
   const monthIndex = currentDate.getMonth()
 
-  const formattedMonth = `${MONTH_NAMES[monthIndex]} ${year}`
+  const formattedMonth = `${MONTH_NAMES_CAPITALIZED[monthIndex]} ${year}`
 
   const handlePrevMonth = () => {
     const prevDate = new Date(year, monthIndex - 1, 1)
-    const y = prevDate.getFullYear()
-    const m = String(prevDate.getMonth() + 1).padStart(2, '0')
-    onPeriodChange(`${y}-${m}-01`)
+    onPeriodChange(firstDayOfMonth(prevDate))
   }
 
   const handleNextMonth = () => {
     const nextDate = new Date(year, monthIndex + 1, 1)
-    const y = nextDate.getFullYear()
-    const m = String(nextDate.getMonth() + 1).padStart(2, '0')
-    onPeriodChange(`${y}-${m}-01`)
+    onPeriodChange(firstDayOfMonth(nextDate))
   }
 
   const handleCurrentMonth = () => {
-    const now = new Date()
-    const y = now.getFullYear()
-    const m = String(now.getMonth() + 1).padStart(2, '0')
-    onPeriodChange(`${y}-${m}-01`)
+    onPeriodChange(firstDayOfMonth())
   }
 
   const now = new Date()

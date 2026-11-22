@@ -2,16 +2,8 @@ import { Button } from '../../atoms/Button'
 import { Icon } from '../../atoms/Icon'
 import { MonthSelector } from '../../molecules/MonthSelector'
 import { ProgressBar } from '../../molecules/ProgressBar'
+import { formatCurrency } from '../../../utils/format'
 import './GlobalBudgetSummary.css'
-
-const formatCurrency = (amount) => {
-  return Number(amount || 0).toLocaleString('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-}
 
 export function GlobalBudgetSummary({
   overview,
