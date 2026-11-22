@@ -190,7 +190,6 @@ export const getActiveDepartments = async () => {
   return data.map((dept) => ({
     id: dept.id,
     name: dept.name,
-    currency: dept.currency,
     isActive: Boolean(dept.is_active),
   }))
 }

@@ -307,7 +307,7 @@ def get_monthly_budget_overview(db: Session, period: date) -> MonthlyBudgetOverv
         .order_by(Department.name)
     ).scalars().all()
 
-    allocated_total = sum((db.amount for db in department_budgets), ZERO)
+    allocated_total = sum((d.amount for d in department_budgets), ZERO)
 
     departments_detail = [
         _department_budget_detail(db, db_row) for db_row in department_budgets
