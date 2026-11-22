@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Home from './pages/Home'
 import { BenefitsCatalogPage } from './pages/BenefitsCatalogPage'
+import { BudgetsPage } from './pages/BudgetsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import './styles/App.css'
 
@@ -40,15 +41,7 @@ function App() {
                 />
               }
             />
-            <Route
-              path="/budgets"
-              element={
-                <PlaceholderPage
-                  title="Presupuestos"
-                  description="Control de presupuestos asignados por departamento."
-                />
-              }
-            />
+            <Route path="/budgets" element={<BudgetsPage />} />
             <Route
               path="/assignments"
               element={
