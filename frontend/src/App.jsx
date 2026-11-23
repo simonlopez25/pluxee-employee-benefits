@@ -40,7 +40,7 @@ function App() {
 
             <Route element={<ProtectedRoute role="ADMIN" />}>
               <Route element={<PasswordChangeGuard />}>
-                <Route path="/admin" element={<Home />} />
+                <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={
                   <PlaceholderPage
                     title="Dashboard"

@@ -22,7 +22,7 @@ function getInitials(name = '') {
 }
 
 export function AdminSidebar() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const initials = getInitials(user?.full_name || user?.fullName || '')
   const roleLabel = user?.role === 'ADMIN' ? 'Administrador' : 'Empleado'
 
@@ -59,14 +59,18 @@ export function AdminSidebar() {
       </nav>
 
       <div className="sidebarFooter">
-        <div className="sidebarUserProfile">
-          <div className="sidebarUserAvatar">{initials || 'U'}</div>
-          <div className="sidebarUserInfo">
-            <span className="sidebarUserName">{user?.full_name || user?.fullName}</span>
-            <span className="sidebarUserRole">{roleLabel}</span>
-          </div>
-        </div>
-      </div>
+  <button type="button" className="sidebarSwitchButton" style={{ justifyContent: 'center' }} onClick={logout}>
+  <span>Cerrar sesión</span>
+</button>
+
+  <div className="sidebarUserProfile">
+    <div className="sidebarUserAvatar">{initials || 'U'}</div>
+    <div className="sidebarUserInfo">
+      <span className="sidebarUserName">{user?.full_name || user?.fullName}</span>
+      <span className="sidebarUserRole">{roleLabel}</span>
+    </div>
+  </div>
+</div>
     </aside>
   )
 }
