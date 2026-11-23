@@ -1,0 +1,125 @@
+.departmentCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  padding: 20px;
+  min-height: 170px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.departmentCardActive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(34, 28, 70, 0.08);
+  border-color: #dbe0ea;
+}
+
+.departmentCardInactive {
+  opacity: 0.65;
+  background-color: #fafbfc;
+  border-style: dashed;
+  border-color: #d1d5db;
+}
+
+.departmentCardInactive:hover {
+  opacity: 0.85;
+}
+
+.departmentCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.departmentCardIconWrapper {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #f4f5f8;
+  color: #221c46;
+  flex-shrink: 0;
+}
+
+.departmentCardInactive .departmentCardIconWrapper {
+  background-color: #e5e7eb;
+  color: #6b7280;
+}
+
+.departmentCardBadges {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.departmentCardBody {
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.departmentCardTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e1b3a;
+  letter-spacing: -0.01em;
+}
+
+.departmentCardInactive .departmentCardTitle {
+  color: #4b5563;
+}
+
+.departmentCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f3f7;
+}
+
+/* --- Añadido para empleados, paquetes activos y presupuesto en la tarjeta --- */
+
+.departmentCardMeta {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f3f7;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.departmentCardMetaRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+
+.departmentCardMetaLabel {
+  color: #6b7280;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.departmentCardMetaValue {
+  color: #1e1b3a;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.departmentCardInactive .departmentCardMetaValue {
+  color: #4b5563;
+}
