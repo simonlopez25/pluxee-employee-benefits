@@ -1,0 +1,243 @@
+.employeesPage {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.employeesHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 0 0 0;
+}
+
+.employeesHeaderContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.employeesTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #221c46;
+  letter-spacing: -0.01em;
+}
+
+.employeesSubtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.employeesAlertSuccess,
+.employeesAlertError {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.employeesAlertSuccess {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.employeesAlertError {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.employeesAlertIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.employeesAlertText {
+  flex: 1;
+}
+
+.employeesAlertDismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.employeesAlertDismiss:hover {
+  opacity: 1;
+}
+
+.employeesRetryButton {
+  margin-left: auto;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.employeesListHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.employeesCountBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: #221c46;
+  color: #ffffff;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.employeesLoadingGrid {
+  display: flex;
+  gap: 12px;
+  padding: 24px 0;
+}
+
+.employeesCardSkeleton {
+  width: 100%;
+  max-width: 320px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #f9fafb;
+}
+
+.employeesSkeletonRow {
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: employeesShimmer 1.4s infinite;
+}
+
+@keyframes employeesShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.employeesTableWrapper {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.employeesTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.employeesTableCell {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.employeesTable th {
+  background-color: #f9fafb;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.employeesTableRow {
+  transition: background-color 0.1s;
+}
+
+.employeesTableRow:hover {
+  background-color: #f9fafb;
+}
+
+.employeesTableRow:last-child td {
+  border-bottom: none;
+}
+
+.employeesTableName {
+  font-weight: 600;
+  color: #111827;
+}
+
+.employeesTableNone {
+  color: #9ca3af;
+}
+
+.employeesActionsGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.employeesActionsNote {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.employeesActionsNone {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.employeesEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.employeesEmptyIconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+}
+
+.employeesEmptyTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.employeesEmptySubtitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}

@@ -9,6 +9,7 @@ import Profile from './pages/Profile'
 import { BenefitsCatalogPage } from './pages/BenefitsCatalogPage'
 import { BudgetsPage } from './pages/BudgetsPage'
 import { GroupsPage } from './pages/GroupsPage'
+import { EmployeesPage } from './pages/EmployeesPage/EmployeesPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import './styles/App.css'
 
@@ -39,6 +40,7 @@ function App() {
             <Route element={<ProtectedRoute role="ADMIN" />}>
               <Route element={<PasswordChangeGuard />}>
                 <Route path="/admin" element={<Home />} />
+                <Route path="/admin/employees" element={<EmployeesPage />} />
               </Route>
             </Route>
             <Route element={<ProtectedRoute role="EMPLOYEE" />}>
