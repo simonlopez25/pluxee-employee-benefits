@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.security import get_current_user
 from app.models.department import Department
 from app.schemas.department import DepartmentResponse
 from app.services import department_service
@@ -25,6 +26,7 @@ def list_departments(
         bool | None, Query(description="Filtra por estado; sin filtro devuelve todos")
     ] = None,
     db: Session = Depends(get_db),
+    _= Depends(get_current_user),
 ) -> list[Department]:
     """Devuelve los departamentos ordenados por nombre."""
     return department_service.list_departments(db, is_active=is_active)

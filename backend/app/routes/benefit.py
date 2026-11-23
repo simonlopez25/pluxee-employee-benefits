@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Path, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.security import get_current_user, require_admin
 from app.models.benefit import Benefit
 from app.schemas.benefit import (
     BenefitCreate,
@@ -66,6 +67,7 @@ def list_benefits(
     is_basic: Annotated[bool | None, Query(description="Filtra por tipo básico")] = None,
     order_by: Annotated[Literal["id", "name"], Query(description="Orden: id o name")] = "id",
     db: Session = Depends(get_db),
+    _= Depends(get_current_user),
 ) -> list[Benefit]:
     """Devuelve la lista de beneficios."""
     return benefit_service.list_benefits(
@@ -82,7 +84,11 @@ def list_benefits(
     summary="Obtiene un beneficio",
     responses={404: _ERROR_NOT_FOUND},
 )
-def get_benefit(benefit_id: BenefitIdPath, db: Session = Depends(get_db)) -> Benefit:
+def get_benefit(
+    benefit_id: BenefitIdPath,
+    db: Session = Depends(get_db),
+    _= Depends(get_current_user),
+) -> Benefit:
     """Devuelve un beneficio por su id."""
     return benefit_service.get_benefit(db, benefit_id)
 
@@ -94,7 +100,11 @@ def get_benefit(benefit_id: BenefitIdPath, db: Session = Depends(get_db)) -> Ben
     summary="Crea un beneficio",
     responses={409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
-def create_benefit(payload: BenefitCreate, db: Session = Depends(get_db)) -> Benefit:
+def create_benefit(
+    payload: BenefitCreate,
+    db: Session = Depends(get_db),
+    _= Depends(require_admin),
+) -> Benefit:
     """Crea un beneficio con nombre único."""
     return benefit_service.create_benefit(db, payload)
 
@@ -109,6 +119,7 @@ def update_benefit(
     benefit_id: BenefitIdPath,
     payload: BenefitUpdate,
     db: Session = Depends(get_db),
+    _= Depends(require_admin),
 ) -> Benefit:
     """Actualiza los campos enviados de un beneficio."""
     return benefit_service.update_benefit(db, benefit_id, payload)
@@ -124,6 +135,7 @@ def update_benefit_status(
     benefit_id: BenefitIdPath,
     payload: BenefitStatusUpdate,
     db: Session = Depends(get_db),
+    _= Depends(require_admin),
 ) -> Benefit:
     """Cambia el estado de un beneficio sin borrarlo."""
     return benefit_service.update_benefit_status(db, benefit_id, payload)

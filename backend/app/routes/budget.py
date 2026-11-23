@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, Path, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.security import require_admin
 from app.schemas.budget import (
     BenefitReferenceBulkUpdate,
     DepartmentBudgetResponse,
@@ -69,6 +70,7 @@ PeriodQuery = Annotated[
 def get_monthly_budget(
     period: PeriodQuery = None,
     db: Session = Depends(get_db),
+    _= Depends(require_admin),
 ) -> MonthlyBudgetOverview:
     """Sin `period` usa el mes actual; un mes sin global devuelve ceros, sin error."""
     if period is None:
@@ -84,7 +86,9 @@ def get_monthly_budget(
     responses={409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
 def upsert_global_budget(
-    payload: GlobalBudgetUpsert, db: Session = Depends(get_db)
+    payload: GlobalBudgetUpsert,
+    db: Session = Depends(get_db),
+    _= Depends(require_admin),
 ) -> GlobalBudgetResponse:
     """Crea o actualiza el global; 409 si bajaría de lo ya repartido (suelo)."""
     row = budget_service.upsert_global_budget(db, payload.period, payload.total_amount)
@@ -102,6 +106,7 @@ def upsert_department_budget(
     department_id: Annotated[int, Path(description="Id del departamento")],
     payload: DepartmentBudgetUpsert,
     db: Session = Depends(get_db),
+    _= Depends(require_admin),
 ) -> DepartmentBudgetResponse:
     """Fija el presupuesto de un departamento; 409 si no hay global o se excede el techo."""
     row = budget_service.upsert_department_budget(
@@ -121,6 +126,7 @@ def upsert_benefit_references(
     department_id: Annotated[int, Path(description="Id del departamento")],
     payload: BenefitReferenceBulkUpdate,
     db: Session = Depends(get_db),
+    _= Depends(require_admin),
 ) -> DepartmentBudgetResponse:
     """Guarda las referencias orientativas por beneficio (solo informativas)."""
     return budget_service.upsert_benefit_references(
