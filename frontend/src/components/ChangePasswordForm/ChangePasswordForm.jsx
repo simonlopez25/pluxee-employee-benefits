@@ -10,10 +10,12 @@ function ChangePasswordForm({ isForced = false, onSuccess }) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   async function handleSubmit(event) {
     event.preventDefault()
     setErrorMessage('')
+    setSuccessMessage('')
 
     if (newPassword !== confirmPassword) {
       setErrorMessage('La nueva contraseña y su confirmación no coinciden')
@@ -38,6 +40,7 @@ function ChangePasswordForm({ isForced = false, onSuccess }) {
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
+      setSuccessMessage('Contraseña actualizada correctamente')
       updateMustChangePassword(false)
       if (onSuccess) onSuccess()
     } catch (err) {
@@ -82,6 +85,7 @@ function ChangePasswordForm({ isForced = false, onSuccess }) {
           required
         />
         {errorMessage && <p className="changePasswordError">{errorMessage}</p>}
+        {successMessage && <p className="changePasswordSuccess">{successMessage}</p>}
         <button
           className="changePasswordButton"
           type="submit"
