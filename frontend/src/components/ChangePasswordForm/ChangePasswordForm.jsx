@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { patchJson } from '../services/http'
-import { useAuth } from '../context/AuthContext'
+import { patchJson } from '../../services/http'
+import { useAuth } from '../../context/AuthContext'
 import './changePasswordForm.css'
 
 function ChangePasswordForm({ isForced = false, onSuccess }) {
