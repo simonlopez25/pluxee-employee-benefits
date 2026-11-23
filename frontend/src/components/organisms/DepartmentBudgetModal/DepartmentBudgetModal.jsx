@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '../../atoms/Button'
 import { Icon } from '../../atoms/Icon'
+import { formatCurrency } from '../../../utils/format'
 import './DepartmentBudgetModal.css'
 
 function DepartmentBudgetFormContent({
@@ -142,10 +143,7 @@ function DepartmentBudgetFormContent({
               <span className="deptModalHint">
                 Máximo disponible para repartir:{' '}
                 <strong>
-                  {availableCeiling.toLocaleString('es-ES', {
-                    style: 'currency',
-                    currency: 'EUR',
-                  })}
+                  {formatCurrency(availableCeiling)}
                 </strong>
               </span>
             )}

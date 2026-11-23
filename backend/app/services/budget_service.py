@@ -35,7 +35,7 @@ from app.schemas.budget import (
 ZERO = Decimal("0")
 
 
-def _first_day(period: date) -> date:
+def first_day(period: date) -> date:
     """Normaliza cualquier fecha de un mes al día 1 de ese mes."""
     return period.replace(day=1)
 
@@ -54,7 +54,7 @@ def upsert_global_budget(
     db: Session, period: date, total_amount: Decimal
 ) -> GlobalBudget:
     """Crea o actualiza el global; 409 si bajaría de lo ya repartido (suelo)."""
-    period = _first_day(period)
+    period = first_day(period)
     row = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
     if row is None:
         row = GlobalBudget(
@@ -111,7 +111,7 @@ def upsert_department_budget(
     allocated_amount: Decimal,
 ) -> DepartmentBudget:
     """Crea o actualiza el presupuesto de un departamento; valida activo, global y techo."""
-    period = _first_day(period)
+    period = first_day(period)
 
     department = db.get(Department, department_id)
     if department is None:
@@ -205,7 +205,7 @@ def _department_budget_detail(
 ) -> DepartmentBudgetResponse:
     department = db.get(Department, department_budget.department_id)
     global_budget = db.get(GlobalBudget, department_budget.global_budget_id)
-    period = global_budget.period if global_budget else department_budget.period  # pragma: no cover
+    period = global_budget.period
     consumed = _consumed_amount(db, department_budget.department_id, period)
     allocated = department_budget.amount
     available = allocated - consumed
@@ -228,9 +228,9 @@ def upsert_benefit_references(
     department_id: int,
     period: date,
     references: list[BenefitReferenceItemIn],
-) -> list[BenefitReferenceItem]:
+) -> DepartmentBudgetResponse:
     """Guarda las referencias orientativas por beneficio, sin topes."""
-    period = _first_day(period)
+    period = first_day(period)
 
     department = db.get(Department, department_id)
     if department is None:
@@ -282,12 +282,12 @@ def upsert_benefit_references(
     db.commit()
     for row in rows:
         db.refresh(row)
-    return _benefit_references(db, department_budget.id)
+    return _department_budget_detail(db, department_budget)
 
 
 def get_monthly_budget_overview(db: Session, period: date) -> MonthlyBudgetOverview:
     """Resumen del mes; sin global devuelve ceros en vez de error 500."""
-    period = _first_day(period)
+    period = first_day(period)
 
     global_budget = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
     if global_budget is None:
@@ -307,7 +307,7 @@ def get_monthly_budget_overview(db: Session, period: date) -> MonthlyBudgetOverv
         .order_by(Department.name)
     ).scalars().all()
 
-    allocated_total = sum((db.amount for db in department_budgets), ZERO)
+    allocated_total = sum((d.amount for d in department_budgets), ZERO)
 
     departments_detail = [
         _department_budget_detail(db, db_row) for db_row in department_budgets
