@@ -26,9 +26,17 @@ components/
 │   │   ├── BenefitCard.jsx
 │   │   ├── BenefitCard.css
 │   │   └── index.js
-│   └── FilterTabs/
-│       ├── FilterTabs.jsx
-│       ├── FilterTabs.css
+│   ├── FilterTabs/
+│   │   ├── FilterTabs.jsx
+│   │   ├── FilterTabs.css
+│   │   └── index.js
+│   ├── MonthSelector/
+│   │   ├── MonthSelector.jsx
+│   │   ├── MonthSelector.css
+│   │   └── index.js
+│   └── ProgressBar/
+│       ├── ProgressBar.jsx
+│       ├── ProgressBar.css
 │       └── index.js
 ├── organisms/
 │   ├── AdminSidebar/
@@ -39,9 +47,25 @@ components/
 │   │   ├── BenefitFormModal.jsx
 │   │   ├── BenefitFormModal.css
 │   │   └── index.js
-│   └── BenefitsCatalogSection/
-│       ├── BenefitsCatalogSection.jsx
-│       ├── BenefitsCatalogSection.css
+│   ├── BenefitsCatalogSection/
+│   │   ├── BenefitsCatalogSection.jsx
+│   │   ├── BenefitsCatalogSection.css
+│   │   └── index.js
+│   ├── DepartmentBudgetModal/
+│   │   ├── DepartmentBudgetModal.jsx
+│   │   ├── DepartmentBudgetModal.css
+│   │   └── index.js
+│   ├── DepartmentBudgetsTable/
+│   │   ├── DepartmentBudgetsTable.jsx
+│   │   ├── DepartmentBudgetsTable.css
+│   │   └── index.js
+│   ├── GlobalBudgetModal/
+│   │   ├── GlobalBudgetModal.jsx
+│   │   ├── GlobalBudgetModal.css
+│   │   └── index.js
+│   └── GlobalBudgetSummary/
+│       ├── GlobalBudgetSummary.jsx
+│       ├── GlobalBudgetSummary.css
 │       └── index.js
 └── templates/
     └── AdminLayout/
@@ -55,10 +79,10 @@ components/
 | Nivel | Carpeta | Descripción | Componentes actuales |
 |---|---|---|---|
 | **Atoms** | `atoms/` | Bloques indivisibles sin dependencias internas. | `Badge`, `Button`, `Icon` |
-| **Molecules** | `molecules/` | Combinación simple de átomos con un propósito visual concreto. | `BenefitCard`, `FilterTabs` |
-| **Organisms** | `organisms/` | Secciones complejas con interacción y lógica de estado. | `AdminSidebar`, `BenefitFormModal`, `BenefitsCatalogSection` |
+| **Molecules** | `molecules/` | Combinación simple de átomos con un propósito visual concreto. | `BenefitCard`, `FilterTabs`, `MonthSelector`, `ProgressBar` |
+| **Organisms** | `organisms/` | Secciones complejas con interacción y lógica de estado. | `AdminSidebar`, `BenefitFormModal`, `BenefitsCatalogSection`, `GlobalBudgetSummary`, `GlobalBudgetModal`, `DepartmentBudgetsTable`, `DepartmentBudgetModal` |
 | **Templates** | `templates/` | Layouts estructurales sin datos de negocio. | `AdminLayout` |
-| **Pages** | `pages/` | Páginas enlazadas al router que orquestan datos y secciones. | `BenefitsCatalogPage`, `PlaceholderPage` |
+| **Pages** | `pages/` | Páginas enlazadas al router que orquestan datos y secciones. | `BenefitsCatalogPage`, `BudgetsPage`, `PlaceholderPage` |
 
 ## Reglas
 

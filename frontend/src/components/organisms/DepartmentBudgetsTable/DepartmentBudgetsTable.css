@@ -1,0 +1,178 @@
+.deptTableCard {
+  background-color: #ffffff;
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.deptTableHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.deptTableTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #221c46;
+}
+
+.deptTableCountBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  background-color: #f4f5f8;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.deptTableResponsiveWrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.deptTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.deptTh {
+  padding: 14px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: capitalize;
+  background-color: #fafbfc;
+  border-bottom: 1px solid #edf0f5;
+  white-space: nowrap;
+}
+
+.deptThUsage {
+  min-width: 170px;
+}
+
+.deptThActions {
+  text-align: right;
+  width: 130px;
+}
+
+.deptTr {
+  border-bottom: 1px solid #f1f3f7;
+  transition: background-color 0.15s ease;
+}
+
+.deptTr:last-child {
+  border-bottom: none;
+}
+
+.deptTr:hover {
+  background-color: #fbfcfe;
+}
+
+.deptTd {
+  padding: 18px 24px;
+  font-size: 14px;
+  color: #1e1b3a;
+  vertical-align: middle;
+}
+
+.deptTdName {
+  min-width: 200px;
+}
+
+.deptNameContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.deptGroupName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e1b3a;
+}
+
+.deptUnassignedBadge {
+  align-self: flex-start;
+  font-size: 10px;
+}
+
+.deptReferencesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.deptReferencePill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background-color: #f3f4f8;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.deptTdAmount {
+  white-space: nowrap;
+}
+
+.deptAmountText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e1b3a;
+}
+
+.deptAmountNegative {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.deptTdProgress {
+  min-width: 170px;
+}
+
+.deptTdActions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.deptTableEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background-color: #ffffff;
+  border: 2px dashed #e5e7eb;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.deptTableEmptyIcon {
+  color: #9ca3af;
+  margin-bottom: 14px;
+}
+
+.deptTableEmptyTitle {
+  margin: 0 0 6px 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.deptTableEmptySubtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  max-width: 420px;
+}

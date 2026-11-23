@@ -96,7 +96,6 @@ def get_benefit(benefit_id: BenefitIdPath, db: Session = Depends(get_db)) -> Ben
 )
 def create_benefit(payload: BenefitCreate, db: Session = Depends(get_db)) -> Benefit:
     """Crea un beneficio con nombre único."""
-    # TODO (PEB-12): Inyectar dependencia de autorización para rol ADMIN
     return benefit_service.create_benefit(db, payload)
 
 
@@ -112,7 +111,6 @@ def update_benefit(
     db: Session = Depends(get_db),
 ) -> Benefit:
     """Actualiza los campos enviados de un beneficio."""
-    # TODO (PEB-12): Inyectar dependencia de autorización para rol ADMIN
     return benefit_service.update_benefit(db, benefit_id, payload)
 
 
@@ -128,5 +126,4 @@ def update_benefit_status(
     db: Session = Depends(get_db),
 ) -> Benefit:
     """Cambia el estado de un beneficio sin borrarlo."""
-    # TODO (PEB-12): Inyectar dependencia de autorización para rol ADMIN
     return benefit_service.update_benefit_status(db, benefit_id, payload)

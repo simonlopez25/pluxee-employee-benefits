@@ -98,14 +98,14 @@ cd backend
 
 ## Tablas (esquema)
 
-13 tablas (el DDL completo está en `alembic/versions/`: baseline
-`4957b7117a5c` + `5f2c8a91e4d7`):
+15 tablas (el DDL completo está en `alembic/versions/`: baseline
+`4957b7117a5c` + `5f2c8a91e4d7` + `b4a7f2c9d1e5`):
 
 | Grupo | Tablas |
 |-------|--------|
 | Estructura | `departments`, `users` |
 | Catálogos | `benefits`, `packages`, `package_benefits` |
-| Presupuestos | `global_budgets`, `department_budgets` |
+| Presupuestos | `global_budgets`, `department_budgets`, `benefit_budget_references` |
 | Asignaciones | `employee_assignments` |
 | Transaccional | `expenses`, `expense_allocations`, `attachments` |
 | Auditoría | `expense_history`, `audit_logs` |
@@ -125,7 +125,24 @@ revision --autogenerate` contra una BD al día debe quedar **vacío**.
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | GET | `/api/health` | Estado del servidor y de PostgreSQL |
+| GET | `/api/benefits` | Lista los beneficios (con filtros) |
+| GET | `/api/benefits/{id}` | Obtiene un beneficio |
+| POST | `/api/benefits` | Crea un beneficio (409 si nombre duplicado) |
+| PUT | `/api/benefits/{id}` | Actualiza un beneficio (409 si nombre duplicado) |
+| PATCH | `/api/benefits/{id}` | Activa/desactiva un beneficio (baja lógica) |
+| GET | `/api/budgets` | Resumen de presupuestos de un mes (`?period=YYYY-MM-01`) |
+| PUT | `/api/budgets/global` | Crea/actualiza el presupuesto mensual global (409 si reduce por debajo de lo repartido) |
+| PUT | `/api/budgets/departments/{id}` | Fija/actualiza el presupuesto de un departamento en un mes (409 si excede el techo global) |
+| PUT | `/api/budgets/departments/{id}/references` | Guarda/actualiza referencias orientativas por beneficio (solo informativo) |
 | GET | `/docs` | Documentación OpenAPI (Swagger) |
+
+### Presupuestos en 2 niveles (HU-11 / PEB-19)
+
+- **Presupuesto global mensual** (`global_budgets`): un `period` (día 1 del mes) y un `total_amount`. Cada mes es independiente; el saldo no gastado no se traslada al mes siguiente.
+- **Presupuesto por departamento** (`department_budgets`): requiere que exista el global del mes. La suma de todos los departamentos de un mes no puede superar el `total_amount` global (regla de techo). Al reducir el global, no puede bajar de lo ya repartido (regla de suelo).
+- **Referencia informativa por beneficio** (`benefit_budget_references`): `indicative_amount` puramente orientativo; no suma al presupuesto del departamento ni bloquea nada.
+
+Las fechas de `period` se normalizan automáticamente al día 1 del mes (ej. `2026-11-15` → `2026-11-01`).
 
 ## Datos de prueba (seed)
 

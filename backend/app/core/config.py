@@ -1,12 +1,7 @@
 """Configuración de la aplicación (variables de entorno y .env).
 
-Fuentes de configuración, por orden de prioridad:
-1. Variables de entorno del sistema
-2. `backend/.env`
-3. `../.env.local` y `../.env` en la raíz del monorepo — las escribe la CLI de
-   Neon (`neon env pull` / `neon deploy`) con DATABASE_URL y
-   DATABASE_URL_UNPOOLED. Son la fuente compartida del equipo.
-4. Valores por defecto: DB_* (Postgres local, fallback sin Neon)
+Prioridad: variables del sistema > `backend/.env` > `../.env.local` de la
+raíz (lo escribe la CLI de Neon) > valores por defecto DB_* (Postgres local).
 """
 
 from __future__ import annotations
@@ -36,6 +31,11 @@ class Settings(BaseSettings):
     app_env: str = "development"
     port: int = 4000
     cors_origins: str = "http://localhost:5173"
+    
+    # JWT (HU-03)
+    jwt_secret: str = ""
+    jwt_algorithm: str = "HS256"
+    jwt_expires_minutes: int = 480
 
     # URL completas (Neon u override manual). Vacío => se construyen con DB_*.
     database_url: str = ""
