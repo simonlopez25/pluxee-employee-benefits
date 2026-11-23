@@ -47,45 +47,41 @@ function ChangePasswordForm({ isForced = false, onSuccess }) {
     }
   }
 
-  return (
+  const card = (
     <div className="changePasswordCard">
-      <h2 className="changePasswordTitle">
+      <p className="changePasswordBrand">pluxee. benefits</p>
+      <h1 className="changePasswordTitle">
         {isForced ? 'Cambio de contraseña obligatorio' : 'Cambiar contraseña'}
-      </h2>
+      </h1>
       <form className="changePasswordForm" onSubmit={handleSubmit}>
-        <label className="changePasswordLabel">
-          Contraseña actual
-          <input
-            className="changePasswordInput"
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            required
-          />
-        </label>
-        <label className="changePasswordLabel">
-          Nueva contraseña
-          <input
-            className="changePasswordInput"
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-          />
-        </label>
-        <label className="changePasswordLabel">
-          Confirmar nueva contraseña
-          <input
-            className="changePasswordInput"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </label>
-        {errorMessage && (
-          <p className="changePasswordError">{errorMessage}</p>
-        )}
+        <label htmlFor="currentPassword">Contraseña actual</label>
+        <input
+          id="currentPassword"
+          className="changePasswordInput"
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          required
+        />
+        <label htmlFor="newPassword">Nueva contraseña</label>
+        <input
+          id="newPassword"
+          className="changePasswordInput"
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          required
+        />
+        <label htmlFor="confirmPassword">Confirmar nueva contraseña</label>
+        <input
+          id="confirmPassword"
+          className="changePasswordInput"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+        {errorMessage && <p className="changePasswordError">{errorMessage}</p>}
         <button
           className="changePasswordButton"
           type="submit"
@@ -96,6 +92,11 @@ function ChangePasswordForm({ isForced = false, onSuccess }) {
       </form>
     </div>
   )
+
+  if (isForced) {
+    return <div className="changePasswordPage">{card}</div>
+  }
+  return card
 }
 
 export default ChangePasswordForm
