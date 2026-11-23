@@ -166,6 +166,14 @@ export function GroupsSection() {
         </div>
       )}
 
+      {!isLoading && departments.length > 0 && (
+        <div className="groupsListHeader">
+          <span className="groupsCountBadge">
+            {departments.length} {departments.length === 1 ? 'grupo' : 'grupos'}
+          </span>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="groupsLoadingGrid">
           {[1, 2, 3].map((skeletonId) => (
