@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'pluxee_token'
+const USER_KEY = 'pluxee_user'
 
 export function getToken() {
   return sessionStorage.getItem(TOKEN_KEY)
@@ -10,6 +11,10 @@ export function setToken(token) {
 
 export function clearToken() {
   sessionStorage.removeItem(TOKEN_KEY)
+}
+
+export function clearUser() {
+  sessionStorage.removeItem(USER_KEY)
 }
 
 export class ApiError extends Error {
@@ -35,13 +40,29 @@ export async function request(path, options = {}) {
     headers,
   })
 
+  const body = await response.json().catch(() => null)
+
   if (response.status === 401 && path !== '/login') {
     clearToken()
+    clearUser()
     window.location.assign('/login')
     throw new ApiError('session_expired', 'La sesión ha caducado. Vuelve a iniciar sesión', 401)
   }
 
-  const body = await response.json().catch(() => null)
+  if (
+    response.status === 403 &&
+    body?.error?.code === 'account_inactive' &&
+    path !== '/login'
+  ) {
+    clearToken()
+    clearUser()
+    window.location.assign('/login')
+    throw new ApiError(
+      'account_inactive',
+      'Tu cuenta está desactivada. Contacta con administración',
+      403,
+    )
+  }
 
   if (!response.ok) {
     const error = body?.error
