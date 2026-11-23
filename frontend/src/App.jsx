@@ -1,8 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import PasswordChangeGuard from './components/PasswordChangeGuard'
+import ChangePasswordForm from './components/ChangePasswordForm/ChangePasswordForm'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import Profile from './pages/Profile'
 import { BenefitsCatalogPage } from './pages/BenefitsCatalogPage'
 import { BudgetsPage } from './pages/BudgetsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
@@ -15,11 +18,18 @@ function App() {
         <div className="appWrapper">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/change-password" element={<ChangePasswordForm isForced={true} onSuccess={() => window.location.assign('/')} />} />
             <Route element={<ProtectedRoute role="ADMIN" />}>
-              <Route path="/admin" element={<Home />} />
+              <Route element={<PasswordChangeGuard />}>
+                <Route path="/admin" element={<Home />} />
+                <Route path="/perfil" element={<Profile />} />
+              </Route>
             </Route>
             <Route element={<ProtectedRoute role="EMPLOYEE" />}>
-              <Route path="/empleado" element={<Home />} />
+              <Route element={<PasswordChangeGuard />}>
+                <Route path="/empleado" element={<Home />} />
+                <Route path="/perfil" element={<Profile />} />
+              </Route>
             </Route>
             <Route path="/" element={<Navigate to="/catalog" replace />} />
             <Route path="/catalog" element={<BenefitsCatalogPage />} />
