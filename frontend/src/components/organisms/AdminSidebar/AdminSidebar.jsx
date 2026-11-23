@@ -1,16 +1,30 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../../context/AuthContext'
 import { Icon } from '../../atoms/Icon'
 import './AdminSidebar.css'
 
+const ADMIN_MENU = [
+  { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+  { key: 'groups', label: 'Grupos', path: '/groups', icon: 'groups' },
+  { key: 'budgets', label: 'Presupuestos', path: '/budgets', icon: 'budget' },
+  { key: 'catalog', label: 'Catálogo', path: '/catalog', icon: 'catalog' },
+  { key: 'assignments', label: 'Asignaciones', path: '/assignments', icon: 'assignments' },
+  { key: 'expenses', label: 'Gestión de gastos', path: '/expenses', icon: 'expenses' },
+]
+
+function getInitials(name = '') {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('')
+}
+
 export function AdminSidebar() {
-  const menuItems = [
-    { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-    { key: 'groups', label: 'Grupos', path: '/groups', icon: 'groups' },
-    { key: 'budgets', label: 'Presupuestos', path: '/budgets', icon: 'budget' },
-    { key: 'catalog', label: 'Catálogo', path: '/catalog', icon: 'catalog' },
-    { key: 'assignments', label: 'Asignaciones', path: '/assignments', icon: 'assignments' },
-    { key: 'expenses', label: 'Gestión de gastos', path: '/expenses', icon: 'expenses' },
-  ]
+  const { user } = useAuth()
+  const initials = getInitials(user?.full_name || user?.fullName || '')
+  const roleLabel = user?.role === 'ADMIN' ? 'Administrador' : 'Empleado'
 
   return (
     <aside className="sidebarContainer">
@@ -28,7 +42,7 @@ export function AdminSidebar() {
       <div className="sidebarSectionLabel">ADMINISTRACIÓN</div>
 
       <nav className="sidebarNav">
-        {menuItems.map((item) => (
+        {ADMIN_MENU.map((item) => (
           <NavLink
             key={item.key}
             to={item.path}
@@ -45,20 +59,14 @@ export function AdminSidebar() {
       </nav>
 
       <div className="sidebarFooter">
-        <button type="button" className="sidebarSwitchButton">
-          <Icon name="switchUser" size={16} />
-          <span>Ver como empleado</span>
-        </button>
-
         <div className="sidebarUserProfile">
-          <div className="sidebarUserAvatar">EN</div>
+          <div className="sidebarUserAvatar">{initials || 'U'}</div>
           <div className="sidebarUserInfo">
-            <span className="sidebarUserName">Elena Navarro</span>
-            <span className="sidebarUserRole">Administradora de RR. ...</span>
+            <span className="sidebarUserName">{user?.full_name || user?.fullName}</span>
+            <span className="sidebarUserRole">{roleLabel}</span>
           </div>
         </div>
       </div>
     </aside>
   )
 }
-

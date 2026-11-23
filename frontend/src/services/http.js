@@ -72,3 +72,10 @@ export function patchJson(path, data) {
     body: JSON.stringify(data),
   })
 }
+
+export function putJson(path, data) {
+  return request(path, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+}
