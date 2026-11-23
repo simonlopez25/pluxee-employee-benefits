@@ -50,6 +50,14 @@ const mapDepartmentFromApi = (item) => ({
   currency: item.currency,
   isActive: Boolean(item.is_active),
   createdAt: item.created_at,
+  // Añadido para la lista de departamentos (con fallback si viene de GET /{id}, POST o PUT)
+  employeeCount: Number(item.employee_count ?? item.employeeCount ?? 0) || 0,
+  packages: Array.isArray(item.packages)
+    ? item.packages.map((pkg) => ({
+        id: pkg.id,
+        name: pkg.name,
+      }))
+    : [],
 })
 
 const mapDepartmentToApi = (departmentData) => ({
@@ -75,7 +83,7 @@ export const getDepartments = async (filters = {}) => {
   }
 
   const data = await response.json()
-  return data.map(mapDepartmentFromApi)
+  return Array.isArray(data) ? data.map(mapDepartmentFromApi) : []
 }
 
 export const getDepartmentById = async (departmentId) => {
