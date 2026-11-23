@@ -99,14 +99,25 @@
 .employeesCountBadge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 8px;
+  padding: 4px 12px;
   background-color: #221c46;
   color: #ffffff;
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+.employeesCountNumber {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffdc37;
+}
+
+.employeesCountLabel {
+  font-size: 13px;
+  color: #e5e7eb;
 }
 
 .employeesLoadingGrid {

@@ -215,8 +215,10 @@ export function EmployeesPage() {
         {!isLoading && employees.length > 0 && (
           <div className="employeesListHeader">
             <span className="employeesCountBadge">
-              {employees.length}
-              {employees.length === 1 ? 'empleado' : 'empleados'}
+              <span className="employeesCountNumber">{employees.length}</span>
+              <span className="employeesCountLabel">
+                {employees.length === 1 ? 'empleado' : 'empleados'}
+              </span>
             </span>
           </div>
         )}

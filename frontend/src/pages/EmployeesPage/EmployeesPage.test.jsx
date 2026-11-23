@@ -121,8 +121,12 @@ describe('EmployeesPage', () => {
     renderPage()
 
     await waitFor(() =>
-      expect(screen.getByText(/3\s*empleados/)).toBeInTheDocument(),
+      expect(screen.getByText('3')).toBeInTheDocument(),
     )
+    const badge = document.querySelector('.employeesCountBadge')
+    expect(badge).not.toBeNull()
+    expect(badge.textContent).toContain('3')
+    expect(badge.textContent).toContain('empleados')
   })
 
   it('muestra el departamento asignado', async () => {
