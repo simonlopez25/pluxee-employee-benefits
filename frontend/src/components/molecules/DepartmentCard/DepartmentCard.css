@@ -86,3 +86,40 @@
   padding-top: 14px;
   border-top: 1px solid #f1f3f7;
 }
+
+/* --- Añadido para empleados, paquetes activos y presupuesto en la tarjeta --- */
+
+.departmentCardMeta {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f3f7;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.departmentCardMetaRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+
+.departmentCardMetaLabel {
+  color: #6b7280;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.departmentCardMetaValue {
+  color: #1e1b3a;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.departmentCardInactive .departmentCardMetaValue {
+  color: #4b5563;
+}
