@@ -17,7 +17,7 @@ def test_list_departments_returns_expected_shape() -> None:
     assert isinstance(body, list)
     assert len(body) > 0  # el seed crea 3 departamentos
     for department in body:
-        assert set(department) == {"id", "name", "is_active"}
+        assert set(department) == {"id", "name", "currency", "is_active", "created_at"}
         assert isinstance(department["id"], int)
         assert isinstance(department["name"], str)
         assert isinstance(department["is_active"], bool)
