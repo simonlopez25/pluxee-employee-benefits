@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { firstDayOfMonth, MONTH_NAMES, MONTH_NAMES_CAPITALIZED } from '../../utils/dates'
 import { formatCurrency } from '../../utils/format'
 

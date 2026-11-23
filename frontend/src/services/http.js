@@ -65,3 +65,10 @@ export function postJson(path, data) {
     body: JSON.stringify(data),
   })
 }
+
+export function patchJson(path, data) {
+  return request(path, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
