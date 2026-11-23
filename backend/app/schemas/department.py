@@ -49,3 +49,28 @@ class DepartmentResponse(DepartmentBase):
     id: int = Field(description="Identificador único del departamento")
     is_active: bool = Field(description="Departamento activo")
     created_at: datetime = Field(description="Fecha de creación")
+
+
+# --- Añadido para la lista de departamentos ---
+
+
+class DepartmentPackageSummary(BaseModel):
+    """Resumen de un paquete activo asociado al departamento."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int = Field(description="Identificador único del paquete")
+    name: str = Field(description="Nombre del paquete")
+
+
+class DepartmentListResponse(DepartmentResponse):
+    """Elemento de la lista de departamentos con métricas y paquetes activos."""
+
+    employee_count: int = Field(
+        default=0,
+        description="Número de empleados activos asignados al departamento",
+    )
+    packages: list[DepartmentPackageSummary] = Field(
+        default_factory=list,
+        description="Paquetes activos asociados al departamento",
+    )
