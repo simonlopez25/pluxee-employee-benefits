@@ -21,7 +21,7 @@ const formatPackagesSummary = (packages = []) => {
 }
 
 const formatBudgetLabel = (monthlyBudget, currency) => {
-  const amount = monthlyBudget?.amount
+  const amount = monthlyBudget?.allocatedAmount ?? monthlyBudget?.amount
   if (amount === undefined || amount === null || Number.isNaN(Number(amount))) {
     return 'Sin presupuesto'
   }
