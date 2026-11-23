@@ -240,11 +240,27 @@ La pantalla principal de administración de beneficios incluye:
    * Modal de formulario (`BenefitFormModal`) para crear y editar beneficios con validación en cliente y captura de errores del backend (especialmente `409 Conflict` cuando el nombre ya existe).
    * Contenedor inferior preparado para la integración de paquetes (**HU-10**).
 
+### Gestión de Presupuestos (HU-11 / PEB-19)
+
+La vista de control presupuestario (`/budgets`) permite gestionar techos de gasto y reparto por departamento:
+
+1. **Selector de Período y Resumen Global (`GlobalBudgetSummary`):**
+   * Navegación por mes (`YYYY-MM-01`) que carga por defecto en el mes actual.
+   * Aviso explicativo sobre la naturaleza no acumulativa del saldo mensual.
+   * Cuatro métricas consolidadas: Presupuesto Global, Repartido a Grupos, Sin Repartir (Disponible) y Porcentaje Consolidado Repartido.
+   * Modal (`GlobalBudgetModal`) para ajustar el techo global, impidiendo reducciones por debajo de lo ya asignado (`409 Conflict`).
+
+2. **Tabla Comparativa de Departamentos (`DepartmentBudgetsTable`):**
+   * Fusión reactiva de todos los departamentos activos con las asignaciones del mes.
+   * Columnas: Grupo, Asignado, Disponible, Consumido, Barra de progreso de Uso del asignado (%) y Acciones.
+   * Badges de estado (*"Sin asignar"*) para departamentos aún no dotados de presupuesto en el mes seleccionado.
+   * Modal (`DepartmentBudgetModal`) para asignar o reajustar presupuesto departamental (limitado por el remanente global) y definir referencias orientativas por beneficio con validación informativa.
+
 ### Flujo de comunicación completa
 
 ```text
 Frontend (localhost:5173) 
-  ──(Petición fetch /api/benefits)──> Vite Proxy 
-  ──(Reenvío puerto 4000)───────────> FastAPI (app.routes.benefit) 
-  ──(SQLAlchemy 2.0)────────────────> PostgreSQL (Neon en aws-us-east-2)
+  ──(Peticiones fetch /api/benefits, /api/budgets)──> Vite Proxy 
+  ──(Reenvío puerto 4000)───────────────────────────> FastAPI (app.routes.benefit, budget) 
+  ──(SQLAlchemy 2.0)────────────────────────────────> PostgreSQL (Neon en aws-us-east-2)
 ```

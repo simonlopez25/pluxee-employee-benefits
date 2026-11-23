@@ -1,11 +1,11 @@
-"""Schemas de los endpoints de departamentos."""
+"""Esquemas de departamentos."""
 
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 DepartmentName = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)
@@ -18,8 +18,8 @@ CurrencyCode = Annotated[
 class DepartmentBase(BaseModel):
     """Campos que comparten crear y editar."""
 
-    name: DepartmentName
-    currency: CurrencyCode
+    name: DepartmentName = Field(description="Nombre del departamento")
+    currency: CurrencyCode = Field(description="Divisa de 3 letras, por ejemplo EUR")
 
 
 class DepartmentCreate(DepartmentBase):
@@ -33,8 +33,19 @@ class DepartmentUpdate(DepartmentBase):
 class DepartmentResponse(DepartmentBase):
     """Departamento tal como lo devuelve la API."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "example": {
+                "id": 1,
+                "name": "Ventas",
+                "currency": "EUR",
+                "is_active": True,
+                "created_at": "2026-11-20T09:45:49Z",
+            }
+        },
+    )
 
-    id: int
-    is_active: bool
-    created_at: datetime
+    id: int = Field(description="Identificador único del departamento")
+    is_active: bool = Field(description="Departamento activo")
+    created_at: datetime = Field(description="Fecha de creación")

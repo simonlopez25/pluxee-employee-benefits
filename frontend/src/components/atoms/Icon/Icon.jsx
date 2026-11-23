@@ -159,6 +159,51 @@ export function Icon({ name, size = 20, className = '' }) {
           <path d="m8 11-4-4 4-4" />
         </svg>
       )
+    case 'calendar':
+      return (
+        <svg {...iconProps}>
+          <rect width="18" height="18" x="3" y="4" rx="2" />
+          <path d="M16 2v4" />
+          <path d="M8 2v4" />
+          <path d="M3 10h18" />
+        </svg>
+      )
+    case 'chevronLeft':
+      return (
+        <svg {...iconProps}>
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+      )
+    case 'chevronRight':
+      return (
+        <svg {...iconProps}>
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      )
+    case 'info':
+      return (
+        <svg {...iconProps}>
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        </svg>
+      )
+    case 'wallet':
+      return (
+        <svg {...iconProps}>
+          <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
+          <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+        </svg>
+      )
+    case 'alert':
+    case 'warning':
+      return (
+        <svg {...iconProps}>
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+          <path d="M12 9v4" />
+          <path d="M12 17h.01" />
+        </svg>
+      )
     case 'spinner':
       return (
         <svg {...iconProps} className={`iconSvg iconSpin ${className}`.trim()}>
@@ -175,4 +220,3 @@ export function Icon({ name, size = 20, className = '' }) {
       )
   }
 }
-

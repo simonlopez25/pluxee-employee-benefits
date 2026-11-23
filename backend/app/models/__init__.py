@@ -7,6 +7,7 @@ incluya las tablas en `alembic revision --autogenerate`.
 from app.models.attachment import Attachment
 from app.models.audit_log import AuditLog
 from app.models.benefit import Benefit
+from app.models.benefit_budget_reference import BenefitBudgetReference
 from app.models.department import Department
 from app.models.department_budget import DepartmentBudget
 from app.models.employee_assignment import EmployeeAssignment
@@ -22,6 +23,7 @@ __all__ = [
     "Attachment",
     "AuditLog",
     "Benefit",
+    "BenefitBudgetReference",
     "Department",
     "DepartmentBudget",
     "EmployeeAssignment",
