@@ -8,19 +8,78 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import ConflictError, NotFoundError
 from app.models.department import Department
-from app.schemas.department import DepartmentCreate, DepartmentUpdate
+from app.models.package import Package
+from app.models.user import User
+from app.schemas.department import (
+    DepartmentCreate,
+    DepartmentListResponse,
+    DepartmentPackageSummary,
+    DepartmentUpdate,
+)
 
 NAME_TAKEN_MESSAGE = "Ya existe un departamento con ese nombre."
 
 
 def list_departments(
     db: Session, *, is_active: bool | None = None
-) -> list[Department]:
-    """Devuelve los departamentos ordenados por nombre, con filtro opcional de estado."""
+) -> list[DepartmentListResponse]:
+    """Devuelve los departamentos ordenados por nombre, con empleados y paquetes activos."""
     statement = select(Department).order_by(Department.name)
     if is_active is not None:
         statement = statement.where(Department.is_active == is_active)
-    return list(db.scalars(statement).all())
+    departments = list(db.scalars(statement).all())
+
+    if not departments:
+        return []
+
+    dept_ids = [dept.id for dept in departments]
+
+    # Empleados activos agrupados por departamento
+    employee_counts_rows = db.execute(
+        select(User.department_id, func.count(User.id))
+        .where(
+            User.department_id.in_(dept_ids),
+            User.role == "EMPLOYEE",
+            User.is_active.is_(True),
+        )
+        .group_by(User.department_id)
+    ).all()
+    employee_count_by_dept: dict[int, int] = {
+        dept_id: int(count)
+        for dept_id, count in employee_counts_rows
+        if dept_id is not None
+    }
+
+    # Paquetes activos agrupados por departamento en Python
+    active_package_rows = db.execute(
+        select(Package.id, Package.name, Package.department_id)
+        .where(
+            Package.department_id.in_(dept_ids),
+            Package.is_active.is_(True),
+        )
+        .order_by(Package.id)
+    ).all()
+    packages_by_dept: dict[int, list[DepartmentPackageSummary]] = {
+        dept_id: [] for dept_id in dept_ids
+    }
+    for pkg_id, pkg_name, pkg_dept_id in active_package_rows:
+        if pkg_dept_id in packages_by_dept:
+            packages_by_dept[pkg_dept_id].append(
+                DepartmentPackageSummary(id=pkg_id, name=pkg_name)
+            )
+
+    return [
+        DepartmentListResponse(
+            id=dept.id,
+            name=dept.name,
+            currency=dept.currency,
+            is_active=dept.is_active,
+            created_at=dept.created_at,
+            employee_count=employee_count_by_dept.get(dept.id, 0),
+            packages=packages_by_dept.get(dept.id, []),
+        )
+        for dept in departments
+    ]
 
 
 def get_department(db: Session, department_id: int) -> Department:
