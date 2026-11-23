@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import PasswordChangeGuard from './components/PasswordChangeGuard'
 import ChangePasswordForm from './components/ChangePasswordForm/ChangePasswordForm'
@@ -11,6 +11,20 @@ import { BudgetsPage } from './pages/BudgetsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import './styles/App.css'
 
+function ChangePasswordRoute() {
+  const { user } = useAuth()
+  return (
+    <ChangePasswordForm
+      isForced={true}
+      onSuccess={() =>
+        window.location.assign(
+          user?.role === 'ADMIN' ? '/admin' : '/emPLEADO'
+        )
+      }
+    />
+  )
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -18,16 +32,21 @@ function App() {
         <div className="appWrapper">
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/change-password" element={<ChangePasswordForm isForced={true} onSuccess={() => window.location.assign('/')} />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/change-password" element={<ChangePasswordRoute />} />
+            </Route>
             <Route element={<ProtectedRoute role="ADMIN" />}>
               <Route element={<PasswordChangeGuard />}>
                 <Route path="/admin" element={<Home />} />
-                <Route path="/perfil" element={<Profile />} />
               </Route>
             </Route>
             <Route element={<ProtectedRoute role="EMPLOYEE" />}>
               <Route element={<PasswordChangeGuard />}>
-                <Route path="/empleado" element={<Home />} />
+                <Route path="/emPLEADO" element={<Home />} />
+              </Route>
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route element={<PasswordChangeGuard />}>
                 <Route path="/perfil" element={<Profile />} />
               </Route>
             </Route>
