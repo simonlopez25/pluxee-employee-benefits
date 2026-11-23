@@ -44,7 +44,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(Text)
     role: Mapped[str] = mapped_column(String(20))
     must_change_password: Mapped[bool] = mapped_column(
-        Boolean, server_default=true()
+        Boolean, nullable=False, server_default=true()
     )
     is_active: Mapped[bool] = mapped_column(Boolean, server_default=true())
     deactivated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
