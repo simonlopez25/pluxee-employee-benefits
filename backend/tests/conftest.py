@@ -20,7 +20,10 @@ def _seed_user(role: str) -> User:
 
 
 @pytest.fixture(autouse=True)
-def _act_as_admin_by_default():
+def _act_as_admin_by_default(request):
+    if request.node.fspath.basename == "test_users.py":
+        yield
+        return
     # Los tests existentes no envían token: por defecto todo pasa como ADMIN
     user = _seed_user("ADMIN")
     app.dependency_overrides[get_current_user] = lambda: user
