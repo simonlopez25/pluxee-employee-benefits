@@ -4,14 +4,27 @@ import { Icon } from '../../atoms/Icon'
 import './DepartmentCard.css'
 
 export function DepartmentCard({ department, onEdit }) {
-  const { name, currency } = department
+  const { name, currency, isActive } = department
+
+  const cardStatusClass = isActive ? 'departmentCardActive' : 'departmentCardInactive'
 
   return (
-    <article className="departmentCard">
+    <article className={`departmentCard ${cardStatusClass}`}>
       <header className="departmentCardHeader">
-        <h3 className="departmentCardTitle">{name}</h3>
-        <Badge variant="default">{currency}</Badge>
+        <div className="departmentCardIconWrapper">
+          <Icon name="groups" size={22} />
+        </div>
+        <div className="departmentCardBadges">
+          <Badge variant="default">{currency}</Badge>
+          <Badge variant={isActive ? 'active' : 'inactive'}>
+            {isActive ? 'Activo' : 'Inactivo'}
+          </Badge>
+        </div>
       </header>
+
+      <div className="departmentCardBody">
+        <h3 className="departmentCardTitle">{name}</h3>
+      </div>
 
       <footer className="departmentCardFooter">
         <Button

@@ -6,23 +6,64 @@
   border: 1px solid #eef0f4;
   border-radius: 16px;
   padding: 20px;
-  min-height: 110px;
+  min-height: 170px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.departmentCard:hover {
+.departmentCardActive:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(34, 28, 70, 0.08);
   border-color: #dbe0ea;
 }
 
+.departmentCardInactive {
+  opacity: 0.65;
+  background-color: #fafbfc;
+  border-style: dashed;
+  border-color: #d1d5db;
+}
+
+.departmentCardInactive:hover {
+  opacity: 0.85;
+}
+
 .departmentCardHeader {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.departmentCardIconWrapper {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #f4f5f8;
+  color: #221c46;
+  flex-shrink: 0;
+}
+
+.departmentCardInactive .departmentCardIconWrapper {
+  background-color: #e5e7eb;
+  color: #6b7280;
+}
+
+.departmentCardBadges {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.departmentCardBody {
+  flex: 1;
+  margin-bottom: 16px;
 }
 
 .departmentCardTitle {
@@ -33,10 +74,14 @@
   letter-spacing: -0.01em;
 }
 
+.departmentCardInactive .departmentCardTitle {
+  color: #4b5563;
+}
+
 .departmentCardFooter {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px;
   padding-top: 14px;
   border-top: 1px solid #f1f3f7;
