@@ -2,16 +2,8 @@ import { Badge } from '../../atoms/Badge'
 import { Button } from '../../atoms/Button'
 import { Icon } from '../../atoms/Icon'
 import { ProgressBar } from '../../molecules/ProgressBar'
+import { formatCurrency } from '../../../utils/format'
 import './DepartmentBudgetsTable.css'
-
-const formatCurrency = (amount) => {
-  return Number(amount || 0).toLocaleString('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-}
 
 export function DepartmentBudgetsTable({ departments = [], onEditDepartment }) {
   if (departments.length === 0) {

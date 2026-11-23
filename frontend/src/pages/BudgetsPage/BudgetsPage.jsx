@@ -6,6 +6,7 @@ import { DepartmentBudgetsTable } from '../../components/organisms/DepartmentBud
 import { DepartmentBudgetModal } from '../../components/organisms/DepartmentBudgetModal'
 import { Icon } from '../../components/atoms/Icon'
 import { Button } from '../../components/atoms/Button'
+import { firstDayOfMonth } from '../../utils/dates'
 import {
   getActiveBenefits,
   getActiveDepartments,
@@ -16,15 +17,8 @@ import {
 } from '../../services/budgetService'
 import './BudgetsPage.css'
 
-const getInitialPeriod = () => {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  return `${year}-${month}-01`
-}
-
 export function BudgetsPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState(getInitialPeriod)
+  const [selectedPeriod, setSelectedPeriod] = useState(firstDayOfMonth)
   const [overview, setOverview] = useState(null)
   const [activeDepartments, setActiveDepartments] = useState([])
   const [activeBenefits, setActiveBenefits] = useState([])
