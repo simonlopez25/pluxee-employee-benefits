@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import { BenefitsCatalogPage } from './pages/BenefitsCatalogPage'
 import { BudgetsPage } from './pages/BudgetsPage'
+import { GroupsPage } from './pages/GroupsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import './styles/App.css'
 
@@ -32,15 +33,7 @@ function App() {
                 />
               }
             />
-            <Route
-              path="/groups"
-              element={
-                <PlaceholderPage
-                  title="Grupos"
-                  description="Gestión de departamentos y grupos de la organización."
-                />
-              }
-            />
+            <Route path="/groups" element={<GroupsPage />} />
             <Route path="/budgets" element={<BudgetsPage />} />
             <Route
               path="/assignments"
