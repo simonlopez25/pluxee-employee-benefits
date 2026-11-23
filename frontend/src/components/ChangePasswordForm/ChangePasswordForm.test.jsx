@@ -12,7 +12,6 @@ vi.mock('../../services/http', async (importOriginal) => {
   return { ...actual, patchJson: vi.fn() }
 })
 
-const adminUser = { id: 1, full_name: 'Admin', email: 'admin@pluxee.test', role: 'ADMIN', must_change_password: false }
 const employeeUser = { id: 2, full_name: 'Lucía', email: 'lucia@pluxee.test', role: 'EMPLOYEE', must_change_password: false }
 
 function setupAuth(overrides = {}) {

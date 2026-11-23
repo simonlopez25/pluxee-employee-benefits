@@ -1,4 +1,4 @@
-"""Tests del endpoint PATCH /api/users/me/password (HU-04 / PEB-39)."""
+"""Tests del endpoint PATCH /api/users/me/password (HU-05 / PEB-39)."""
 
 from __future__ import annotations
 

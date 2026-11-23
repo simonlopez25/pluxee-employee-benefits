@@ -18,7 +18,7 @@ function ChangePasswordRoute() {
       isForced={true}
       onSuccess={() =>
         window.location.assign(
-          user?.role === 'ADMIN' ? '/admin' : '/emPLEADO'
+          user?.role === 'ADMIN' ? '/admin' : '/empleado'
         )
       }
     />
@@ -42,7 +42,7 @@ function App() {
             </Route>
             <Route element={<ProtectedRoute role="EMPLOYEE" />}>
               <Route element={<PasswordChangeGuard />}>
-                <Route path="/emPLEADO" element={<Home />} />
+                <Route path="/empleado" element={<Home />} />
               </Route>
             </Route>
             <Route element={<ProtectedRoute />}>
