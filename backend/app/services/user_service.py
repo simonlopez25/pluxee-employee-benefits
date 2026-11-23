@@ -108,6 +108,13 @@ def deactivate_employee(
     return UserPublic.model_validate(user)
 
 
+def list_employees(db: Session) -> list[UserPublic]:
+    """Lista todos los empleados ordenados por id (solo administrador)."""
+    statement = select(User).order_by(User.id)
+    users = list(db.scalars(statement).all())
+    return [UserPublic.model_validate(user) for user in users]
+
+
 def _get_user_or_404(db: Session, user_id: int) -> User:
     user = db.get(User, user_id)
     if user is None:

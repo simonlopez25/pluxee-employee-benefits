@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -17,6 +18,10 @@ class UserPublic(BaseModel):
     role: str
     department_id: int | None
     must_change_password: bool
+    is_active: bool = Field(description="Cuenta activa (puede acceder a la plataforma)")
+    deactivated_at: datetime | None = Field(
+        description="Fecha y hora de baja lógica (UTC), null si está activo"
+    )
 
 
 class LoginResponse(BaseModel):

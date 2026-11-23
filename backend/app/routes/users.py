@@ -17,6 +17,19 @@ from app.services import user_service
 router = APIRouter(tags=["users"])
 
 
+@router.get(
+    "/users",
+    response_model=list[UserPublic],
+    summary="Lista los empleados (admin)",
+)
+def list_users(
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> list[UserPublic]:
+    """Devuelve la lista de empleados con su estado de activación."""
+    return user_service.list_employees(db)
+
+
 @router.patch(
     "/users/me/password", response_model=UserPublic, summary="Cambiar contraseña"
 )
