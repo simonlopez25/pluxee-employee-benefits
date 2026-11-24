@@ -1,6 +1,11 @@
 import './ProgressBar.css'
 
-export function ProgressBar({ value = 0, max = 100, showLabel = true }) {
+export function ProgressBar({
+  value = 0,
+  max = 100,
+  showLabel = true,
+  variant = 'default',
+}) {
   const numericValue = typeof value === 'number' ? value : parseFloat(value) || 0
   const percentage = max > 0 ? (numericValue / max) * 100 : 0
   const clampedPercent = Math.min(Math.max(percentage, 0), 100)
@@ -17,6 +22,16 @@ export function ProgressBar({ value = 0, max = 100, showLabel = true }) {
     maximumFractionDigits: 1,
   })
 
+  const isInverted = variant === 'inverted'
+
+  const trackClass = isInverted ? 'progressSvgBgInverted' : 'progressSvgBg'
+  const fillClass = isInverted
+    ? 'progressSvgFillInverted'
+    : `progressSvgFill ${statusClass}`
+  const labelClass = isInverted
+    ? 'progressLabelInverted'
+    : `progressLabel ${statusClass}`
+
   return (
     <div className="progressBarContainer">
       <div className="progressBarTrack">
@@ -25,9 +40,9 @@ export function ProgressBar({ value = 0, max = 100, showLabel = true }) {
           viewBox="0 0 100 6"
           preserveAspectRatio="none"
         >
-          <rect className="progressSvgBg" x="0" y="0" width="100" height="6" rx="3" />
+          <rect className={trackClass} x="0" y="0" width="100" height="6" rx="3" />
           <rect
-            className={`progressSvgFill ${statusClass}`}
+            className={fillClass}
             x="0"
             y="0"
             width={clampedPercent}
@@ -37,9 +52,7 @@ export function ProgressBar({ value = 0, max = 100, showLabel = true }) {
         </svg>
       </div>
       {showLabel && (
-        <span className={`progressLabel ${statusClass}`}>
-          {formattedPercentage}%
-        </span>
+        <span className={labelClass}>{formattedPercentage}%</span>
       )}
     </div>
   )

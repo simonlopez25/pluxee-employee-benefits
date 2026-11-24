@@ -33,11 +33,11 @@
 }
 
 .progressSvgFill.progressWarning {
-  fill: #f59e0b;
+  fill: #ffdc37;
 }
 
 .progressSvgFill.progressDanger {
-  fill: #dc2626;
+  fill: #ffdc37;
 }
 
 .progressLabel {
@@ -53,9 +53,23 @@
 }
 
 .progressLabel.progressWarning {
-  color: #d97706;
+  color: #b28a00;
 }
 
 .progressLabel.progressDanger {
-  color: #dc2626;
+  color: #b28a00;
+}
+
+.progressSvgBgInverted {
+  fill: rgba(255, 255, 255, 0.18);
+}
+
+.progressSvgFillInverted {
+  fill: #00eb5e;
+  transition: width 0.3s ease;
+}
+
+.progressLabelInverted {
+  color: #00eb5e;
+  font-weight: 600;
 }
