@@ -11,7 +11,7 @@ function renderWithRouter(initialPath, role) {
     <MemoryRouter initialEntries={[initialPath]}>
       <Routes>
         <Route path="/login" element={<p>pantalla-login</p>} />
-        <Route path="/admin" element={<p>panel-admin</p>} />
+        <Route path="/dashboard" element={<p>panel-admin</p>} />
         <Route path="/empleado" element={<p>panel-empleado</p>} />
         <Route element={<ProtectedRoute role={role} />}>
           <Route path="/protegida" element={<p>contenido-protegido</p>} />
@@ -60,7 +60,7 @@ describe('ProtectedRoute', () => {
     expect(screen.getByText('panel-empleado')).toBeInTheDocument()
   })
 
-  it('admin en ruta de empleado redirige a /admin', () => {
+  it('admin en ruta de empleado redirige a /dashboard', () => {
     useAuth.mockReturnValue({
       user: { role: 'ADMIN' },
       isAuthenticated: true,

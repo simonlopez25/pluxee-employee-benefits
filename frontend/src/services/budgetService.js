@@ -1,48 +1,4 @@
-const getEndpointUrl = (path, params = {}) => {
-  const rawBase = import.meta.env.VITE_API_URL || ''
-  const apiBase = rawBase ? rawBase.replace(/\/+$/, '') : ''
-  const cleanPath = path.replace(/^\/+/, '')
-  const hasApiPrefix = apiBase.endsWith('/api')
-  const baseUrlString = apiBase
-    ? (hasApiPrefix ? `${apiBase}/${cleanPath}` : `${apiBase}/api/${cleanPath}`)
-    : `/api/${cleanPath}`
-
-  const url = new URL(baseUrlString, window.location.origin)
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      url.searchParams.append(key, String(value))
-    }
-  })
-  return url.toString()
-}
-
-const parseErrorResponse = async (response) => {
-  try {
-    const errorData = await response.json()
-    if (errorData?.error?.message) {
-      const error = new Error(errorData.error.message)
-      error.status = response.status
-      error.code = errorData.error.code
-      return error
-    }
-    if (Array.isArray(errorData?.detail) && errorData.detail.length > 0) {
-      const validationMessage = errorData.detail.map((item) => item.msg).join(', ')
-      const error = new Error(validationMessage)
-      error.status = response.status
-      return error
-    }
-    if (typeof errorData?.detail === 'string') {
-      const error = new Error(errorData.detail)
-      error.status = response.status
-      return error
-    }
-  } catch (parseError) {
-    void parseError
-  }
-  const genericError = new Error(`Error ${response.status}: ${response.statusText}`)
-  genericError.status = response.status
-  return genericError
-}
+import { getJson, putJson } from './http'
 
 const mapDepartmentBudgetFromApi = (item) => ({
   id: item.id,
@@ -73,47 +29,16 @@ const mapMonthlyOverviewFromApi = (data) => ({
 })
 
 export const getMonthlyBudgets = async (period) => {
-  const queryParams = {}
-  if (period) {
-    queryParams.period = period
-  }
-
-  const url = getEndpointUrl('budgets', queryParams)
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    throw await parseErrorResponse(response)
-  }
-
-  const data = await response.json()
+  const query = period ? `?period=${encodeURIComponent(period)}` : ''
+  const data = await getJson(`/budgets${query}`)
   return mapMonthlyOverviewFromApi(data)
 }
 
 export const saveGlobalBudget = async (period, totalAmount) => {
-  const url = getEndpointUrl('budgets/global')
-  const payload = {
+  const data = await putJson('/budgets/global', {
     period,
     total_amount: Number(totalAmount).toFixed(2),
-  }
-
-  const response = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify(payload),
   })
-
-  if (!response.ok) {
-    throw await parseErrorResponse(response)
-  }
-
-  const data = await response.json()
   return {
     id: data.id,
     period: data.period,
@@ -124,69 +49,26 @@ export const saveGlobalBudget = async (period, totalAmount) => {
 }
 
 export const saveDepartmentBudget = async (departmentId, period, allocatedAmount) => {
-  const url = getEndpointUrl(`budgets/departments/${departmentId}`)
-  const payload = {
+  const data = await putJson(`/budgets/departments/${departmentId}`, {
     period,
     allocated_amount: Number(allocatedAmount).toFixed(2),
-  }
-
-  const response = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify(payload),
   })
-
-  if (!response.ok) {
-    throw await parseErrorResponse(response)
-  }
-
-  const data = await response.json()
   return mapDepartmentBudgetFromApi(data)
 }
 
 export const saveBenefitReferences = async (departmentId, period, references) => {
-  const url = getEndpointUrl(`budgets/departments/${departmentId}/references`)
-  const payload = {
+  const data = await putJson(`/budgets/departments/${departmentId}/references`, {
     period,
     references: references.map((item) => ({
       benefit_id: item.benefitId,
       indicative_amount: Number(item.indicativeAmount || 0).toFixed(2),
     })),
-  }
-
-  const response = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify(payload),
   })
-
-  if (!response.ok) {
-    throw await parseErrorResponse(response)
-  }
-
-  const data = await response.json()
   return mapDepartmentBudgetFromApi(data)
 }
 
 export const getActiveDepartments = async () => {
-  const url = getEndpointUrl('departments', { is_active: true })
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    throw await parseErrorResponse(response)
-  }
-
-  const data = await response.json()
+  const data = await getJson('/departments?is_active=true')
   return data.map((dept) => ({
     id: dept.id,
     name: dept.name,
@@ -195,18 +77,7 @@ export const getActiveDepartments = async () => {
 }
 
 export const getActiveBenefits = async () => {
-  const url = getEndpointUrl('benefits', { is_active: true })
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    throw await parseErrorResponse(response)
-  }
-
-  const data = await response.json()
+  const data = await getJson('/benefits?is_active=true')
   return data.map((item) => ({
     id: item.id,
     name: item.name,

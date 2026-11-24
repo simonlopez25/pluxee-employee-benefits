@@ -20,7 +20,7 @@ function ChangePasswordRoute() {
       isForced={true}
       onSuccess={() =>
         window.location.assign(
-          user?.role === 'ADMIN' ? '/admin' : '/empleado'
+          user?.role === 'ADMIN' ? '/dashboard' : '/empleado'
         )
       }
     />
@@ -34,57 +34,62 @@ function App() {
         <div className="appWrapper">
           <Routes>
             <Route path="/login" element={<Login />} />
+
             <Route element={<ProtectedRoute />}>
               <Route path="/change-password" element={<ChangePasswordRoute />} />
             </Route>
+
             <Route element={<ProtectedRoute role="ADMIN" />}>
               <Route element={<PasswordChangeGuard />}>
-                <Route path="/admin" element={<Home />} />
+                <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/employees" element={<EmployeesPage />} />
                 <Route path="/admin/employees" element={<Navigate to="/employees" replace />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PlaceholderPage
+                      title="Dashboard"
+                      description="Resumen general de beneficios y métricas clave."
+                    />
+                  }
+                />
+                <Route path="/groups" element={<GroupsPage />} />
+                <Route path="/budgets" element={<BudgetsPage />} />
+                <Route path="/catalog" element={<BenefitsCatalogPage />} />
+                <Route
+                  path="/assignments"
+                  element={
+                    <PlaceholderPage
+                      title="Asignaciones"
+                      description="Asignaciones de paquetes a empleados y equipos."
+                    />
+                  }
+                />
+                <Route
+                  path="/expenses"
+                  element={
+                    <PlaceholderPage
+                      title="Gestión de gastos"
+                      description="Aprobación y seguimiento de solicitudes de gastos."
+                    />
+                  }
+                />
               </Route>
             </Route>
+
             <Route element={<ProtectedRoute role="EMPLOYEE" />}>
               <Route element={<PasswordChangeGuard />}>
                 <Route path="/empleado" element={<Home />} />
               </Route>
             </Route>
+
             <Route element={<ProtectedRoute />}>
               <Route element={<PasswordChangeGuard />}>
                 <Route path="/perfil" element={<Profile />} />
               </Route>
             </Route>
+
             <Route path="/" element={<Navigate to="/catalog" replace />} />
-            <Route path="/catalog" element={<BenefitsCatalogPage />} />
-            <Route
-              path="/dashboard"
-              element={
-                <PlaceholderPage
-                  title="Dashboard"
-                  description="Resumen general de beneficios y métricas clave."
-                />
-              }
-            />
-            <Route path="/groups" element={<GroupsPage />} />
-            <Route path="/budgets" element={<BudgetsPage />} />
-            <Route
-              path="/assignments"
-              element={
-                <PlaceholderPage
-                  title="Asignaciones"
-                  description="Asignaciones de paquetes a empleados y equipos."
-                />
-              }
-            />
-            <Route
-              path="/expenses"
-              element={
-                <PlaceholderPage
-                  title="Gestión de gastos"
-                  description="Aprobación y seguimiento de solicitudes de gastos."
-                />
-              }
-            />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>
