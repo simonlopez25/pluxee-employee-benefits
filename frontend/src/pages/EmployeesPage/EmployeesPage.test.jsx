@@ -84,7 +84,8 @@ function renderPage() {
 }
 
 function getRowByName(name) {
-  return screen.getByText(name).closest('tr')
+  const table = screen.getByRole('table')
+  return within(table).getByText(name).closest('tr')
 }
 
 describe('EmployeesPage', () => {
@@ -109,8 +110,7 @@ describe('EmployeesPage', () => {
       expect(screen.getByText('Lucía García')).toBeInTheDocument(),
     )
     expect(screen.getByText('Carlos Ruiz')).toBeInTheDocument()
-    expect(screen.getByText('Admin User')).toBeInTheDocument()
-
+    expect(within(screen.getByRole('table')).getByText('Admin User')).toBeInTheDocument()
     const activeBadges = screen.getAllByText('Activo')
     expect(activeBadges).toHaveLength(2)
     const carlosRow = getRowByName('Carlos Ruiz')
@@ -160,7 +160,7 @@ describe('EmployeesPage', () => {
     renderPage()
 
     await waitFor(() =>
-      expect(screen.getByText('Admin User')).toBeInTheDocument(),
+      expect(within(screen.getByRole('table')).getByText('Admin User')).toBeInTheDocument(),
     )
     const adminRow = getRowByName('Admin User')
     expect(adminRow).toHaveTextContent('Tú (administrador)')
@@ -276,7 +276,7 @@ describe('EmployeesPage', () => {
     renderPage()
 
     await waitFor(() =>
-      expect(screen.getByText('Admin User')).toBeInTheDocument(),
+      expect(within(screen.getByRole('table')).getByText('Admin User')).toBeInTheDocument(),
     )
     const adminRow = getRowByName('Admin User')
     expect(within(adminRow).queryByText('Dar de baja')).not.toBeInTheDocument()

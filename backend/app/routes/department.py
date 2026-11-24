@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.security import get_current_user, require_admin
 from app.models.department import Department
 from app.schemas.department import (
     DepartmentCreate,
@@ -30,6 +31,7 @@ def list_departments(
         bool | None, Query(description="Filtra por estado; sin filtro devuelve todos")
     ] = None,
     db: Session = Depends(get_db),
+    _= Depends(get_current_user),
 ) -> list[DepartmentListResponse]:
     """Devuelve los departamentos ordenados por nombre."""
     return department_service.list_departments(db, is_active=is_active)
@@ -40,10 +42,14 @@ def list_departments(
     response_model=DepartmentResponse,
     summary="Devuelve un departamento",
 )
-def get_department(department_id: int, db: Session = Depends(get_db)) -> Department:
+def get_department(
+    department_id: int,
+    db: Session = Depends(get_db),
+    _= Depends(get_current_user),
+) -> Department:
     """Devuelve un departamento por su identificador."""
     return department_service.get_department(db, department_id)
-
+    
 
 @router.post(
     "/departments",
@@ -52,7 +58,9 @@ def get_department(department_id: int, db: Session = Depends(get_db)) -> Departm
     summary="Crea un departamento",
 )
 def create_department(
-    data: DepartmentCreate, db: Session = Depends(get_db)
+    data: DepartmentCreate,
+    db: Session = Depends(get_db),
+    _= Depends(require_admin),
 ) -> Department:
     """Crea un departamento con nombre único y divisa."""
     return department_service.create_department(db, data)
@@ -64,7 +72,10 @@ def create_department(
     summary="Edita un departamento",
 )
 def update_department(
-    department_id: int, data: DepartmentUpdate, db: Session = Depends(get_db)
+    department_id: int,
+    data: DepartmentUpdate,
+    db: Session = Depends(get_db),
+    _= Depends(require_admin),
 ) -> Department:
     """Edita el nombre y la divisa de un departamento."""
     return department_service.update_department(db, department_id, data)

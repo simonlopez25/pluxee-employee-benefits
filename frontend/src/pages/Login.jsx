@@ -12,11 +12,11 @@ function Login() {
   const { login, user } = useAuth()
   const navigate = useNavigate()
 
-  useEffect(() => {
+   useEffect(() => {
     if (user) {
-      navigate(user.role === 'ADMIN' ? '/admin' : '/empleado', { replace: true })
+      navigate(user.role === 'ADMIN' ? '/dashboard' : '/empleado', { replace: true })
     }
-  }, [user, navigate])
+  }, [user, navigate]) 
 
   async function handleSubmit(event) {
     event.preventDefault()
