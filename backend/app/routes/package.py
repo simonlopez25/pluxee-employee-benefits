@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Path, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.security import get_current_user, require_admin
 from app.schemas.package import PackageCreate, PackageResponse
 from app.services import package_service
 
@@ -47,6 +48,7 @@ PackageIdPath = Annotated[int, Path(description="Id del paquete")]
 def list_packages(
     department_id: Annotated[int | None, Query(description="Filtra por departamento")] = None,
     is_active: Annotated[bool | None, Query(description="Filtra por estado")] = None,
+    user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[dict]:
     """Devuelve la lista de paquetes con sus beneficios."""
@@ -59,7 +61,7 @@ def list_packages(
     summary="Obtiene un paquete",
     responses={404: _ERROR_NOT_FOUND},
 )
-def get_package(package_id: PackageIdPath, db: Session = Depends(get_db)) -> dict:
+def get_package(package_id: PackageIdPath, user=Depends(get_current_user), db: Session = Depends(get_db)) -> dict:
     """Devuelve un paquete por su id."""
     return package_service.get_package(db, package_id)
 
@@ -71,8 +73,7 @@ def get_package(package_id: PackageIdPath, db: Session = Depends(get_db)) -> dic
     summary="Crea un paquete",
     responses={404: _ERROR_NOT_FOUND, 409: _ERROR_CONFLICT},
 )
-def create_package(payload: PackageCreate, db: Session = Depends(get_db)) -> dict:
-    """Crea un paquete mono o multibeneficio para un departamento."""
-    # TODO (PEB-12): Inyectar dependencia de autorización para rol ADMIN
+def create_package(payload: PackageCreate, admin=Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+    """Crea un paquete mono o multibeneficio para un departamento (solo ADMIN)."""
     return package_service.create_package(db, payload)
 

@@ -1,36 +1,22 @@
 import { useEffect, useState } from 'react'
 import { AdminLayout } from '../../components/templates/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
-import { Button } from '../../components/atoms/Button'
-import { Icon } from '../../components/atoms/Icon'
-import { Badge } from '../../components/atoms/Badge'
 import { EmployeeFormModal } from '../../components/organisms/EmployeeFormModal'
 import { DeactivateConfirmModal } from '../../components/organisms/DeactivateConfirmModal'
 import {
+  createUser,
   deactivateUser,
   getUsers,
   updateUser,
 } from '../../services/userService'
 import { getDepartments } from '../../services/departmentService'
+import { EmployeesHeader } from './EmployeesHeader'
+import { EmployeesAlerts } from './EmployeesAlerts'
+import { EmployeesListHeader } from './EmployeesListHeader'
+import { EmployeeTable } from './EmployeeTable'
+import { EmployeeCardSkeleton } from './EmployeeCardSkeleton'
+import { EmployeesEmptyState } from './EmployeesEmptyState'
 import './EmployeesPage.css'
-
-const formatDate = (value) => {
-  if (!value) {
-    return '-'
-  }
-  return new Date(value).toLocaleString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-const STATUS_LABELS = {
-  true: 'Activo',
-  false: 'Inactivo',
-}
 
 export function EmployeesPage() {
   const { user: currentUser } = useAuth()
@@ -42,6 +28,7 @@ export function EmployeesPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState('edit')
   const [editingEmployee, setEditingEmployee] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [modalApiError, setModalApiError] = useState(null)
@@ -92,12 +79,16 @@ export function EmployeesPage() {
     }
   }, [successMessage])
 
-  const isCurrentAdmin = (employeeId) => {
-    return currentUser && currentUser.id === employeeId
-  }
-
   const handleOpenEditModal = (employee) => {
     setEditingEmployee(employee)
+    setModalMode('edit')
+    setModalApiError(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenCreateModal = () => {
+    setEditingEmployee(null)
+    setModalMode('create')
     setModalApiError(null)
     setIsModalOpen(true)
   }
@@ -119,6 +110,28 @@ export function EmployeesPage() {
     if (!isDeactivating) {
       setIsDeactivateModalOpen(false)
       setEmployeeToDeactivate(null)
+    }
+  }
+
+  const handleCreateSubmit = async (formData) => {
+    setIsSubmitting(true)
+    setModalApiError(null)
+    try {
+      await createUser(formData)
+      setSuccessMessage(
+        'Empleado dado de alta. Deberá cambiar su contraseña al iniciar sesión',
+      )
+      setIsModalOpen(false)
+      setEditingEmployee(null)
+      setRefreshTrigger((prev) => prev + 1)
+    } catch (error) {
+      setModalApiError(
+        error.status === 409
+          ? 'Ya existe un empleado con ese correo electrónico'
+          : error.message || 'Error al dar de alta al empleado',
+      )
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -167,204 +180,43 @@ export function EmployeesPage() {
     setRefreshTrigger((prev) => prev + 1)
   }
 
+  const handleDismissSuccess = () => setSuccessMessage(null)
+
   return (
     <AdminLayout>
       <section className="employeesPage">
-        <header className="employeesHeader">
-          <div className="employeesHeaderContent">
-            <h1 className="employeesTitle">Empleados</h1>
-            <p className="employeesSubtitle">
-              Gestión de la plantilla: edición de datos y baja lógica de empleados.
-            </p>
-          </div>
-        </header>
+        <EmployeesHeader onCreate={handleOpenCreateModal} />
 
-        {successMessage && (
-          <div className="employeesAlertSuccess" role="status">
-            <span className="employeesAlertIcon">
-              <Icon name="check" size={16} />
-            </span>
-            <span className="employeesAlertText">{successMessage}</span>
-            <button
-              type="button"
-              className="employeesAlertDismiss"
-              onClick={() => setSuccessMessage(null)}
-            >
-              <Icon name="close" size={14} />
-            </button>
-          </div>
-        )}
+        <EmployeesAlerts
+          successMessage={successMessage}
+          errorMessage={errorMessage}
+          onDismissSuccess={handleDismissSuccess}
+          onRetry={handleRetry}
+        />
 
-        {errorMessage && (
-          <div className="employeesAlertError" role="alert">
-            <span className="employeesAlertIcon">
-              <Icon name="close" size={16} />
-            </span>
-            <span className="employeesAlertText">{errorMessage}</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRetry}
-              className="employeesRetryButton"
-            >
-              Reintentar
-            </Button>
-          </div>
-        )}
-
-        {!isLoading && employees.length > 0 && (
-          <div className="employeesListHeader">
-            <span className="employeesCountBadge">
-              <span className="employeesCountNumber">{employees.length}</span>
-              <span className="employeesCountLabel">
-                {employees.length === 1 ? 'empleado' : 'empleados'}
-              </span>
-            </span>
-          </div>
-        )}
+        <EmployeesListHeader count={employees.length} />
 
         {isLoading ? (
-          <div className="employeesLoadingGrid">
-            {[1, 2, 3].map((skeletonId) => (
-              <div key={skeletonId} className="employeesCardSkeleton">
-                <div className="employeesSkeletonRow" />
-              </div>
-            ))}
-          </div>
+          <EmployeeCardSkeleton />
         ) : employees.length > 0 ? (
-          <div className="employeesTableWrapper">
-            <table className="employeesTable">
-              <thead>
-                <tr>
-                  <th className="employeesTableCell">Empleado</th>
-                  <th className="employeesTableCell">Correo</th>
-                  <th className="employeesTableCell">Rol</th>
-                  <th className="employeesTableCell">Departamento</th>
-                  <th className="employeesTableCell">Estado</th>
-                  <th className="employeesTableCell">Fecha de baja</th>
-                  <th className="employeesTableCell employeesTableActions">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {employees.map((employee) => (
-                  <tr key={employee.id} className="employeesTableRow">
-                    <td className="employeesTableCell">
-                      <span className="employeesTableName">
-                        {employee.fullName}
-                      </span>
-                    </td>
-                    <td className="employeesTableCell">{employee.email}</td>
-                    <td className="employeesTableCell">
-                      <Badge
-                        variant={
-                          employee.role === 'ADMIN' ? 'basic' : 'default'
-                        }
-                      >
-                        {employee.role === 'ADMIN'
-                          ? 'Administrador'
-                          : 'Empleado'}
-                      </Badge>
-                    </td>
-                    <td className="employeesTableCell">
-                      {employee.departmentId ? (
-                        <span>
-                          {departments
-                            .find((d) => d.id === employee.departmentId)
-                            ?.name || '-'}
-                        </span>
-                      ) : (
-                        <span className="employeesTableNone">—</span>
-                      )}
-                    </td>
-                    <td className="employeesTableCell">
-                      <Badge
-                        variant={employee.isActive ? 'active' : 'inactive'}
-                      >
-                        {STATUS_LABELS[employee.isActive]}
-                      </Badge>
-                    </td>
-                    <td className="employeesTableCell">
-                      {employee.isActive ? (
-                        <span className="employeesTableNone">—</span>
-                      ) : (
-                        <span>{formatDate(employee.deactivatedAt)}</span>
-                      )}
-                    </td>
-                    <td className="employeesTableCell employeesTableActions">
-                      <div className="employeesActionsGroup">
-                        {employee.isActive && isCurrentAdmin(employee.id) && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleOpenEditModal(employee)}
-                              disabled={isSubmitting || isDeactivating}
-                              icon={<Icon name="edit" size={14} />}
-                            >
-                              Editar
-                            </Button>
-                            <span className="employeesActionsNote">
-                              Tú (administrador)
-                            </span>
-                          </>
-                        )}
-                        {employee.isActive &&
-                          !isCurrentAdmin(employee.id) && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleOpenEditModal(employee)}
-                              disabled={isSubmitting || isDeactivating}
-                              icon={<Icon name="edit" size={14} />}
-                            >
-                              Editar
-                            </Button>
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              onClick={() =>
-                                handleOpenDeactivateModal(employee)
-                              }
-                              disabled={isSubmitting || isDeactivating}
-                              icon={<Icon name="close" size={14} />}
-                            >
-                              Dar de baja
-                            </Button>
-                          </>
-                        )}
-                        {!employee.isActive && (
-                          <span className="employeesActionsNone">
-                            Inactivo
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <EmployeeTable
+            employees={employees}
+            departments={departments}
+            currentUserId={currentUser?.id}
+            isSubmitting={isSubmitting}
+            isDeactivating={isDeactivating}
+            onEdit={handleOpenEditModal}
+            onDeactivate={handleOpenDeactivateModal}
+          />
         ) : errorMessage ? null : (
-          <div className="employeesEmptyState">
-            <div className="employeesEmptyIconWrapper">
-              <Icon name="groups" size={32} />
-            </div>
-            <h3 className="employeesEmptyTitle">
-              No hay empleados registrados
-            </h3>
-            <p className="employeesEmptySubtitle">
-              La plantilla está vacía. Los empleados se crean desde el backend.
-            </p>
-          </div>
+          <EmployeesEmptyState onCreate={handleOpenCreateModal} />
         )}
 
         <EmployeeFormModal
+          mode={modalMode}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onSubmit={handleEditSubmit}
+          onSubmit={modalMode === 'create' ? handleCreateSubmit : handleEditSubmit}
           initialData={editingEmployee}
           isSubmitting={isSubmitting}
           apiError={modalApiError}

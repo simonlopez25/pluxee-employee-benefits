@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import re
+
 from pydantic import BaseModel, Field, field_validator, model_validator
+
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class ChangePasswordRequest(BaseModel):
@@ -15,6 +19,39 @@ class ChangePasswordRequest(BaseModel):
         if self.new_password == self.current_password:
             raise ValueError("La nueva contraseña debe ser diferente a la actual")
         return self
+
+
+class UserCreate(BaseModel):
+    """Payload de POST /api/users: alta de empleado."""
+
+    full_name: str = Field(
+        min_length=2,
+        max_length=120,
+        description="Nombre completo del empleado",
+    )
+    email: str = Field(
+        min_length=3,
+        max_length=150,
+        description="Correo electrónico único",
+    )
+    temporary_password: str = Field(
+        min_length=10,
+        max_length=128,
+        description="Contraseña temporal que el empleado debe cambiar al entrar",
+    )
+    department_id: int = Field(
+        description="Id del grupo (departamento) asignado al empleado",
+    )
+
+    @field_validator("email")
+    @classmethod
+    def _normalize_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not normalized or len(normalized) < 3:
+            raise ValueError("El correo electrónico debe tener al menos 3 caracteres")
+        if not EMAIL_PATTERN.match(normalized):
+            raise ValueError("El correo electrónico no tiene un formato válido")
+        return normalized
 
 
 class UserUpdateRequest(BaseModel):

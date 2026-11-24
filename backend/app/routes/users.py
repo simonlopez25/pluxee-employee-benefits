@@ -1,4 +1,4 @@
-"""Endpoints de gestión de empleados: edición y baja lógica (solo administrador)."""
+"""Endpoints de gestión de usuarios: alta, edición y baja lógica."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from app.core.database import get_db
 from app.core.security import get_current_user, require_admin
 from app.models.user import User
 from app.schemas.auth import UserPublic
-from app.schemas.user import ChangePasswordRequest, UserUpdateRequest
+from app.schemas.user import ChangePasswordRequest, UserCreate, UserUpdateRequest
 from app.services import user_service
 
 router = APIRouter(tags=["users"])
@@ -28,6 +28,21 @@ def list_users(
 ) -> list[UserPublic]:
     """Devuelve la lista de usuarios (administradores y empleados) con su estado de activación."""
     return user_service.list_users(db)
+
+
+@router.post(
+    "/users",
+    response_model=UserPublic,
+    status_code=status.HTTP_201_CREATED,
+    summary="Da de alta a un empleado (admin)",
+)
+def register_employee(
+    payload: UserCreate,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> UserPublic:
+    """Crea una cuenta de empleado con grupo, contraseña temporal y cambio obligatorio."""
+    return user_service.create_employee(db, payload)
 
 
 @router.patch(
