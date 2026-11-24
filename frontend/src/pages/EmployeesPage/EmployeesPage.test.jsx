@@ -77,7 +77,7 @@ afterEach(() => {
 
 function renderPage() {
   return render(
-    <MemoryRouter initialEntries={['/admin/employees']}>
+    <MemoryRouter initialEntries={['/employees']}>
       <EmployeesPage />
     </MemoryRouter>,
   )
@@ -91,7 +91,7 @@ describe('EmployeesPage', () => {
   it('muestra esqueletos mientras carga', async () => {
     mockGetUsers.mockResolvedValueOnce(new Promise(() => {}))
     const { container } = render(
-      <MemoryRouter initialEntries={['/admin/employees']}>
+      <MemoryRouter initialEntries={['/employees']}>
         <EmployeesPage />
       </MemoryRouter>,
     )

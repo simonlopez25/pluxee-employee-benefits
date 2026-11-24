@@ -51,6 +51,10 @@ components/
 │   │   ├── BenefitsCatalogSection.jsx
 │   │   ├── BenefitsCatalogSection.css
 │   │   └── index.js
+│   ├── DeactivateConfirmModal/
+│   │   ├── DeactivateConfirmModal.jsx
+│   │   ├── DeactivateConfirmModal.css
+│   │   └── index.js
 │   ├── DepartmentBudgetModal/
 │   │   ├── DepartmentBudgetModal.jsx
 │   │   ├── DepartmentBudgetModal.css
@@ -58,6 +62,10 @@ components/
 │   ├── DepartmentBudgetsTable/
 │   │   ├── DepartmentBudgetsTable.jsx
 │   │   ├── DepartmentBudgetsTable.css
+│   │   └── index.js
+│   ├── EmployeeFormModal/
+│   │   ├── EmployeeFormModal.jsx
+│   │   ├── EmployeeFormModal.css
 │   │   └── index.js
 │   ├── GlobalBudgetModal/
 │   │   ├── GlobalBudgetModal.jsx
@@ -80,9 +88,9 @@ components/
 |---|---|---|---|
 | **Atoms** | `atoms/` | Bloques indivisibles sin dependencias internas. | `Badge`, `Button`, `Icon` |
 | **Molecules** | `molecules/` | Combinación simple de átomos con un propósito visual concreto. | `BenefitCard`, `FilterTabs`, `MonthSelector`, `ProgressBar` |
-| **Organisms** | `organisms/` | Secciones complejas con interacción y lógica de estado. | `AdminSidebar`, `BenefitFormModal`, `BenefitsCatalogSection`, `GlobalBudgetSummary`, `GlobalBudgetModal`, `DepartmentBudgetsTable`, `DepartmentBudgetModal` |
+| **Organisms** | `organisms/` | Secciones complejas con interacción y lógica de estado. | `AdminSidebar`, `BenefitFormModal`, `BenefitsCatalogSection`, `DeactivateConfirmModal`, `DepartmentBudgetModal`, `DepartmentBudgetsTable`, `EmployeeFormModal`, `GlobalBudgetModal`, `GlobalBudgetSummary` |
 | **Templates** | `templates/` | Layouts estructurales sin datos de negocio. | `AdminLayout` |
-| **Pages** | `pages/` | Páginas enlazadas al router que orquestan datos y secciones. | `BenefitsCatalogPage`, `BudgetsPage`, `PlaceholderPage` |
+| **Pages** | `pages/` | Páginas enlazadas al router que orquestan datos y secciones. | `BenefitsCatalogPage`, `BudgetsPage`, `EmployeesPage`, `PlaceholderPage` |
 
 ## Reglas
 
