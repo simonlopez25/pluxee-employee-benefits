@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.errors import AppError, ConflictError, NotFoundError
@@ -10,7 +11,7 @@ from app.core.security import hash_password, verify_password
 from app.models.department import Department
 from app.models.user import User
 from app.schemas.auth import UserPublic
-from app.schemas.user import ChangePasswordRequest, UserUpdateRequest
+from app.schemas.user import ChangePasswordRequest, UserCreate, UserUpdateRequest
 
 
 def change_password(
@@ -26,6 +27,37 @@ def change_password(
     user.password_hash = hash_password(data.new_password)
     user.must_change_password = False
     db.commit()
+    db.refresh(user)
+    return UserPublic.model_validate(user)
+
+
+def create_employee(db: Session, payload: UserCreate) -> UserPublic:
+    """Da de alta a un empleado: grupo obligatorio, contraseña temporal y cambio forzado."""
+    if (
+        db.scalar(select(User.id).where(User.email == payload.email)) is not None
+    ):
+        raise ConflictError("Ya existe un usuario con ese correo electrónico")
+
+    if db.get(Department, payload.department_id) is None:
+        raise NotFoundError("El departamento no existe")
+
+    user = User(
+        email=payload.email,
+        full_name=payload.full_name.strip(),
+        password_hash=hash_password(payload.temporary_password),
+        department_id=payload.department_id,
+        role="EMPLOYEE",
+        is_active=True,
+        must_change_password=True,
+    )
+    db.add(user)
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise ConflictError(
+            "Ya existe un usuario con ese correo electrónico"
+        ) from exc
     db.refresh(user)
     return UserPublic.model_validate(user)
 

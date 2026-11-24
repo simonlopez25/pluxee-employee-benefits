@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import re
+
 from pydantic import BaseModel, Field, field_validator, model_validator
+
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class ChangePasswordRequest(BaseModel):
@@ -45,6 +49,8 @@ class UserCreate(BaseModel):
         normalized = value.strip().lower()
         if not normalized or len(normalized) < 3:
             raise ValueError("El correo electrónico debe tener al menos 3 caracteres")
+        if not EMAIL_PATTERN.match(normalized):
+            raise ValueError("El correo electrónico no tiene un formato válido")
         return normalized
 
 

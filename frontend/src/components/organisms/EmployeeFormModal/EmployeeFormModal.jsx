@@ -9,8 +9,10 @@ const ROLE_OPTIONS = [
 ]
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const MIN_TEMPORARY_PASSWORD_LENGTH = 10
 
 function EmployeeFormDialogContent({
+  mode,
   onClose,
   onSubmit,
   initialData,
@@ -18,8 +20,10 @@ function EmployeeFormDialogContent({
   apiError,
   departments = [],
 }) {
+  const isCreate = mode === 'create'
   const [fullName, setFullName] = useState(initialData?.fullName || '')
   const [email, setEmail] = useState(initialData?.email || '')
+  const [temporaryPassword, setTemporaryPassword] = useState('')
   const [departmentId, setDepartmentId] = useState(
     initialData?.departmentId ?? null,
   )
@@ -27,7 +31,10 @@ function EmployeeFormDialogContent({
   const [validationError, setValidationError] = useState('')
   const [errorField, setErrorField] = useState(null)
 
-  const departmentRequired = role === 'EMPLOYEE'
+  const departmentRequired = isCreate || role === 'EMPLOYEE'
+  const groupOptions = isCreate
+    ? departments.filter((department) => department.isActive !== false)
+    : departments
 
   const clearValidationError = () => {
     setValidationError('')
@@ -73,17 +80,44 @@ function EmployeeFormDialogContent({
       return
     }
 
+    if (isCreate && !temporaryPassword) {
+      setFieldError('temporaryPassword', 'La contraseña temporal es obligatoria')
+      return
+    }
+
+    if (
+      isCreate &&
+      temporaryPassword.length < MIN_TEMPORARY_PASSWORD_LENGTH
+    ) {
+      setFieldError(
+        'temporaryPassword',
+        `La contraseña temporal debe tener al menos ${MIN_TEMPORARY_PASSWORD_LENGTH} caracteres`,
+      )
+      return
+    }
+
     if (departmentRequired && !departmentId) {
-      setFieldError('department', 'Debe seleccionar un departamento para el empleado')
+      setFieldError('department', 'Debe seleccionar un grupo para el empleado')
       return
     }
 
     if (!departmentRequired && departmentId) {
-      setFieldError('department', 'Un administrador no puede tener departamento asignado')
+      setFieldError('department', 'Un administrador no puede tener grupo asignado')
       return
     }
 
     clearValidationError()
+
+    if (isCreate) {
+      onSubmit({
+        fullName: trimmedFullName,
+        email: trimmedEmail,
+        temporaryPassword,
+        departmentId: Number(departmentId),
+      })
+      return
+    }
+
     onSubmit({
       fullName: trimmedFullName,
       email: trimmedEmail,
@@ -103,11 +137,12 @@ function EmployeeFormDialogContent({
       <header className="employeeModalHeader">
         <div className="employeeModalHeaderInfo">
           <h2 id="employeeModalTitle" className="employeeModalTitle">
-            Editar empleado
+            {isCreate ? 'Dar de alta empleado' : 'Editar empleado'}
           </h2>
           <p className="employeeModalSubtitle">
-            Modifica los datos del empleado. Los cambios se guardan sin eliminar
-            su registro ni sus históricos de gastos y asignaciones.
+            {isCreate
+              ? 'Asigna un correo, una contraseña temporal y un grupo. El empleado deberá cambiar su contraseña al iniciar sesión.'
+              : 'Modifica los datos del empleado. Los cambios se guardan sin eliminar su registro ni sus históricos de gastos y asignaciones.'}
           </p>
         </div>
         <button
@@ -177,28 +212,64 @@ function EmployeeFormDialogContent({
             )}
           </div>
 
-          <div className="employeeModalField">
-            <label htmlFor="employeeRole" className="employeeModalLabel">
-              Rol <span className="employeeModalRequiredMark">*</span>
-            </label>
-            <select
-              id="employeeRole"
-              value={role}
-              onChange={handleRoleChange}
-              className="employeeModalInput"
-              disabled={isSubmitting}
-            >
-              {ROLE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {isCreate && (
+            <div className="employeeModalField">
+              <label
+                htmlFor="employeeTemporaryPassword"
+                className="employeeModalLabel"
+              >
+                Contraseña temporal{' '}
+                <span className="employeeModalRequiredMark">*</span>
+              </label>
+              <input
+                id="employeeTemporaryPassword"
+                type="password"
+                maxLength={128}
+                placeholder="Mínimo 10 caracteres"
+                autoComplete="new-password"
+                value={temporaryPassword}
+                onChange={(event) => {
+                  setTemporaryPassword(event.target.value)
+                  clearValidationError()
+                }}
+                className={`employeeModalInput ${errorField === 'temporaryPassword' ? 'employeeModalInputError' : ''}`}
+                disabled={isSubmitting}
+              />
+              <p className="employeeModalFieldNote">
+                El empleado deberá cambiarla al iniciar sesión.
+              </p>
+              {errorField === 'temporaryPassword' && (
+                <span className="employeeModalErrorMessage">
+                  {validationError}
+                </span>
+              )}
+            </div>
+          )}
+
+          {!isCreate && (
+            <div className="employeeModalField">
+              <label htmlFor="employeeRole" className="employeeModalLabel">
+                Rol <span className="employeeModalRequiredMark">*</span>
+              </label>
+              <select
+                id="employeeRole"
+                value={role}
+                onChange={handleRoleChange}
+                className="employeeModalInput"
+                disabled={isSubmitting}
+              >
+                {ROLE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="employeeModalField">
             <label htmlFor="employeeDepartment" className="employeeModalLabel">
-              Departamento {departmentRequired && (
+              Grupo {departmentRequired && (
                 <span className="employeeModalRequiredMark">*</span>
               )}
             </label>
@@ -209,11 +280,11 @@ function EmployeeFormDialogContent({
                 setDepartmentId(event.target.value || null)
                 clearValidationError()
               }}
-              className="employeeModalInput"
+              className={`employeeModalInput ${errorField === 'department' ? 'employeeModalInputError' : ''}`}
               disabled={isSubmitting || !departmentRequired}
             >
-              <option value="">Seleccionar departamento</option>
-              {departments.map((department) => (
+              <option value="">Seleccionar grupo</option>
+              {groupOptions.map((department) => (
                 <option key={department.id} value={department.id}>
                   {department.name}
                 </option>
@@ -221,7 +292,7 @@ function EmployeeFormDialogContent({
             </select>
             {!departmentRequired && (
               <p className="employeeModalFieldNote">
-                Los administradores no tienen departamento asignado.
+                Los administradores no tienen grupo asignado.
               </p>
             )}
             {errorField === 'department' && (
@@ -245,7 +316,13 @@ function EmployeeFormDialogContent({
             disabled={isSubmitting}
             icon={isSubmitting ? <Icon name="spinner" size={16} /> : null}
           >
-            {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
+            {isSubmitting
+              ? isCreate
+                ? 'Creando...'
+                : 'Guardando...'
+              : isCreate
+                ? 'Dar de alta'
+                : 'Guardar cambios'}
           </Button>
         </footer>
       </form>
@@ -254,6 +331,7 @@ function EmployeeFormDialogContent({
 }
 
 export function EmployeeFormModal({
+  mode = 'edit',
   isOpen,
   onClose,
   onSubmit,
@@ -276,12 +354,13 @@ export function EmployeeFormModal({
     return null
   }
 
-  const formKey = `edit-${initialData?.id}`
+  const formKey = `${mode}-${initialData?.id ?? 'new'}`
 
   return (
     <div className="employeeModalBackdrop" onClick={onClose}>
       <EmployeeFormDialogContent
         key={formKey}
+        mode={mode}
         onClose={onClose}
         onSubmit={onSubmit}
         initialData={initialData}

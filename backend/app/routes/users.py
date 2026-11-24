@@ -5,13 +5,10 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, status
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.errors import ConflictError, NotFoundError
-from app.core.security import get_current_user, hash_password, require_admin
-from app.models.department import Department
+from app.core.security import get_current_user, require_admin
 from app.models.user import User
 from app.schemas.auth import UserPublic
 from app.schemas.user import ChangePasswordRequest, UserCreate, UserUpdateRequest
@@ -45,27 +42,7 @@ def register_employee(
     db: Session = Depends(get_db),
 ) -> UserPublic:
     """Crea una cuenta de empleado con grupo, contraseña temporal y cambio obligatorio."""
-    if db.scalar(
-        select(User.id).where(User.email == payload.email)
-    ) is not None:
-        raise ConflictError("Ya existe un usuario con ese correo electrónico")
-
-    if db.get(Department, payload.department_id) is None:
-        raise NotFoundError("El departamento no existe")
-
-    user = User(
-        email=payload.email,
-        full_name=payload.full_name.strip(),
-        password_hash=hash_password(payload.temporary_password),
-        department_id=payload.department_id,
-        role="EMPLOYEE",
-        is_active=True,
-        must_change_password=True,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return UserPublic.model_validate(user)
+    return user_service.create_employee(db, payload)
 
 
 @router.patch(

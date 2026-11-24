@@ -7,6 +7,7 @@ import { Badge } from '../../components/atoms/Badge'
 import { EmployeeFormModal } from '../../components/organisms/EmployeeFormModal'
 import { DeactivateConfirmModal } from '../../components/organisms/DeactivateConfirmModal'
 import {
+  createUser,
   deactivateUser,
   getUsers,
   updateUser,
@@ -42,6 +43,7 @@ export function EmployeesPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState('edit')
   const [editingEmployee, setEditingEmployee] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [modalApiError, setModalApiError] = useState(null)
@@ -98,6 +100,14 @@ export function EmployeesPage() {
 
   const handleOpenEditModal = (employee) => {
     setEditingEmployee(employee)
+    setModalMode('edit')
+    setModalApiError(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenCreateModal = () => {
+    setEditingEmployee(null)
+    setModalMode('create')
     setModalApiError(null)
     setIsModalOpen(true)
   }
@@ -119,6 +129,28 @@ export function EmployeesPage() {
     if (!isDeactivating) {
       setIsDeactivateModalOpen(false)
       setEmployeeToDeactivate(null)
+    }
+  }
+
+  const handleCreateSubmit = async (formData) => {
+    setIsSubmitting(true)
+    setModalApiError(null)
+    try {
+      await createUser(formData)
+      setSuccessMessage(
+        'Empleado dado de alta. Deberá cambiar su contraseña al iniciar sesión',
+      )
+      setIsModalOpen(false)
+      setEditingEmployee(null)
+      setRefreshTrigger((prev) => prev + 1)
+    } catch (error) {
+      setModalApiError(
+        error.status === 409
+          ? 'Ya existe un empleado con ese correo electrónico'
+          : error.message || 'Error al dar de alta al empleado',
+      )
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -174,8 +206,19 @@ export function EmployeesPage() {
           <div className="employeesHeaderContent">
             <h1 className="employeesTitle">Empleados</h1>
             <p className="employeesSubtitle">
-              Gestión de la plantilla: edición de datos y baja lógica de empleados.
+              Gestión de la plantilla: alta, edición de datos y baja lógica de
+              empleados.
             </p>
+          </div>
+          <div className="employeesHeaderActions">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleOpenCreateModal}
+              icon={<Icon name="plus" size={16} />}
+            >
+              Dar de alta
+            </Button>
           </div>
         </header>
 
@@ -356,15 +399,25 @@ export function EmployeesPage() {
               No hay empleados registrados
             </h3>
             <p className="employeesEmptySubtitle">
-              La plantilla está vacía. Los empleados se crean desde el backend.
+              La plantilla está vacía. Da de alta al primer empleado para
+              asignarle su grupo y sus beneficios.
             </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleOpenCreateModal}
+              icon={<Icon name="plus" size={16} />}
+            >
+              Dar de alta empleado
+            </Button>
           </div>
         )}
 
         <EmployeeFormModal
+          mode={modalMode}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onSubmit={handleEditSubmit}
+          onSubmit={modalMode === 'create' ? handleCreateSubmit : handleEditSubmit}
           initialData={editingEmployee}
           isSubmitting={isSubmitting}
           apiError={modalApiError}
