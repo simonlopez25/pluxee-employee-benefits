@@ -125,14 +125,13 @@ export function EmployeeFormDialogContent({
           )}
 
           <EmployeeFormFields
-            initialData={initialData}
+            fullName={fullName}
+            email={email}
             isSubmitting={isSubmitting}
             errorField={errorField}
             validationError={validationError}
-            onFieldChange={(field, value) => {
-              if (field === 'fullName') setFullName(value)
-              if (field === 'email') setEmail(value)
-            }}
+            onFullNameChange={setFullName}
+            onEmailChange={setEmail}
             onClearError={clearValidationError}
           />
 

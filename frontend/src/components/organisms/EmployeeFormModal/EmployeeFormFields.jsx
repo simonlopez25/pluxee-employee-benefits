@@ -1,25 +1,20 @@
-import { useState } from 'react'
-
 export function EmployeeFormFields({
-  initialData,
+  fullName,
+  email,
   isSubmitting,
   errorField,
   validationError,
-  onFieldChange,
+  onFullNameChange,
+  onEmailChange,
   onClearError,
 }) {
-  const [fullName, setFullName] = useState(initialData?.fullName || '')
-  const [email, setEmail] = useState(initialData?.email || '')
-
   const handleFullNameChange = (event) => {
-    setFullName(event.target.value)
-    onFieldChange('fullName', event.target.value)
+    onFullNameChange(event.target.value)
     onClearError()
   }
 
   const handleEmailChange = (event) => {
-    setEmail(event.target.value)
-    onFieldChange('email', event.target.value)
+    onEmailChange(event.target.value)
     onClearError()
   }
 

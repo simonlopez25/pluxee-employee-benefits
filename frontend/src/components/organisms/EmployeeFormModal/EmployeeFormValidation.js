@@ -6,14 +6,10 @@ export const ROLE_OPTIONS = [
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export const MIN_TEMPORARY_PASSWORD_LENGTH = 10
 
-export const validateCreateForm = ({
-  fullName,
-  email,
-  temporaryPassword,
-  departmentId,
-}) => {
+// Helper compartido: valida fullName y email (usado en create y edit)
+function validateNameAndEmail(fullName, email) {
   const trimmedFullName = fullName.trim()
-  const trimmedEmail = email.trim()
+  const trimmedEmail = email.trim().toLowerCase()
 
   if (!trimmedFullName) {
     return { field: 'fullName', message: 'El nombre completo es obligatorio' }
@@ -27,10 +23,22 @@ export const validateCreateForm = ({
   if (!EMAIL_REGEX.test(trimmedEmail)) {
     return { field: 'email', message: 'El correo electrónico no tiene un formato válido' }
   }
-  if (!temporaryPassword) {
+  return null
+}
+
+export const validateCreateForm = ({
+  fullName,
+  email,
+  temporaryPassword,
+  departmentId,
+}) => {
+  const nameEmailError = validateNameAndEmail(fullName, email)
+  if (nameEmailError) return nameEmailError
+
+  if (!temporaryPassword || !temporaryPassword.trim()) {
     return { field: 'temporaryPassword', message: 'La contraseña temporal es obligatoria' }
   }
-  if (temporaryPassword.length < MIN_TEMPORARY_PASSWORD_LENGTH) {
+  if (temporaryPassword.trim().length < MIN_TEMPORARY_PASSWORD_LENGTH) {
     return {
       field: 'temporaryPassword',
       message: `La contraseña temporal debe tener al menos ${MIN_TEMPORARY_PASSWORD_LENGTH} caracteres`,
@@ -49,21 +57,9 @@ export const validateEditForm = ({
   departmentId,
   departmentRequired,
 }) => {
-  const trimmedFullName = fullName.trim()
-  const trimmedEmail = email.trim()
+  const nameEmailError = validateNameAndEmail(fullName, email)
+  if (nameEmailError) return nameEmailError
 
-  if (!trimmedFullName) {
-    return { field: 'fullName', message: 'El nombre completo es obligatorio' }
-  }
-  if (trimmedFullName.length > 120) {
-    return { field: 'fullName', message: 'El nombre no puede superar los 120 caracteres' }
-  }
-  if (!trimmedEmail) {
-    return { field: 'email', message: 'El correo electrónico es obligatorio' }
-  }
-  if (!EMAIL_REGEX.test(trimmedEmail)) {
-    return { field: 'email', message: 'El correo electrónico no tiene un formato válido' }
-  }
   if (departmentRequired && !departmentId) {
     return { field: 'department', message: 'Debe seleccionar un grupo para el empleado' }
   }

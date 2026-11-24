@@ -38,8 +38,9 @@ def create_employee(db: Session, payload: UserCreate) -> UserPublic:
     ):
         raise ConflictError("Ya existe un usuario con ese correo electrónico")
 
-    if db.get(Department, payload.department_id) is None:
-        raise NotFoundError("El departamento no existe")
+    department = db.get(Department, payload.department_id)
+    if department is None or not department.is_active:
+        raise NotFoundError("El departamento no existe o está inactivo")
 
     user = User(
         email=payload.email,

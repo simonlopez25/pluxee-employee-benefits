@@ -146,6 +146,24 @@ def test_register_unknown_department_returns_404(
     assert _stored_user(EMPLOYEE_EMAIL) is None
 
 
+def test_register_inactive_department_returns_404(
+    client: TestClient, department, admin_headers
+) -> None:
+    """Alta en departamento inactivo debe devolver 404 (igual que inexistente)."""
+    with SessionLocal() as db:
+        dept = db.get(Department, department["id"])
+        dept.is_active = False
+        db.commit()
+
+    response = client.post(
+        "/api/users", headers=admin_headers, json=_payload(department["id"])
+    )
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "not_found"
+    assert _stored_user(EMPLOYEE_EMAIL) is None
+
+
 def test_register_requires_department(
     client: TestClient, department, admin_headers
 ) -> None:
