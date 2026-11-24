@@ -33,10 +33,6 @@ export const getUsers = async () => {
   return Array.isArray(data) ? data.map(mapUserFromApi) : []
 }
 
-export const getUserById = async (userId) => {
-  return mapUserFromApi(await request(`/users/${userId}`))
-}
-
 export const updateUser = async (userId, userData) => {
   const payload = mapUserToApi(userData)
   const data = await patchJson(`/users/${userId}`, payload)

@@ -6,7 +6,7 @@ export function AdminSidebar() {
   const menuItems = [
     { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
     { key: 'groups', label: 'Grupos', path: '/groups', icon: 'groups' },
-    { key: 'employees', label: 'Empleados', path: '/admin/employees', icon: 'groups' },
+    { key: 'employees', label: 'Empleados', path: '/admin/employees', icon: 'employee' },
     { key: 'budgets', label: 'Presupuestos', path: '/budgets', icon: 'budget' },
     { key: 'catalog', label: 'Catálogo', path: '/catalog', icon: 'catalog' },
     { key: 'assignments', label: 'Asignaciones', path: '/assignments', icon: 'assignments' },

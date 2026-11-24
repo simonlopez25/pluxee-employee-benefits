@@ -25,8 +25,19 @@ function EmployeeFormDialogContent({
   )
   const [role, setRole] = useState(initialData?.role || 'EMPLOYEE')
   const [validationError, setValidationError] = useState('')
+  const [errorField, setErrorField] = useState(null)
 
   const departmentRequired = role === 'EMPLOYEE'
+
+  const clearValidationError = () => {
+    setValidationError('')
+    setErrorField(null)
+  }
+
+  const setFieldError = (field, message) => {
+    setErrorField(field)
+    setValidationError(message)
+  }
 
   const handleRoleChange = (event) => {
     const newRole = event.target.value
@@ -34,9 +45,7 @@ function EmployeeFormDialogContent({
     if (newRole === 'ADMIN') {
       setDepartmentId(null)
     }
-    if (validationError) {
-      setValidationError('')
-    }
+    clearValidationError()
   }
 
   const handleSubmit = (event) => {
@@ -45,36 +54,36 @@ function EmployeeFormDialogContent({
     const trimmedEmail = email.trim()
 
     if (!trimmedFullName) {
-      setValidationError('El nombre completo es obligatorio')
+      setFieldError('fullName', 'El nombre completo es obligatorio')
       return
     }
 
     if (trimmedFullName.length > 120) {
-      setValidationError('El nombre no puede superar los 120 caracteres')
+      setFieldError('fullName', 'El nombre no puede superar los 120 caracteres')
       return
     }
 
     if (!trimmedEmail) {
-      setValidationError('El correo electrónico es obligatorio')
+      setFieldError('email', 'El correo electrónico es obligatorio')
       return
     }
 
     if (!EMAIL_REGEX.test(trimmedEmail)) {
-      setValidationError('El correo electrónico no tiene un formato válido')
+      setFieldError('email', 'El correo electrónico no tiene un formato válido')
       return
     }
 
     if (departmentRequired && !departmentId) {
-      setValidationError('Debe seleccionar un departamento para el empleado')
+      setFieldError('department', 'Debe seleccionar un departamento para el empleado')
       return
     }
 
     if (!departmentRequired && departmentId) {
-      setValidationError('Un administrador no puede tener departamento asignado')
+      setFieldError('department', 'Un administrador no puede tener departamento asignado')
       return
     }
 
-    setValidationError('')
+    clearValidationError()
     onSubmit({
       fullName: trimmedFullName,
       email: trimmedEmail,
@@ -135,15 +144,13 @@ function EmployeeFormDialogContent({
               value={fullName}
               onChange={(event) => {
                 setFullName(event.target.value)
-                if (validationError) {
-                  setValidationError('')
-                }
+                clearValidationError()
               }}
-              className={`employeeModalInput ${validationError ? 'employeeModalInputError' : ''}`}
+              className={`employeeModalInput ${errorField === 'fullName' ? 'employeeModalInputError' : ''}`}
               disabled={isSubmitting}
               autoFocus
             />
-            {validationError && (
+            {errorField === 'fullName' && (
               <span className="employeeModalErrorMessage">{validationError}</span>
             )}
           </div>
@@ -160,14 +167,12 @@ function EmployeeFormDialogContent({
               value={email}
               onChange={(event) => {
                 setEmail(event.target.value)
-                if (validationError) {
-                  setValidationError('')
-                }
+                clearValidationError()
               }}
-              className={`employeeModalInput ${validationError ? 'employeeModalInputError' : ''}`}
+              className={`employeeModalInput ${errorField === 'email' ? 'employeeModalInputError' : ''}`}
               disabled={isSubmitting}
             />
-            {validationError && (
+            {errorField === 'email' && (
               <span className="employeeModalErrorMessage">{validationError}</span>
             )}
           </div>
@@ -202,9 +207,7 @@ function EmployeeFormDialogContent({
               value={departmentId || ''}
               onChange={(event) => {
                 setDepartmentId(event.target.value || null)
-                if (validationError) {
-                  setValidationError('')
-                }
+                clearValidationError()
               }}
               className="employeeModalInput"
               disabled={isSubmitting || !departmentRequired}
@@ -221,10 +224,8 @@ function EmployeeFormDialogContent({
                 Los administradores no tienen departamento asignado.
               </p>
             )}
-            {departmentRequired && validationError && !departmentId && (
-              <span className="employeeModalErrorMessage">
-                Selecciona un departamento
-              </span>
+            {errorField === 'department' && (
+              <span className="employeeModalErrorMessage">{validationError}</span>
             )}
           </div>
         </div>
