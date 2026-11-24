@@ -30,8 +30,15 @@ def _seed_user(role: str) -> User:
 
 @pytest.fixture(autouse=True)
 def _act_as_admin_by_default(request):
-    """Por defecto, todos los tests pasan como ADMIN salvo test_users.py"""
-    if request.node.fspath.basename == "test_users.py":
+    """Por defecto, todos los tests pasan como ADMIN salvo los que crean sus propios usuarios"""
+    excluded = {
+        "test_users.py",
+        "test_users_password.py",
+        "test_users_registration.py",
+        "test_employees_edit.py",
+        "test_employees_deactivate.py",
+    }
+    if request.node.fspath.basename in excluded:
         yield
         return
     user = _seed_user("ADMIN")

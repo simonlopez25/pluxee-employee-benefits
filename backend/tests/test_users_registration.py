@@ -49,14 +49,16 @@ def _purge() -> None:
 
 
 @pytest.fixture(autouse=True)
-def department(client: TestClient):
+def department():
+    """Crea un departamento directamente en la BD para los tests."""
     _purge()
-    response = client.post(
-        "/api/departments",
-        json={"name": DEPARTMENT_NAME, "currency": "EUR"},
-    )
-    assert response.status_code == 201, response.text
-    yield response.json()
+    with SessionLocal() as db:
+        dept = Department(name=DEPARTMENT_NAME, currency="EUR", is_active=True)
+        db.add(dept)
+        db.commit()
+        db.refresh(dept)
+        dept_id = dept.id
+    yield {"id": dept_id, "name": DEPARTMENT_NAME, "currency": "EUR"}
     _purge()
 
 
