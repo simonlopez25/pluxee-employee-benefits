@@ -4,13 +4,15 @@ import ProtectedRoute from './components/ProtectedRoute'
 import PasswordChangeGuard from './components/PasswordChangeGuard'
 import ChangePasswordForm from './components/ChangePasswordForm/ChangePasswordForm'
 import Login from './pages/Login'
-import Home from './pages/Home'
 import Profile from './pages/Profile'
 import { BenefitsCatalogPage } from './pages/BenefitsCatalogPage'
 import { BudgetsPage } from './pages/BudgetsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { EmployeesPage } from './pages/EmployeesPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
+import { EmployeeHomePage } from './pages/EmployeeHomePage'
+import { EmployeePackagesPage } from './pages/EmployeePackagesPage'
+import { EmployeeLayout } from './components/templates/EmployeeLayout'
 import './styles/App.css'
 
 function ChangePasswordRoute() {
@@ -79,7 +81,10 @@ function App() {
 
             <Route element={<ProtectedRoute role="EMPLOYEE" />}>
               <Route element={<PasswordChangeGuard />}>
-                <Route path="/empleado" element={<Home />} />
+                <Route element={<EmployeeLayout />}>
+                  <Route path="/empleado" element={<EmployeeHomePage />} />
+                  <Route path="/empleado/beneficios" element={<EmployeePackagesPage />} />
+                </Route>
               </Route>
             </Route>
 
