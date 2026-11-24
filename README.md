@@ -256,11 +256,29 @@ La vista de control presupuestario (`/budgets`) permite gestionar techos de gast
    * Badges de estado (*"Sin asignar"*) para departamentos aún no dotados de presupuesto en el mes seleccionado.
    * Modal (`DepartmentBudgetModal`) para asignar o reajustar presupuesto departamental (limitado por el remanente global) y definir referencias orientativas por beneficio con validación informativa.
 
+### Gestión de Empleados (HU-08 / PEB-16)
+
+La vista de administración de plantilla (`/employees`) permite la gestión de usuarios y su ciclo de vida:
+
+1. **Listado de Plantilla (`EmployeesPage`):**
+   * Tabla con nombre completo, correo, rol (badge Administrador / Empleado), departamento asignado, estado (Activo / Inactivo) y fecha de baja lógica.
+   * Carga paralela de usuarios y departamentos mediante `userService` y `departmentService`.
+
+2. **Edición de Empleados (`EmployeeFormModal`):**
+   * Actualización parcial (`PATCH /api/users/{id}`) con validaciones en cliente y backend.
+   * Cumplimiento de integridad: los administradores no tienen departamento asociado y los empleados requieren departamento obligatorio.
+   * Seguridad: un administrador no puede rebajar su propio rol para evitar el bloqueo del sistema.
+
+3. **Baja Lógica (`DeactivateConfirmModal`):**
+   * Desactivación segura (`PATCH /api/users/{id}/deactivate`): marca `is_active = False` y registra la fecha de baja en UTC sin borrar el registro ni perder históricos.
+   * Protección contra auto-baja: el administrador actual no puede darse de baja a sí mismo.
+   * Revocación de sesión en caliente: si un usuario dado de baja realiza una petición, `http.js` captura el error 403 `account_inactive`, borra el token de sesión y lo redirige a login.
+
 ### Flujo de comunicación completa
 
 ```text
 Frontend (localhost:5173) 
-  ──(Peticiones fetch /api/benefits, /api/budgets)──> Vite Proxy 
-  ──(Reenvío puerto 4000)───────────────────────────> FastAPI (app.routes.benefit, budget) 
-  ──(SQLAlchemy 2.0)────────────────────────────────> PostgreSQL (Neon en aws-us-east-2)
+  ──(Peticiones fetch /api/benefits, /api/budgets, /api/users)──> Vite Proxy 
+  ──(Reenvío puerto 4000)──────────────────────────────────────> FastAPI (app.routes.benefit, budget, users) 
+  ──(SQLAlchemy 2.0)───────────────────────────────────────────> PostgreSQL (Neon en aws-us-east-2)
 ```
