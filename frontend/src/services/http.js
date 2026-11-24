@@ -1,5 +1,5 @@
 const TOKEN_KEY = 'pluxee_token'
-const USER_KEY = 'pluxee_user'
+export const USER_KEY = 'pluxee_user'
 
 export function getToken() {
   return sessionStorage.getItem(TOKEN_KEY)

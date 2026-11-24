@@ -50,6 +50,6 @@ class UserUpdateRequest(BaseModel):
         if value is None:
             return None
         normalized = value.strip().lower()
-        if not normalized:
-            raise ValueError("El correo electrónico no puede estar vacío")
+        if not normalized or len(normalized) < 3:
+            raise ValueError("El correo electrónico debe tener al menos 3 caracteres")
         return normalized
