@@ -218,6 +218,7 @@ def test_me_without_token_returns_401() -> None:
 # ---------------------------------------------------------------------
 
 ADMIN_EMAIL = "test-admin-peb16@pluxee.test"
+SECOND_ADMIN_EMAIL = "test-admin2-peb16@pluxee.test"
 EMPLOYEE_EMAIL = "test-employee-peb16@pluxee.test"
 SECOND_EMPLOYEE_EMAIL = "test-employee2-peb16@pluxee.test"
 DUPLICATE_EMAIL_EMAIL = "test-duplicate-peb16@pluxee.test"
@@ -265,10 +266,12 @@ def _delete_test_users() -> None:
     with SessionLocal() as db:
         for email in (
             ADMIN_EMAIL,
+            SECOND_ADMIN_EMAIL,
             EMPLOYEE_EMAIL,
             SECOND_EMPLOYEE_EMAIL,
             DUPLICATE_EMAIL_EMAIL,
             EDITED_EMAIL_EMAIL,
+            EDITED_EMAIL_EMAIL.upper(),
         ):
             user = db.scalar(select(User).where(User.email == email))
             if user:
@@ -463,6 +466,126 @@ def test_edit_employee_non_admin_rejected_403() -> None:
     )
 
     assert response.status_code == 403
+
+
+# ---------------------------------------------------------------------
+# ck_users_role_department: el estado final rol/departamento no puede
+# estallar en un IntegrityError/500
+# ---------------------------------------------------------------------
+
+def test_edit_employee_promoted_to_admin_clears_department() -> None:
+    with SessionLocal() as db:
+        admin = _create_admin(db)
+        employee = _create_employee(db)
+
+    token = create_access_token(admin.id, admin.role)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.patch(
+        f"/api/users/{employee.id}",
+        headers=headers,
+        json={"role": "ADMIN"},  # sin department_id: debe limpiarse solo
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["role"] == "ADMIN"
+    assert body["department_id"] is None
+
+    with SessionLocal() as db:
+        stored = db.get(User, employee.id)
+        assert stored.role == "ADMIN"
+        assert stored.department_id is None
+
+
+def test_edit_admin_to_employee_without_department_returns_400() -> None:
+    with SessionLocal() as db:
+        admin = _create_admin(db)
+        target_admin = _create_admin(db, email=SECOND_ADMIN_EMAIL)
+
+    token = create_access_token(admin.id, admin.role)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.patch(
+        f"/api/users/{target_admin.id}",
+        headers=headers,
+        json={"role": "EMPLOYEE"},  # sin department_id: violaría el CHECK
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "department_required"
+
+    with SessionLocal() as db:
+        stored = db.get(User, target_admin.id)
+        assert stored.role == "ADMIN"
+        assert stored.department_id is None
+
+
+def test_edit_employee_with_null_department_returns_400() -> None:
+    with SessionLocal() as db:
+        admin = _create_admin(db)
+        employee = _create_employee(db)
+
+    token = create_access_token(admin.id, admin.role)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.patch(
+        f"/api/users/{employee.id}",
+        headers=headers,
+        json={"department_id": None},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "department_required"
+
+    with SessionLocal() as db:
+        stored = db.get(User, employee.id)
+        assert stored.department_id == 1
+
+
+def test_edit_employee_admin_with_department_returns_400() -> None:
+    with SessionLocal() as db:
+        admin = _create_admin(db)
+        employee = _create_employee(db)
+
+    token = create_access_token(admin.id, admin.role)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.patch(
+        f"/api/users/{employee.id}",
+        headers=headers,
+        json={"role": "ADMIN", "department_id": 1},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "admin_department_not_allowed"
+
+    with SessionLocal() as db:
+        stored = db.get(User, employee.id)
+        assert stored.role == "EMPLOYEE"
+        assert stored.department_id == 1
+
+
+def test_edit_employee_email_is_normalized() -> None:
+    with SessionLocal() as db:
+        admin = _create_admin(db)
+        employee = _create_employee(db)
+
+    token = create_access_token(admin.id, admin.role)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.patch(
+        f"/api/users/{employee.id}",
+        headers=headers,
+        json={"email": f"  {EDITED_EMAIL_EMAIL.upper()}  "},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["email"] == EDITED_EMAIL_EMAIL
+
+    with SessionLocal() as db:
+        stored = db.get(User, employee.id)
+        assert stored.email == EDITED_EMAIL_EMAIL
 
 
 # ---------------------------------------------------------------------

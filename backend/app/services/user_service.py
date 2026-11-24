@@ -44,6 +44,9 @@ def update_employee(
     - Un administrador no puede degradar su propio rol (400).
     - El email debe ser único excluyendo al propio empleado (409).
     - department_id debe existir si se envía (404).
+    - El estado final rol/departamento debe satisfacer ck_users_role_department:
+      un ADMIN nunca tiene departamento (400 si se envía uno) y un EMPLOYEE
+      siempre lo tiene (400 si falta), en vez de estallar en un 500 de BD.
     """
     user = _get_user_or_404(db, user_id)
 
@@ -64,6 +67,8 @@ def update_employee(
 
     if "department_id" in update_data and update_data["department_id"] is not None:
         _ensure_department_exists(db, update_data["department_id"])
+
+    _validate_role_department_state(update_data, user)
 
     for field, value in update_data.items():
         setattr(user, field, value)
@@ -108,8 +113,12 @@ def deactivate_employee(
     return UserPublic.model_validate(user)
 
 
-def list_employees(db: Session) -> list[UserPublic]:
-    """Lista todos los empleados ordenados por id (solo administrador)."""
+def list_users(db: Session) -> list[UserPublic]:
+    """Lista todos los usuarios (administradores y empleados) por id (admin).
+
+    Devuelve también los administradores porque la pantalla de empleados los
+    necesita para marcar la fila del admin actual y ocultar su propia baja.
+    """
     statement = select(User).order_by(User.id)
     users = list(db.scalars(statement).all())
     return [UserPublic.model_validate(user) for user in users]
@@ -130,6 +139,39 @@ def _validate_role_change(
             "An administrator cannot downgrade their own role",
             status_code=400,
             code="self_role_downgrade",
+        )
+
+
+def _validate_role_department_state(update_data: dict, user: User) -> None:
+    """Valida la combinación final rol/departamento antes de persistir.
+
+    Es la contrapartida en servicio del constraint `ck_users_role_department`
+    (ADMIN ⇒ department_id IS NULL; EMPLOYEE ⇒ department_id IS NOT NULL),
+    para que la API responda 400 en lugar de un 500 de IntegrityError:
+
+    - Final ADMIN: se limpia el departamento (promoción sin enviar
+      department_id) y se rechaza si el payload trae uno no nulo.
+    - Final EMPLOYEE: se rechaza si el departamento final falta.
+
+    `update_data` se modifica in place para reflejar el estado final válido.
+    """
+    final_role = update_data.get("role", user.role)
+
+    if final_role == "ADMIN":
+        if "department_id" in update_data and update_data["department_id"] is not None:
+            raise AppError(
+                "An administrator cannot have a department",
+                status_code=400,
+                code="admin_department_not_allowed",
+            )
+        update_data["department_id"] = None
+        return
+
+    if update_data.get("department_id", user.department_id) is None:
+        raise AppError(
+            "An employee must have a department",
+            status_code=400,
+            code="department_required",
         )
 
 

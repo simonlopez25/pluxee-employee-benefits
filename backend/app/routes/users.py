@@ -20,14 +20,14 @@ router = APIRouter(tags=["users"])
 @router.get(
     "/users",
     response_model=list[UserPublic],
-    summary="Lista los empleados (admin)",
+    summary="Lista los usuarios (admin)",
 )
 def list_users(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> list[UserPublic]:
-    """Devuelve la lista de empleados con su estado de activación."""
-    return user_service.list_employees(db)
+    """Devuelve la lista de usuarios (administradores y empleados) con su estado de activación."""
+    return user_service.list_users(db)
 
 
 @router.patch(

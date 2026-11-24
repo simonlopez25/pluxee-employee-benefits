@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class ChangePasswordRequest(BaseModel):
@@ -37,3 +37,19 @@ class UserUpdateRequest(BaseModel):
         pattern="^(ADMIN|EMPLOYEE)$",
         description="Rol del empleado: ADMIN o EMPLOYEE",
     )
+
+    @field_validator("email", mode="after")
+    @classmethod
+    def _normalize_email(cls, value: str | None) -> str | None:
+        """Normaliza el email (trim + minúsculas) antes de guardarlo.
+
+        El frontend ya lo envía normalizado; aquí se garantiza también para
+        llamadas directas a la API, de modo que la unicidad no dependa de la
+        colación y el login (que normaliza igual) siempre encuentre al usuario.
+        """
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if not normalized:
+            raise ValueError("El correo electrónico no puede estar vacío")
+        return normalized
