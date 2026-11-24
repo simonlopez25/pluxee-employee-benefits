@@ -1,0 +1,74 @@
+.benefit-balance-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.benefit-balance-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.benefit-balance-row:first-child {
+  padding-top: 0;
+}
+
+.benefit-balance-row__icon-wrapper {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* En la referencia son círculos perfectos */
+  background-color: #f4f5f8;
+  color: #221c46;
+  flex-shrink: 0;
+}
+
+.benefit-balance-row__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.benefit-balance-row__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.benefit-balance-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.benefit-balance-row__name {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.benefit-balance-row__desc {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.benefit-balance-row__amounts {
+  text-align: right;
+  padding-top: 2px; /* Alineación óptica con el título */
+}
+
+.benefit-balance-row__available {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.benefit-balance-row__progress {
+  width: 100%;
+}
