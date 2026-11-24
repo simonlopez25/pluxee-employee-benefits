@@ -94,8 +94,10 @@ describe('request', () => {
     expect(err.message).toBe('Correo o contraseña incorrectos')
   })
 
-  it('un 403 de cuenta inactiva lanza account_inactive sin borrar el token', async () => {
+  it('un 403 de cuenta inactiva lanza account_inactive, borra la sesión y redirige a login', async () => {
     setToken('valido')
+    sessionStorage.setItem('pluxee_user', JSON.stringify({ id: 2, role: 'EMPLOYEE' }))
+
     fetchMock.mockResolvedValue(
       jsonResponse(403, {
         error: { code: 'account_inactive', message: 'Tu cuenta está desactivada. Contacta con administración' },
@@ -104,9 +106,11 @@ describe('request', () => {
 
     const err = await getJson('/me').catch((e) => e)
 
+    expect(err).toBeInstanceOf(ApiError)
     expect(err.code).toBe('account_inactive')
     expect(err.status).toBe(403)
-    expect(getToken()).toBe('valido')
+    expect(getToken()).toBeNull()
+    expect(sessionStorage.getItem('pluxee_user')).toBeNull()
   })
 
   it('un error sin formato de error lanza unknown_error', async () => {

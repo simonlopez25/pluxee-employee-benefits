@@ -9,6 +9,7 @@ import Profile from './pages/Profile'
 import { BenefitsCatalogPage } from './pages/BenefitsCatalogPage'
 import { BudgetsPage } from './pages/BudgetsPage'
 import { GroupsPage } from './pages/GroupsPage'
+import { EmployeesPage } from './pages/EmployeesPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import './styles/App.css'
 
@@ -31,7 +32,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <div className="appWrapper">
-                   <Routes>
+          <Routes>
             <Route path="/login" element={<Login />} />
 
             <Route element={<ProtectedRoute />}>
@@ -41,27 +42,38 @@ function App() {
             <Route element={<ProtectedRoute role="ADMIN" />}>
               <Route element={<PasswordChangeGuard />}>
                 <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={
-                  <PlaceholderPage
-                    title="Dashboard"
-                    description="Resumen general de beneficios y métricas clave."
-                  />
-                } />
+                <Route path="/employees" element={<EmployeesPage />} />
+                <Route path="/admin/employees" element={<Navigate to="/employees" replace />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PlaceholderPage
+                      title="Dashboard"
+                      description="Resumen general de beneficios y métricas clave."
+                    />
+                  }
+                />
                 <Route path="/groups" element={<GroupsPage />} />
                 <Route path="/budgets" element={<BudgetsPage />} />
                 <Route path="/catalog" element={<BenefitsCatalogPage />} />
-                <Route path="/assignments" element={
-                  <PlaceholderPage
-                    title="Asignaciones"
-                    description="Asignaciones de paquetes a empleados y equipos."
-                  />
-                } />
-                <Route path="/expenses" element={
-                  <PlaceholderPage
-                    title="Gestión de gastos"
-                    description="Aprobación y seguimiento de solicitudes de gastos."
-                  />
-                } />
+                <Route
+                  path="/assignments"
+                  element={
+                    <PlaceholderPage
+                      title="Asignaciones"
+                      description="Asignaciones de paquetes a empleados y equipos."
+                    />
+                  }
+                />
+                <Route
+                  path="/expenses"
+                  element={
+                    <PlaceholderPage
+                      title="Gestión de gastos"
+                      description="Aprobación y seguimiento de solicitudes de gastos."
+                    />
+                  }
+                />
               </Route>
             </Route>
 
@@ -79,7 +91,7 @@ function App() {
 
             <Route path="/" element={<Navigate to="/catalog" replace />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes> 
+          </Routes>
         </div>
       </BrowserRouter>
     </AuthProvider>
