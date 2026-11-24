@@ -59,18 +59,18 @@ export function AdminSidebar() {
       </nav>
 
       <div className="sidebarFooter">
-  <button type="button" className="sidebarSwitchButton" style={{ justifyContent: 'center' }} onClick={logout}>
-  <span>Cerrar sesión</span>
-</button>
+        <button type="button" className="sidebarSwitchButton" onClick={logout}>
+          <span>Cerrar sesión</span>
+        </button>
 
-  <div className="sidebarUserProfile">
-    <div className="sidebarUserAvatar">{initials || 'U'}</div>
-    <div className="sidebarUserInfo">
-      <span className="sidebarUserName">{user?.full_name || user?.fullName}</span>
-      <span className="sidebarUserRole">{roleLabel}</span>
-    </div>
-  </div>
-</div>
+        <div className="sidebarUserProfile">
+          <div className="sidebarUserAvatar">{initials || 'U'}</div>
+          <div className="sidebarUserInfo">
+            <span className="sidebarUserName">{user?.full_name || user?.fullName}</span>
+            <span className="sidebarUserRole">{roleLabel}</span>
+          </div>
+        </div>
+      </div>
     </aside>
   )
 }

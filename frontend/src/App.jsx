@@ -19,7 +19,7 @@ function ChangePasswordRoute() {
       isForced={true}
       onSuccess={() =>
         window.location.assign(
-          user?.role === 'ADMIN' ? '/admin' : '/empleado'
+          user?.role === 'ADMIN' ? '/dashboard' : '/empleado'
         )
       }
     />
