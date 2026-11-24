@@ -34,7 +34,25 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
-  const value = { user, isAuthenticated: user !== null, login, logout }
+  function updateMustChangePassword(value = false) {
+    setUser((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, must_change_password: value }
+      sessionStorage.setItem(USER_KEY, JSON.stringify(next))
+      return next
+    })
+  }
+
+  const mustChangePassword = user?.must_change_password === true
+
+  const value = {
+    user,
+    isAuthenticated: user !== null,
+    mustChangePassword,
+    login,
+    logout,
+    updateMustChangePassword,
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

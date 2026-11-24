@@ -1,12 +1,30 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import PasswordChangeGuard from './components/PasswordChangeGuard'
+import ChangePasswordForm from './components/ChangePasswordForm/ChangePasswordForm'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import Profile from './pages/Profile'
 import { BenefitsCatalogPage } from './pages/BenefitsCatalogPage'
 import { BudgetsPage } from './pages/BudgetsPage'
+import { GroupsPage } from './pages/GroupsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import './styles/App.css'
+
+function ChangePasswordRoute() {
+  const { user } = useAuth()
+  return (
+    <ChangePasswordForm
+      isForced={true}
+      onSuccess={() =>
+        window.location.assign(
+          user?.role === 'ADMIN' ? '/admin' : '/empleado'
+        )
+      }
+    />
+  )
+}
 
 function App() {
   return (
@@ -15,11 +33,23 @@ function App() {
         <div className="appWrapper">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/change-password" element={<ChangePasswordRoute />} />
+            </Route>
             <Route element={<ProtectedRoute role="ADMIN" />}>
-              <Route path="/admin" element={<Home />} />
+              <Route element={<PasswordChangeGuard />}>
+                <Route path="/admin" element={<Home />} />
+              </Route>
             </Route>
             <Route element={<ProtectedRoute role="EMPLOYEE" />}>
-              <Route path="/empleado" element={<Home />} />
+              <Route element={<PasswordChangeGuard />}>
+                <Route path="/empleado" element={<Home />} />
+              </Route>
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route element={<PasswordChangeGuard />}>
+                <Route path="/perfil" element={<Profile />} />
+              </Route>
             </Route>
             <Route path="/" element={<Navigate to="/catalog" replace />} />
             <Route path="/catalog" element={<BenefitsCatalogPage />} />
@@ -32,15 +62,7 @@ function App() {
                 />
               }
             />
-            <Route
-              path="/groups"
-              element={
-                <PlaceholderPage
-                  title="Grupos"
-                  description="Gestión de departamentos y grupos de la organización."
-                />
-              }
-            />
+            <Route path="/groups" element={<GroupsPage />} />
             <Route path="/budgets" element={<BudgetsPage />} />
             <Route
               path="/assignments"
