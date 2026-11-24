@@ -1,10 +1,14 @@
 """Lógica de negocio del saldo del empleado (HU-13 / PEB-55).
 
-Restante = Asignado − Aprobado − Pendiente (los PENDING descuentan saldo).
-El saldo es mensual: solo cuentan las asignaciones activas cuyo paquete
-pertenece a un departamento con presupuesto en el mes en curso. Si el mes
-no está abierto todavía, se devuelven las asignaciones activas con su
-saldo íntegro (approved = pending = 0) para no romper la vista.
+Reglas (confirmadas con el cliente):
+- Disponible de un paquete = asignado − aprobado − pendiente (todo su gasto).
+- Disponible de un beneficio = suma del disponible de los paquetes que lo
+  cubren. Un gasto en un paquete multibeneficio reduce el disponible de
+  todos sus beneficios, porque comparten saldo.
+- Asignado total del empleado = suma de `assigned_amount` de sus paquetes.
+- Solo cuentan los gastos con `expense_date` dentro del mes en curso.
+- Gastos rechazados no restan; asignaciones inactivas no cuentan.
+- Sin `GlobalBudget` del mes: `period = None`, totales a 0 y listas vacías.
 """
 
 from __future__ import annotations
@@ -31,89 +35,98 @@ from app.schemas.balance import (
 )
 
 _ZERO = Decimal("0.00")
-
-
-def _current_period(db: Session) -> date | None:
-    """Devuelve el `period` del presupuesto global del mes en curso, si existe."""
-    today = date.today()
-    period = date(today.year, today.month, 1)
-    exists = db.scalar(
-        select(GlobalBudget.period).where(GlobalBudget.period == period)
-    )
-    return exists
+_CENT = Decimal("0.01")
 
 
 def _quantize(value: Decimal) -> Decimal:
-    return value.quantize(Decimal("0.01"))
+    return value.quantize(_CENT)
 
 
-def get_balance(db: Session, user_id: int) -> EmployeeBalanceResponse:
-    """Calcula el saldo del empleado por beneficio y por paquete."""
-    period = _current_period(db)
+def _current_period(db: Session) -> tuple[date, date] | None:
+    """Devuelve (primer día del mes, primer día del mes siguiente) o None.
 
-    # Paquetes visibles: asignaciones activas del empleado. Si hay presupuesto
-    # del mes, se restringe a los paquetes del departamento con presupuesto
-    # en ese mes; si no, se muestran todas las asignaciones activas.
-    assignment_stmt = (
-        select(EmployeeAssignment)
-        .where(
-            EmployeeAssignment.user_id == user_id,
-            EmployeeAssignment.is_active.is_(True),
-        )
+    Si no hay `GlobalBudget` para el mes en curso, devuelve None: el empleado
+    no tiene saldo abierto este mes.
+    """
+    today = date.today()
+    first_day = date(today.year, today.month, 1)
+    if today.month == 12:
+        next_first_day = date(today.year + 1, 1, 1)
+    else:
+        next_first_day = date(today.year, today.month + 1, 1)
+
+    exists = db.scalar(
+        select(GlobalBudget.period).where(GlobalBudget.period == first_day)
     )
-    assignments = list(db.scalars(assignment_stmt))
+    if exists is None:
+        return None
+    return first_day, next_first_day
 
-    if period is not None and assignments:
-        visible_package_ids = set(
-            db.scalars(
-                select(Package.id)
-                .join(
-                    DepartmentBudget,
-                    DepartmentBudget.department_id == Package.department_id,
-                )
-                .join(
-                    GlobalBudget,
-                    GlobalBudget.id == DepartmentBudget.global_budget_id,
-                )
-                .where(
-                    GlobalBudget.period == period,
-                    Package.id.in_([a.package_id for a in assignments]),
-                )
+
+def _load_assignments(db: Session, user_id: int) -> list[EmployeeAssignment]:
+    return list(
+        db.scalars(
+            select(EmployeeAssignment).where(
+                EmployeeAssignment.user_id == user_id,
+                EmployeeAssignment.is_active.is_(True),
             )
         )
-        assignments = [a for a in assignments if a.package_id in visible_package_ids]
+    )
 
+
+def _visible_package_ids(
+    db: Session, assignments: list[EmployeeAssignment], first_day: date
+) -> set[int]:
+    """Paquetes del empleado cuyo departamento tiene presupuesto en el mes."""
     if not assignments:
-        return EmployeeBalanceResponse(
-            period=period,
-            assigned_total=_ZERO,
-            approved_total=_ZERO,
-            pending_total=_ZERO,
-            consumed_total=_ZERO,
-            available_total=_ZERO,
-            by_benefit=[],
-            packages=[],
+        return set()
+    return set(
+        db.scalars(
+            select(Package.id)
+            .join(
+                DepartmentBudget,
+                DepartmentBudget.department_id == Package.department_id,
+            )
+            .join(
+                GlobalBudget,
+                GlobalBudget.id == DepartmentBudget.global_budget_id,
+            )
+            .where(
+                GlobalBudget.period == first_day,
+                Package.id.in_([a.package_id for a in assignments]),
+            )
         )
+    )
 
-    package_ids = [a.package_id for a in assignments]
-    assignment_ids = [a.id for a in assignments]
 
-    # Beneficios que cubre cada paquete (package_benefits).
-    package_benefit_rows = db.execute(
+def _load_benefits_by_package(
+    db: Session, package_ids: list[int]
+) -> dict[int, list[Benefit]]:
+    if not package_ids:
+        return {}
+    rows = db.execute(
         select(PackageBenefit.package_id, Benefit)
         .join(Benefit, Benefit.id == PackageBenefit.benefit_id)
-        .where(PackageBenefit.package_id.in_(package_ids))
+        .where(
+            PackageBenefit.package_id.in_(package_ids),
+            Benefit.is_active.is_(True),
+        )
     ).all()
+    result: dict[int, list[Benefit]] = defaultdict(list)
+    for package_id, benefit in rows:
+        result[package_id].append(benefit)
+    return result
 
-    benefits_by_package: dict[int, list[Benefit]] = defaultdict(list)
-    for package_id, benefit in package_benefit_rows:
-        benefits_by_package[package_id].append(benefit)
 
-    # Consumo por (asignación, beneficio): suma de allocations no rechazadas.
-    allocation_rows = db.execute(
+def _load_consumption(
+    db: Session, assignment_ids: list[int], first_day: date, next_first_day: date
+) -> dict[int, dict[str, Decimal]]:
+    """Consumo por asignación (aprobado y pendiente), filtrado por mes."""
+    if not assignment_ids:
+        return {}
+    rows = db.execute(
         select(
             ExpenseAllocation.employee_assignment_id,
-            ExpenseAllocation.benefit_id,
             Expense.status,
             ExpenseAllocation.amount,
         )
@@ -121,99 +134,138 @@ def get_balance(db: Session, user_id: int) -> EmployeeBalanceResponse:
         .where(
             ExpenseAllocation.employee_assignment_id.in_(assignment_ids),
             Expense.status.in_(("APPROVED", "PENDING")),
+            Expense.expense_date >= first_day,
+            Expense.expense_date < next_first_day,
         )
     ).all()
 
-    approved_by: dict[tuple[int, int], Decimal] = defaultdict(lambda: _ZERO)
-    pending_by: dict[tuple[int, int], Decimal] = defaultdict(lambda: _ZERO)
-    for assignment_id, benefit_id, status, amount in allocation_rows:
-        key = (assignment_id, benefit_id)
+    result: dict[int, dict[str, Decimal]] = defaultdict(
+        lambda: {"approved": _ZERO, "pending": _ZERO}
+    )
+    for assignment_id, status, amount in rows:
         if status == "APPROVED":
-            approved_by[key] += amount
+            result[assignment_id]["approved"] += amount
         else:
-            pending_by[key] += amount
+            result[assignment_id]["pending"] += amount
+    return result
+
+
+def _build_package(
+    assignment: EmployeeAssignment,
+    package: Package,
+    benefits: list[Benefit],
+    consumption: dict[str, Decimal],
+) -> PackageBalance:
+    assigned = _quantize(assignment.assigned_amount)
+    approved = _quantize(consumption.get("approved", _ZERO))
+    pending = _quantize(consumption.get("pending", _ZERO))
+    consumed = _quantize(approved + pending)
+    available = _quantize(assigned - consumed)
+
+    # El disponible del paquete se reparte entre todos sus beneficios por
+    # igual: el cliente confirmó que un gasto en un beneficio del paquete
+    # reduce el disponible de los demás. `available` y `consumed` por
+    # beneficio reflejan ese saldo compartido.
+    benefit_items = [
+        BenefitBalance(
+            benefit_id=benefit.id,
+            benefit_name=benefit.name,
+            is_basic=benefit.is_basic,
+            consumed=consumed,
+            available=available,
+        )
+        for benefit in benefits
+    ]
+
+    return PackageBalance(
+        package_id=package.id,
+        package_name=package.name,
+        assigned=assigned,
+        approved=approved,
+        pending=pending,
+        consumed=consumed,
+        available=available,
+        benefits=benefit_items,
+    )
+
+
+def _aggregate_by_benefit(
+    packages: list[PackageBalance],
+) -> list[BenefitBalance]:
+    """Suma el disponible y consumido de los paquetes que cubren cada beneficio."""
+    aggregate: dict[int, BenefitBalance] = {}
+    for package in packages:
+        for benefit in package.benefits:
+            if benefit.benefit_id in aggregate:
+                agg = aggregate[benefit.benefit_id]
+                agg.consumed = _quantize(agg.consumed + benefit.consumed)
+                agg.available = _quantize(agg.available + benefit.available)
+            else:
+                aggregate[benefit.benefit_id] = BenefitBalance(
+                    benefit_id=benefit.benefit_id,
+                    benefit_name=benefit.benefit_name,
+                    is_basic=benefit.is_basic,
+                    consumed=benefit.consumed,
+                    available=benefit.available,
+                )
+    return sorted(aggregate.values(), key=lambda b: b.benefit_name)
+
+
+def _empty_response(period: date | None) -> EmployeeBalanceResponse:
+    return EmployeeBalanceResponse(
+        period=period,
+        assigned_total=_ZERO,
+        approved_total=_ZERO,
+        pending_total=_ZERO,
+        consumed_total=_ZERO,
+        available_total=_ZERO,
+        by_benefit=[],
+        packages=[],
+    )
+
+
+def get_balance(db: Session, user_id: int) -> EmployeeBalanceResponse:
+    """Calcula el saldo del empleado por beneficio y por paquete."""
+    current = _current_period(db)
+    if current is None:
+        return _empty_response(period=None)
+
+    first_day, next_first_day = current
+
+    assignments = _load_assignments(db, user_id)
+    visible = _visible_package_ids(db, assignments, first_day)
+    assignments = [a for a in assignments if a.package_id in visible]
+    if not assignments:
+        return _empty_response(period=first_day)
+
+    package_ids = [a.package_id for a in assignments]
+    assignment_ids = [a.id for a in assignments]
 
     packages_by_id = {
-        p.id: p for p in db.scalars(select(Package).where(Package.id.in_(package_ids)))
+        p.id: p
+        for p in db.scalars(select(Package).where(Package.id.in_(package_ids)))
     }
+    benefits_by_package = _load_benefits_by_package(db, package_ids)
+    consumption_by_assignment = _load_consumption(
+        db, assignment_ids, first_day, next_first_day
+    )
 
-    # Construcción de la respuesta
     package_results: list[PackageBalance] = []
-    aggregate: dict[int, BenefitBalance] = {}
-
     for assignment in assignments:
         package = packages_by_id.get(assignment.package_id)
-        if package is None:
+        if package is None or not package.is_active:
             continue
-
-        package_benefits: list[BenefitBalance] = []
-        package_approved = _ZERO
-        package_pending = _ZERO
-        package_assigned = assignment.assigned_amount
-
-        for benefit in benefits_by_package.get(package.id, []):
-            key = (assignment.id, benefit.id)
-            approved = _quantize(approved_by.get(key, _ZERO))
-            pending = _quantize(pending_by.get(key, _ZERO))
-            consumed = _quantize(approved + pending)
-            # El reparto del importe del paquete entre sus beneficios no está
-            # definido por el esquema; cada beneficio hereda el importe del
-            # paquete para el cálculo del disponible individual. El total del
-            # paquete es la fuente de verdad y se calcula con el asignado real.
-            benefit_available = _quantize(package_assigned - consumed)
-
-            item = BenefitBalance(
-                benefit_id=benefit.id,
-                benefit_name=benefit.name,
-                is_basic=benefit.is_basic,
-                assigned=_quantize(package_assigned),
-                approved=approved,
-                pending=pending,
-                consumed=consumed,
-                available=benefit_available,
-            )
-            package_benefits.append(item)
-
-            package_approved += approved
-            package_pending += pending
-
-            # Agregado por beneficio a nivel global del empleado
-            if benefit.id in aggregate:
-                agg = aggregate[benefit.id]
-                agg.assigned = _quantize(agg.assigned + package_assigned)
-                agg.approved = _quantize(agg.approved + approved)
-                agg.pending = _quantize(agg.pending + pending)
-                agg.consumed = _quantize(agg.consumed + consumed)
-                agg.available = _quantize(agg.available + benefit_available)
-            else:
-                aggregate[benefit.id] = BenefitBalance(
-                    benefit_id=benefit.id,
-                    benefit_name=benefit.name,
-                    is_basic=benefit.is_basic,
-                    assigned=_quantize(package_assigned),
-                    approved=approved,
-                    pending=pending,
-                    consumed=consumed,
-                    available=benefit_available,
-                )
-
         package_results.append(
-            PackageBalance(
-                package_id=package.id,
-                package_name=package.name,
-                assigned=_quantize(package_assigned),
-                approved=_quantize(package_approved),
-                pending=_quantize(package_pending),
-                consumed=_quantize(package_approved + package_pending),
-                available=_quantize(
-                    package_assigned - package_approved - package_pending
-                ),
-                benefits=package_benefits,
+            _build_package(
+                assignment,
+                package,
+                benefits_by_package.get(package.id, []),
+                consumption_by_assignment.get(assignment.id, {}),
             )
         )
 
-    by_benefit = sorted(aggregate.values(), key=lambda b: b.benefit_name)
     package_results.sort(key=lambda p: p.package_name)
+    by_benefit = _aggregate_by_benefit(package_results)
 
     assigned_total = _quantize(sum((p.assigned for p in package_results), _ZERO))
     approved_total = _quantize(sum((p.approved for p in package_results), _ZERO))
@@ -222,7 +274,7 @@ def get_balance(db: Session, user_id: int) -> EmployeeBalanceResponse:
     available_total = _quantize(assigned_total - consumed_total)
 
     return EmployeeBalanceResponse(
-        period=period,
+        period=first_day,
         assigned_total=assigned_total,
         approved_total=approved_total,
         pending_total=pending_total,

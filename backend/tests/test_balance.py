@@ -27,19 +27,15 @@ from app.models import (
 
 client = TestClient(app)
 
-# Solo los datos con este prefijo son datos de prueba:
-# se borran antes y después de cada test para que las corridas sean repetibles.
 TEST_NAME_PREFIX = "Test Balance HU13"
-# Mes en curso: el mismo que usa el endpoint por defecto.
 TEST_PERIOD = date.today().replace(day=1)
 
 
 def _delete_test_data() -> None:
-    """Borra los datos de prueba respetando el orden de las FKs.
+    """Borra solo lo que crea este módulo, respetando el orden de las FKs.
 
-    No toca `global_budgets` ni el resto de datos del seed: solo elimina
-    lo que crea este módulo (departamento, usuario, paquetes, beneficios,
-    asignaciones, gastos y el department_budget del departamento de test).
+    No toca `global_budgets` ni el resto del seed: reutiliza el del mes en
+    curso y solo borra el `department_budget` de los departamentos de test.
     """
     with SessionLocal() as db:
         test_deps = select(Department.id).where(
@@ -85,7 +81,6 @@ def _delete_test_data() -> None:
 
 @pytest.fixture(autouse=True)
 def clean_test_data():
-    """Limpia los datos de prueba antes y después de cada test."""
     _delete_test_data()
     yield
     _delete_test_data()
@@ -95,142 +90,324 @@ def _auth_header(user_id: int) -> dict[str, str]:
     return {"Authorization": f"Bearer {create_access_token(user_id, 'EMPLOYEE')}"}
 
 
+def _ensure_period(db) -> GlobalBudget:
+    """Reutiliza el GlobalBudget del mes en curso; lo crea si no existe."""
+    gb = db.scalar(select(GlobalBudget).where(GlobalBudget.period == TEST_PERIOD))
+    if gb is None:
+        gb = GlobalBudget(period=TEST_PERIOD, amount=Decimal("10000.00"))
+        db.add(gb)
+        db.flush()
+    return gb
+
+
+def _create_department(db, suffix: str) -> Department:
+    dep = Department(name=f"{TEST_NAME_PREFIX} {suffix}")
+    db.add(dep)
+    db.flush()
+    return dep
+
+
+def _create_employee(db, dep: Department, suffix: str) -> User:
+    user = User(
+        full_name=f"{TEST_NAME_PREFIX} {suffix}",
+        email=f"test-balance-hu13-{suffix.lower().replace(' ', '-')}@pluxee.test",
+        password_hash=hash_password("Prueba123!"),
+        role="EMPLOYEE",
+        department_id=dep.id,
+        must_change_password=False,
+        is_active=True,
+    )
+    db.add(user)
+    db.flush()
+    return user
+
+
+def _create_benefit(db, suffix: str) -> Benefit:
+    benefit = Benefit(
+        name=f"{TEST_NAME_PREFIX} {suffix}",
+        description=suffix,
+        is_basic=True,
+        is_active=True,
+    )
+    db.add(benefit)
+    db.flush()
+    return benefit
+
+
+def _create_package(db, dep: Department, suffix: str, amount: str) -> Package:
+    pkg = Package(
+        name=f"{TEST_NAME_PREFIX} {suffix}",
+        default_amount=Decimal(amount),
+        department_id=dep.id,
+        is_active=True,
+    )
+    db.add(pkg)
+    db.flush()
+    return pkg
+
+
+def _assign(db, user: User, package: Package, amount: str) -> EmployeeAssignment:
+    assignment = EmployeeAssignment(
+        package_id=package.id,
+        user_id=user.id,
+        assigned_amount=Decimal(amount),
+        is_active=True,
+    )
+    db.add(assignment)
+    db.flush()
+    return assignment
+
+
+def _expense(
+    db,
+    user: User,
+    benefit: Benefit,
+    assignment: EmployeeAssignment,
+    amount: str,
+    status: str,
+    expense_date: date,
+) -> None:
+    rejection_reason = "Motivo de prueba" if status == "REJECTED" else None
+    expense = Expense(
+        user_id=user.id,
+        benefit_id=benefit.id,
+        amount=Decimal(amount),
+        expense_date=expense_date,
+        description="test",
+        status=status,
+        rejection_reason=rejection_reason,
+    )
+    db.add(expense)
+    db.flush()
+    db.add(
+        ExpenseAllocation(
+            expense_id=expense.id,
+            employee_assignment_id=assignment.id,
+            package_id=assignment.package_id,
+            benefit_id=benefit.id,
+            amount=Decimal(amount),
+        )
+    )
+
+
 # ---------------------------------------------------------------------
 # 1. Autenticación
 # ---------------------------------------------------------------------
 def test_balance_requires_auth() -> None:
     response = client.get("/api/balance/me")
-
     assert response.status_code == 401
 
 
 # ---------------------------------------------------------------------
-# 2. Cálculo: Restante = Asignado − Aprobado − Pendiente
+# 2. Sin GlobalBudget del mes: todo a 0, period null
 # ---------------------------------------------------------------------
-def test_balance_returns_assigned_minus_approved_minus_pending() -> None:
-    """160 € asignados, 90 € aprobados, 10 € pendientes → 60 € disponibles."""
+def test_balance_without_current_period_returns_empty() -> None:
     with SessionLocal() as db:
-        dep = Department(name=f"{TEST_NAME_PREFIX} Ventas")
-        db.add(dep)
-        db.flush()
-
-        user = User(
-            full_name=f"{TEST_NAME_PREFIX} Lucía",
-            email="test-balance-hu13-lucia@pluxee.test",
-            password_hash=hash_password("Prueba123!"),
-            role="EMPLOYEE",
-            department_id=dep.id,
-            must_change_password=False,
-            is_active=True,
-        )
-        food = Benefit(
-            name=f"{TEST_NAME_PREFIX} Comida",
-            description="Comida",
-            is_basic=True,
-            is_active=True,
-        )
-        transport = Benefit(
-            name=f"{TEST_NAME_PREFIX} Transporte",
-            description="Transporte",
-            is_basic=True,
-            is_active=True,
-        )
-        db.add_all([user, food, transport])
-        db.flush()
-
-        pkg_combo = Package(
-            name=f"{TEST_NAME_PREFIX} Comida y transporte",
-            default_amount=Decimal("100.00"),
-            department_id=dep.id,
-            is_active=True,
-        )
-        pkg_food = Package(
-            name=f"{TEST_NAME_PREFIX} Comida",
-            default_amount=Decimal("60.00"),
-            department_id=dep.id,
-            is_active=True,
-        )
-        db.add_all([pkg_combo, pkg_food])
-        db.flush()
-        db.add_all(
-            [
-                PackageBenefit(package_id=pkg_combo.id, benefit_id=food.id),
-                PackageBenefit(package_id=pkg_combo.id, benefit_id=transport.id),
-                PackageBenefit(package_id=pkg_food.id, benefit_id=food.id),
-            ]
-        )
-        db.flush()
-
-        # Reutiliza el GlobalBudget del mes en curso (el del seed en noviembre);
-        # solo lo crea si no existe.
-        gb = db.scalar(
+        # Nos aseguramos de que no hay GlobalBudget del mes en curso.
+        existing = db.scalar(
             select(GlobalBudget).where(GlobalBudget.period == TEST_PERIOD)
         )
-        if gb is None:
-            gb = GlobalBudget(period=TEST_PERIOD, amount=Decimal("10000.00"))
-            db.add(gb)
-            db.flush()
+        if existing is not None:
+            pytest.skip("El mes en curso tiene GlobalBudget (seed); no aplica")
 
-        db.add(
-            DepartmentBudget(
-                global_budget_id=gb.id, department_id=dep.id, amount=Decimal("3000.00")
-            )
-        )
-        db.flush()
-
-        assign_combo = EmployeeAssignment(
-            package_id=pkg_combo.id,
-            user_id=user.id,
-            assigned_amount=Decimal("100.00"),
-            is_active=True,
-        )
-        assign_food = EmployeeAssignment(
-            package_id=pkg_food.id,
-            user_id=user.id,
-            assigned_amount=Decimal("60.00"),
-            is_active=True,
-        )
-        db.add_all([assign_combo, assign_food])
-        db.flush()
-
-        for status, amount, assignment, benefit, description in (
-            ("APPROVED", "90.00", assign_combo, transport, "Tren"),
-            ("PENDING", "10.00", assign_food, food, "Menú"),
-        ):
-            expense = Expense(
-                user_id=user.id,
-                benefit_id=benefit.id,
-                amount=Decimal(amount),
-                expense_date=TEST_PERIOD,
-                description=description,
-                status=status,
-            )
-            db.add(expense)
-            db.flush()
-            db.add(
-                ExpenseAllocation(
-                    expense_id=expense.id,
-                    employee_assignment_id=assignment.id,
-                    package_id=assignment.package_id,
-                    benefit_id=benefit.id,
-                    amount=Decimal(amount),
-                )
-            )
-
+        dep = _create_department(db, "SinMes")
+        user = _create_employee(db, dep, "SinMes")
         db.commit()
         user_id = user.id
 
     response = client.get("/api/balance/me", headers=_auth_header(user_id))
-
-    assert response.status_code == 200, response.text
+    assert response.status_code == 200
     body = response.json()
-    assert body["period"] == TEST_PERIOD.isoformat()
-    assert body["assigned_total"] == "160.00"
-    assert body["approved_total"] == "90.00"
-    assert body["pending_total"] == "10.00"
-    assert body["consumed_total"] == "100.00"
-    assert body["available_total"] == "60.00"
+    assert body["period"] is None
+    assert body["assigned_total"] == "0.00"
+    assert body["available_total"] == "0.00"
+    assert body["by_benefit"] == []
+    assert body["packages"] == []
+
+
+# ---------------------------------------------------------------------
+# 3. Multibeneficio compartido: el gasto reduce el disponible de todos
+#    Ejemplo del cliente: 100 combo + 50 mono comida, 30 gastados en transporte
+# ---------------------------------------------------------------------
+def test_balance_shared_package_reduces_all_benefits() -> None:
+    with SessionLocal() as db:
+        dep = _create_department(db, "Compartido")
+        user = _create_employee(db, dep, "Compartido")
+
+        food = _create_benefit(db, "Comida compartida")
+        transport = _create_benefit(db, "Transporte compartido")
+
+        combo = _create_package(db, dep, "Combo compartido", "100.00")
+        mono = _create_package(db, dep, "Mono comida compartido", "50.00")
+        db.add_all(
+            [
+                PackageBenefit(package_id=combo.id, benefit_id=food.id),
+                PackageBenefit(package_id=combo.id, benefit_id=transport.id),
+                PackageBenefit(package_id=mono.id, benefit_id=food.id),
+            ]
+        )
+        db.flush()
+
+        gb = _ensure_period(db)
+        db.add(
+            DepartmentBudget(
+                global_budget_id=gb.id,
+                department_id=dep.id,
+                amount=Decimal("3000.00"),
+            )
+        )
+        db.flush()
+
+        assign_combo = _assign(db, user, combo, "100.00")
+        _assign(db, user, mono, "50.00")
+
+        _expense(
+            db, user, transport, assign_combo, "30.00", "APPROVED", TEST_PERIOD
+        )
+        db.commit()
+        user_id = user.id
+
+    response = client.get("/api/balance/me", headers=_auth_header(user_id))
+    assert response.status_code == 200
+    body = response.json()
+
+    # Total asignado = 100 + 50 (suma de paquetes, no de beneficios)
+    assert body["assigned_total"] == "150.00"
+    assert body["consumed_total"] == "30.00"
+    assert body["available_total"] == "120.00"
 
     by_benefit = {item["benefit_name"]: item for item in body["by_benefit"]}
-    assert by_benefit[f"{TEST_NAME_PREFIX} Comida"]["available"] == "150.00"
-    assert by_benefit[f"{TEST_NAME_PREFIX} Transporte"]["available"] == "10.00"
+    # Comida: (100 − 30) + (50 − 0) = 120
+    assert by_benefit[f"{TEST_NAME_PREFIX} Comida compartida"]["available"] == "120.00"
+    # Transporte: 100 − 30 = 70
+    assert by_benefit[f"{TEST_NAME_PREFIX} Transporte compartido"]["available"] == "70.00"
+
+
+# ---------------------------------------------------------------------
+# 4. Gasto de un mes anterior no resta
+# ---------------------------------------------------------------------
+def test_balance_ignores_expenses_from_previous_month() -> None:
+    with SessionLocal() as db:
+        dep = _create_department(db, "MesAnterior")
+        user = _create_employee(db, dep, "MesAnterior")
+        food = _create_benefit(db, "Comida mes anterior")
+
+        pkg = _create_package(db, dep, "Comida mes anterior", "80.00")
+        db.add(PackageBenefit(package_id=pkg.id, benefit_id=food.id))
+        db.flush()
+
+        gb = _ensure_period(db)
+        db.add(
+            DepartmentBudget(
+                global_budget_id=gb.id,
+                department_id=dep.id,
+                amount=Decimal("1000.00"),
+            )
+        )
+        db.flush()
+
+        assignment = _assign(db, user, pkg, "80.00")
+
+        previous_month = (
+            date(TEST_PERIOD.year - 1, 12, 15)
+            if TEST_PERIOD.month == 1
+            else date(TEST_PERIOD.year, TEST_PERIOD.month - 1, 15)
+        )
+        _expense(
+            db, user, food, assignment, "40.00", "APPROVED", previous_month
+        )
+        db.commit()
+        user_id = user.id
+
+    response = client.get("/api/balance/me", headers=_auth_header(user_id))
+    body = response.json()
+    assert body["consumed_total"] == "0.00"
+    assert body["available_total"] == "80.00"
+
+
+# ---------------------------------------------------------------------
+# 5. Gasto rechazado no resta
+# ---------------------------------------------------------------------
+def test_balance_ignores_rejected_expenses() -> None:
+    with SessionLocal() as db:
+        dep = _create_department(db, "Rechazado")
+        user = _create_employee(db, dep, "Rechazado")
+        food = _create_benefit(db, "Comida rechazada")
+
+        pkg = _create_package(db, dep, "Comida rechazada", "50.00")
+        db.add(PackageBenefit(package_id=pkg.id, benefit_id=food.id))
+        db.flush()
+
+        gb = _ensure_period(db)
+        db.add(
+            DepartmentBudget(
+                global_budget_id=gb.id,
+                department_id=dep.id,
+                amount=Decimal("1000.00"),
+            )
+        )
+        db.flush()
+
+        assignment = _assign(db, user, pkg, "50.00")
+        _expense(db, user, food, assignment, "20.00", "REJECTED", TEST_PERIOD)
+        db.commit()
+        user_id = user.id
+
+    response = client.get("/api/balance/me", headers=_auth_header(user_id))
+    body = response.json()
+    assert body["consumed_total"] == "0.00"
+    assert body["available_total"] == "50.00"
+
+
+# ---------------------------------------------------------------------
+# 6. Ejemplo del seed: Comida 70 € y Transporte 10 €
+# ---------------------------------------------------------------------
+def test_balance_seed_example() -> None:
+    """100 combo + 60 mono, 90 gastados en transporte → Comida 70, Transporte 10."""
+    with SessionLocal() as db:
+        dep = _create_department(db, "Seed")
+        user = _create_employee(db, dep, "Seed")
+        food = _create_benefit(db, "Comida seed")
+        transport = _create_benefit(db, "Transporte seed")
+
+        combo = _create_package(db, dep, "Combo seed", "100.00")
+        mono = _create_package(db, dep, "Mono comida seed", "60.00")
+        db.add_all(
+            [
+                PackageBenefit(package_id=combo.id, benefit_id=food.id),
+                PackageBenefit(package_id=combo.id, benefit_id=transport.id),
+                PackageBenefit(package_id=mono.id, benefit_id=food.id),
+            ]
+        )
+        db.flush()
+
+        gb = _ensure_period(db)
+        db.add(
+            DepartmentBudget(
+                global_budget_id=gb.id,
+                department_id=dep.id,
+                amount=Decimal("3000.00"),
+            )
+        )
+        db.flush()
+
+        assign_combo = _assign(db, user, combo, "100.00")
+        _assign(db, user, mono, "60.00")
+
+        _expense(
+            db, user, transport, assign_combo, "90.00", "APPROVED", TEST_PERIOD
+        )
+        db.commit()
+        user_id = user.id
+
+    response = client.get("/api/balance/me", headers=_auth_header(user_id))
+    assert response.status_code == 200
+    body = response.json()
+
+    assert body["assigned_total"] == "160.00"
+    assert body["consumed_total"] == "90.00"
+    assert body["available_total"] == "70.00"
+
+    by_benefit = {item["benefit_name"]: item for item in body["by_benefit"]}
+    assert by_benefit[f"{TEST_NAME_PREFIX} Comida seed"]["available"] == "70.00"
+    assert by_benefit[f"{TEST_NAME_PREFIX} Transporte seed"]["available"] == "10.00"

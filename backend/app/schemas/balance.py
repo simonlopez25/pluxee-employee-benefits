@@ -9,16 +9,18 @@ from pydantic import BaseModel, ConfigDict
 
 
 class BenefitBalance(BaseModel):
-    """Saldo de un beneficio dentro de un paquete."""
+    """Saldo agregado de un beneficio para el empleado.
+
+    `available` es la suma del disponible de todos los paquetes que cubren
+    el beneficio: si un paquete multibeneficio comparte saldo, un gasto en
+    uno de sus beneficios reduce el disponible de todos ellos.
+    """
 
     model_config = ConfigDict(from_attributes=True)
 
     benefit_id: int
     benefit_name: str
     is_basic: bool
-    assigned: Decimal
-    approved: Decimal
-    pending: Decimal
     consumed: Decimal
     available: Decimal
 
@@ -39,7 +41,12 @@ class PackageBalance(BaseModel):
 
 
 class EmployeeBalanceResponse(BaseModel):
-    """Resumen agregado + detalle de paquetes del empleado."""
+    """Resumen agregado + detalle de paquetes del empleado.
+
+    `assigned_total` es la suma de `assigned_amount` de los paquetes del
+    empleado, no la suma de los disponibles por beneficio (que se solapan
+    cuando un paquete multibeneficio cubre varios).
+    """
 
     period: date | None
     assigned_total: Decimal
