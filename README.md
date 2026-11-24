@@ -221,3 +221,57 @@ Migraciones de base de datos con **Alembic**: ver [backend/README.md](backend/RE
 ## Metodología UI
 
 Los componentes siguen **Atomic Design** — ver [frontend/src/components/README.md](frontend/src/components/README.md).
+
+------------------
+## 👩‍💻 Equipo de desarrollo
+
+<table align="center">
+  <tr>
+    <td align="center" width="20%">
+      <a href="https://github.com/simonlopez25">
+        <img src="https://github.com/simonlopez25.png" width="90" height="90" alt="Simón López" />
+      </a>
+      <br />
+      <sub><b>Simón López</b></sub>
+      <br />
+      <a href="https://github.com/simonlopez25">GitHub</a>
+    </td>
+    <td align="center" width="20%">
+      <a href="https://github.com/apariciodiazpatricia-cell">
+        <img src="https://github.com/apariciodiazpatricia-cell.png" width="90" height="90" alt="Patricia Aparicio" />
+      </a>
+      <br />
+      <sub><b>Patricia Aparicio</b></sub>
+      <br />
+      <a href="https://github.com/apariciodiazpatricia-cell">GitHub</a>
+    </td>
+    <td align="center" width="20%">
+      <a href="https://github.com/oscarperezGR">
+        <img src="https://github.com/oscarperezGR.png" width="90" height="90" alt="Óscar Pérez" />
+      </a>
+      <br />
+      <sub><b>Óscar Pérez</b></sub>
+      <br />
+      <a href="https://github.com/oscarperezGR">GitHub</a>
+    </td>
+    <td align="center" width="20%">
+      <a href="https://github.com/Marisa-Ruiz">
+        <img src="https://github.com/Marisa-Ruiz.png" width="90" height="90" alt="Marisa Ruiz Torres" />
+      </a>
+      <br />
+      <sub><b>Marisa Ruiz Torres</b></sub>
+      <br />
+      <a href="https://github.com/Marisa-Ruiz">GitHub</a>
+    </td>
+    <td align="center" width="20%">
+      <a href="https://github.com/margaritabellidoroig">
+        <img src="https://github.com/margaritabellidoroig.png" width="90" height="90" alt="Margarita Bellido" />
+      </a>
+      <br />
+      <sub><b>Margarita Bellido</b></sub>
+      <br />
+      <a href="https://github.com/margaritabellidoroig">GitHub</a>
+    </td>
+  </tr>
+</table>
+
