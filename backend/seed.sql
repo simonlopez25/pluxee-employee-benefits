@@ -32,9 +32,9 @@
 --
 -- SEED_RESET_BEGIN
 -- TRUNCATE audit_logs, expense_history, attachments, expense_allocations,
---          expenses, employee_assignments,
---          department_budgets, package_benefits, packages, benefits,
---          users, global_budgets, departments
+-- expenses, employee_assignments,
+-- department_budgets, package_benefits, packages, benefits,
+-- users, global_budgets, departments
 -- RESTART IDENTITY;
 -- SEED_RESET_END
 -- =====================================================================

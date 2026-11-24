@@ -1,7 +1,5 @@
 import { createContext, useContext, useState } from 'react'
-import { clearToken, getToken, postJson, setToken } from '../services/http'
-
-const USER_KEY = 'pluxee_user'
+import { clearToken, clearUser, getToken, postJson, setToken, USER_KEY } from '../services/http'
 
 const AuthContext = createContext(null)
 
@@ -30,7 +28,7 @@ export function AuthProvider({ children }) {
 
   function logout() {
     clearToken()
-    sessionStorage.removeItem(USER_KEY)
+    clearUser()
     setUser(null)
   }
 
