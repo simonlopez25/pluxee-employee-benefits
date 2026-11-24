@@ -1,0 +1,270 @@
+.deptModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(34, 28, 70, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  animation: deptModalFadeIn 0.2s ease-out;
+}
+
+.deptModalContainer {
+  background-color: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 540px;
+  box-shadow: 0 20px 40px rgba(34, 28, 70, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: calc(90vh);
+  animation: deptModalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.deptModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.deptModalHeaderInfo {
+  flex: 1;
+}
+
+.deptModalTitle {
+  margin: 0 0 4px 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: #221c46;
+}
+
+.deptModalSubtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.deptModalCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f4f5f8;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.deptModalCloseButton:hover {
+  background-color: #e5e7eb;
+  color: #1e1b3a;
+}
+
+.deptModalForm {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.deptModalBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+}
+
+.deptModalAlertError {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.deptModalField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.deptModalLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.deptModalRequired {
+  color: #dc2626;
+}
+
+.deptModalInput {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 15px;
+  color: #1e1b3a;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.deptModalInput:focus {
+  border-color: #221c46;
+  box-shadow: 0 0 0 3px rgba(34, 28, 70, 0.1);
+}
+
+.deptModalInputError {
+  border-color: #dc2626;
+}
+
+.deptModalInputError:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.deptModalErrorMessage {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.deptModalHint {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.deptModalHint strong {
+  color: #1e1b3a;
+}
+
+.deptModalSectionDivider {
+  height: 1px;
+  background-color: #f1f3f7;
+  margin: 4px 0;
+}
+
+.deptModalReferencesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.deptModalSectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #221c46;
+}
+
+.deptModalNoticeBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+
+.deptModalNoticeIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.deptModalNoticeText {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.deptModalReferencesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .deptModalReferencesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deptReferenceField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.deptReferenceLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.deptReferenceInput {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 13px;
+  color: #1e1b3a;
+  background-color: #fcfdfe;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.deptReferenceInput:focus {
+  border-color: #221c46;
+  box-shadow: 0 0 0 2px rgba(34, 28, 70, 0.08);
+}
+
+.deptModalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #fcfdfe;
+  border-top: 1px solid #f1f3f7;
+}
+
+@keyframes deptModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes deptModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

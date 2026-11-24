@@ -1,0 +1,193 @@
+.employeeModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(34, 28, 70, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  animation: employeeModalBackdropFadeIn 0.2s ease-out;
+}
+
+.employeeModalContainer {
+  background-color: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 40px rgba(34, 28, 70, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: employeeModalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.employeeModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.employeeModalHeaderInfo {
+  flex: 1;
+}
+
+.employeeModalTitle {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #221c46;
+  letter-spacing: -0.01em;
+}
+
+.employeeModalSubtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.employeeModalCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f4f5f8;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.employeeModalCloseButton:hover {
+  background-color: #e5e7eb;
+  color: #1e1b3a;
+}
+
+.employeeModalForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.employeeModalBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: calc(85vh - 150px);
+  overflow-y: auto;
+}
+
+.employeeModalAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.employeeModalAlertIcon {
+  display: inline-flex;
+  margin-top: 1px;
+}
+
+.employeeModalAlertText {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.employeeModalField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.employeeModalLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.employeeModalRequiredMark {
+  color: #dc2626;
+}
+
+.employeeModalInput {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1e1b3a;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.employeeModalInput:focus {
+  border-color: #221c46;
+  box-shadow: 0 0 0 3px rgba(34, 28, 70, 0.1);
+}
+
+.employeeModalInputError {
+  border-color: #dc2626;
+}
+
+.employeeModalInputError:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.employeeModalErrorMessage {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.employeeModalFieldNote {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.employeeModalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #fcfdfe;
+  border-top: 1px solid #f1f3f7;
+}
+
+@keyframes employeeModalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes employeeModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -131,7 +131,7 @@ npm run seed -- --reset   # borra los datos (TRUNCATE) y vuelve a sembrar
 
 El runner (`backend/scripts/seed.py`) usa la misma conexión que la app, así
 que sirve igual para **Neon** que para la **Postgres local**. Al terminar
-comprueba los recuentos de las 14 tablas y el saldo de Lucía: debe dar
+comprueba los recuentos de las 13 tablas y el saldo de Lucía: debe dar
 **Comida = 70,00** y **Transporte = 10,00** (`SEED RESULT: PASS`).
 
 También se puede ejecutar a mano en **pgAdmin** (F5) sobre una BD local ya
@@ -218,6 +218,67 @@ cd backend
 
 Migraciones de base de datos con **Alembic**: ver [backend/README.md](backend/README.md).
 
-## Metodología UI
+## Metodología UI y Frontend
 
-Los componentes siguen **Atomic Design** — ver [frontend/src/components/README.md](frontend/src/components/README.md).
+El frontend sigue **Atomic Design** organizado en carpetas modulares por componente (cada componente agrupa su `.jsx`, su `.css` y su `index.js`).
+
+Ver detalle en [frontend/src/components/README.md](frontend/src/components/README.md).
+
+### Catálogo de Beneficios (HU-09 / PEB-48)
+
+La pantalla principal de administración de beneficios incluye:
+
+1. **Barra de navegación lateral (`AdminSidebar`):**
+   * Estilo corporativo (Índigo `#221C46` y verde activo `#00EB5E`).
+   * Enlaces directos vía `react-router-dom`: `/dashboard`, `/groups`, `/budgets`, `/catalog`, `/assignments`, `/expenses`.
+   * Botón para alternar rol ("Ver como empleado") y tarjeta de perfil de usuario.
+
+2. **Catálogo de beneficios (`BenefitsCatalogSection`):**
+   * Encabezado con título descriptivo y botón de acción principal `+ Nuevo beneficio`.
+   * Filtros rápidos por estado con contadores dinámicos: *Todos*, *Activos*, *Inactivos*, *Básicos*.
+   * Cuadrícula responsiva de tarjetas (`BenefitCard`) con badges de estado, atenuación visual para inactivos, acción rápida de activación/desactivación sin borrado físico y botón de edición.
+   * Modal de formulario (`BenefitFormModal`) para crear y editar beneficios con validación en cliente y captura de errores del backend (especialmente `409 Conflict` cuando el nombre ya existe).
+   * Contenedor inferior preparado para la integración de paquetes (**HU-10**).
+
+### Gestión de Presupuestos (HU-11 / PEB-19)
+
+La vista de control presupuestario (`/budgets`) permite gestionar techos de gasto y reparto por departamento:
+
+1. **Selector de Período y Resumen Global (`GlobalBudgetSummary`):**
+   * Navegación por mes (`YYYY-MM-01`) que carga por defecto en el mes actual.
+   * Aviso explicativo sobre la naturaleza no acumulativa del saldo mensual.
+   * Cuatro métricas consolidadas: Presupuesto Global, Repartido a Grupos, Sin Repartir (Disponible) y Porcentaje Consolidado Repartido.
+   * Modal (`GlobalBudgetModal`) para ajustar el techo global, impidiendo reducciones por debajo de lo ya asignado (`409 Conflict`).
+
+2. **Tabla Comparativa de Departamentos (`DepartmentBudgetsTable`):**
+   * Fusión reactiva de todos los departamentos activos con las asignaciones del mes.
+   * Columnas: Grupo, Asignado, Disponible, Consumido, Barra de progreso de Uso del asignado (%) y Acciones.
+   * Badges de estado (*"Sin asignar"*) para departamentos aún no dotados de presupuesto en el mes seleccionado.
+   * Modal (`DepartmentBudgetModal`) para asignar o reajustar presupuesto departamental (limitado por el remanente global) y definir referencias orientativas por beneficio con validación informativa.
+
+### Gestión de Empleados (HU-08 / PEB-16)
+
+La vista de administración de plantilla (`/employees`) permite la gestión de usuarios y su ciclo de vida:
+
+1. **Listado de Plantilla (`EmployeesPage`):**
+   * Tabla con nombre completo, correo, rol (badge Administrador / Empleado), departamento asignado, estado (Activo / Inactivo) y fecha de baja lógica.
+   * Carga paralela de usuarios y departamentos mediante `userService` y `departmentService`.
+
+2. **Edición de Empleados (`EmployeeFormModal`):**
+   * Actualización parcial (`PATCH /api/users/{id}`) con validaciones en cliente y backend.
+   * Cumplimiento de integridad: los administradores no tienen departamento asociado y los empleados requieren departamento obligatorio.
+   * Seguridad: un administrador no puede rebajar su propio rol para evitar el bloqueo del sistema.
+
+3. **Baja Lógica (`DeactivateConfirmModal`):**
+   * Desactivación segura (`PATCH /api/users/{id}/deactivate`): marca `is_active = False` y registra la fecha de baja en UTC sin borrar el registro ni perder históricos.
+   * Protección contra auto-baja: el administrador actual no puede darse de baja a sí mismo.
+   * Revocación de sesión en caliente: si un usuario dado de baja realiza una petición, `http.js` captura el error 403 `account_inactive`, borra el token de sesión y lo redirige a login.
+
+### Flujo de comunicación completa
+
+```text
+Frontend (localhost:5173) 
+  ──(Peticiones fetch /api/benefits, /api/budgets, /api/users)──> Vite Proxy 
+  ──(Reenvío puerto 4000)──────────────────────────────────────> FastAPI (app.routes.benefit, budget, users) 
+  ──(SQLAlchemy 2.0)───────────────────────────────────────────> PostgreSQL (Neon en aws-us-east-2)
+```

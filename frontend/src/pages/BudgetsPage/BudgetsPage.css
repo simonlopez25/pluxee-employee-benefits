@@ -1,0 +1,103 @@
+.budgetsPageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.budgetsAlertSuccess,
+.budgetsAlertError {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  animation: budgetsAlertFadeIn 0.25s ease-out;
+}
+
+.budgetsAlertSuccess {
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.budgetsAlertError {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.budgetsAlertIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.budgetsAlertText {
+  flex: 1;
+  font-weight: 500;
+}
+
+.budgetsAlertDismiss {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: inline-flex;
+  padding: 4px;
+  opacity: 0.7;
+}
+
+.budgetsAlertDismiss:hover {
+  opacity: 1;
+}
+
+.budgetsRetryButton {
+  margin-left: 8px;
+}
+
+.budgetsTableSkeleton {
+  background-color: #ffffff;
+  border: 1px solid #edf0f5;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.skeletonTableHeader {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  background-color: #f1f3f7;
+  animation: budgetsSkeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonTableRow {
+  width: 100%;
+  height: 60px;
+  border-radius: 8px;
+  background-color: #f8f9fb;
+  animation: budgetsSkeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes budgetsSkeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes budgetsAlertFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

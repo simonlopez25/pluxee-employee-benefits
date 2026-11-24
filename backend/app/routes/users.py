@@ -1,73 +1,113 @@
+"""Endpoints de gestión de usuarios: alta, edición y baja lógica."""
+
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.errors import AppError
-from app.core.security import hash_password
+from app.core.errors import ConflictError, NotFoundError
+from app.core.security import get_current_user, hash_password, require_admin
 from app.models.department import Department
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.auth import UserPublic
+from app.schemas.user import ChangePasswordRequest, UserCreate, UserUpdateRequest
+from app.services import user_service
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(tags=["users"])
+
+
+@router.get(
+    "/users",
+    response_model=list[UserPublic],
+    summary="Lista los usuarios (admin)",
+)
+def list_users(
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> list[UserPublic]:
+    """Devuelve la lista de usuarios (administradores y empleados) con su estado de activación."""
+    return user_service.list_users(db)
 
 
 @router.post(
-    "",
-    response_model=UserResponse,
+    "/users",
+    response_model=UserPublic,
     status_code=status.HTTP_201_CREATED,
-    summary="Register a new employee (HU-07 / PEB-15)",
+    summary="Da de alta a un empleado (admin)",
 )
 def register_employee(
-    user_in: UserCreate,
+    payload: UserCreate,
+    admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
-) -> User:
-    """
-    Register a new employee account meeting all HU-07 acceptance criteria:
-    1. Mandatory assignment to a single valid, active department (department_id).
-    2. Email uniqueness check across the entire users table.
-    3. Mandatory password change flag enabled on creation (must_change_password = True).
-    4. Secure password storage using salted bcrypt hashing (never returned in plain text).
-    """
-    # 1. Normalize email address and verify uniqueness
-    normalized_email = user_in.email.strip().lower()
-    existing_user = db.query(User).filter(User.email == normalized_email).first()
-    if existing_user:
-        raise AppError(
-            code="USER_EMAIL_ALREADY_EXISTS",
-            message="An account with this email address already exists.",
-            status_code=status.HTTP_409_CONFLICT,
-        )
+) -> UserPublic:
+    """Crea una cuenta de empleado con grupo, contraseña temporal y cambio obligatorio."""
+    if db.scalar(
+        select(User.id).where(User.email == payload.email)
+    ) is not None:
+        raise ConflictError("Ya existe un usuario con ese correo electrónico")
 
-    # 2. Verify that the specified department exists and is currently active
-    department = (
-        db.query(Department)
-        .filter(
-            Department.id == user_in.department_id,
-            Department.is_active == True,
-        )
-        .first()
-    )
-    if not department:
-        raise AppError(
-            code="DEPARTMENT_NOT_FOUND",
-            message="The specified department does not exist or is inactive.",
-            status_code=status.HTTP_404_NOT_FOUND,
-        )
+    if db.get(Department, payload.department_id) is None:
+        raise NotFoundError("El departamento no existe")
 
-    # 3. Instantiate employee record with role partition and security defaults
-    new_user = User(
-        email=normalized_email,
-        full_name=user_in.full_name.strip(),
-        password_hash=hash_password(user_in.temporary_password),
-        department_id=user_in.department_id,
+    user = User(
+        email=payload.email,
+        full_name=payload.full_name.strip(),
+        password_hash=hash_password(payload.temporary_password),
+        department_id=payload.department_id,
         role="EMPLOYEE",
         is_active=True,
         must_change_password=True,
     )
-
-    db.add(new_user)
+    db.add(user)
     db.commit()
-    db.refresh(new_user)
-    return new_user
+    db.refresh(user)
+    return UserPublic.model_validate(user)
+
+
+@router.patch(
+    "/users/me/password", response_model=UserPublic, summary="Cambiar contraseña"
+)
+def change_password(
+    data: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> UserPublic:
+    return user_service.change_password(db, user, data)
+
+
+UserIdPath = Annotated[int, Path(description="Id del empleado")]
+
+
+@router.patch(
+    "/users/{user_id}",
+    response_model=UserPublic,
+    status_code=status.HTTP_200_OK,
+    summary="Edita un empleado (admin)",
+)
+def update_employee(
+    user_id: UserIdPath,
+    payload: UserUpdateRequest,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> UserPublic:
+    """Actualiza parcialmente los datos de un empleado."""
+    return user_service.update_employee(db, user_id, admin, payload)
+
+
+@router.patch(
+    "/users/{user_id}/deactivate",
+    response_model=UserPublic,
+    status_code=status.HTTP_200_OK,
+    summary="Da de baja lógica a un empleado (admin)",
+)
+def deactivate_employee(
+    user_id: UserIdPath,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> UserPublic:
+    """Marca a un empleado como inactivo (is_active=False) con fecha de baja."""
+    return user_service.deactivate_employee(db, user_id, admin)

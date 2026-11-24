@@ -1,0 +1,19 @@
+.iconSvg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.iconSpin {
+  animation: iconSpinAnimation 1s linear infinite;
+}
+
+@keyframes iconSpinAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+

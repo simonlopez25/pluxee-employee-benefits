@@ -1,121 +1,95 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import PasswordChangeGuard from './components/PasswordChangeGuard'
+import ChangePasswordForm from './components/ChangePasswordForm/ChangePasswordForm'
+import Login from './pages/Login'
+import Home from './pages/Home'
+import Profile from './pages/Profile'
+import { BenefitsCatalogPage } from './pages/BenefitsCatalogPage'
+import { BudgetsPage } from './pages/BudgetsPage'
+import { GroupsPage } from './pages/GroupsPage'
+import { EmployeesPage } from './pages/EmployeesPage'
+import { PlaceholderPage } from './pages/PlaceholderPage'
 import './styles/App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function ChangePasswordRoute() {
+  const { user } = useAuth()
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <ChangePasswordForm
+      isForced={true}
+      onSuccess={() =>
+        window.location.assign(
+          user?.role === 'ADMIN' ? '/admin' : '/empleado'
+        )
+      }
+    />
+  )
+}
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="appWrapper">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/change-password" element={<ChangePasswordRoute />} />
+            </Route>
+            <Route element={<ProtectedRoute role="ADMIN" />}>
+              <Route element={<PasswordChangeGuard />}>
+                <Route path="/admin" element={<Home />} />
+                <Route path="/employees" element={<EmployeesPage />} />
+                <Route path="/admin/employees" element={<Navigate to="/employees" replace />} />
+              </Route>
+            </Route>
+            <Route element={<ProtectedRoute role="EMPLOYEE" />}>
+              <Route element={<PasswordChangeGuard />}>
+                <Route path="/empleado" element={<Home />} />
+              </Route>
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route element={<PasswordChangeGuard />}>
+                <Route path="/perfil" element={<Profile />} />
+              </Route>
+            </Route>
+            <Route path="/" element={<Navigate to="/catalog" replace />} />
+            <Route path="/catalog" element={<BenefitsCatalogPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <PlaceholderPage
+                  title="Dashboard"
+                  description="Resumen general de beneficios y métricas clave."
+                />
+              }
+            />
+            <Route path="/groups" element={<GroupsPage />} />
+            <Route path="/budgets" element={<BudgetsPage />} />
+            <Route
+              path="/assignments"
+              element={
+                <PlaceholderPage
+                  title="Asignaciones"
+                  description="Asignaciones de paquetes a empleados y equipos."
+                />
+              }
+            />
+            <Route
+              path="/expenses"
+              element={
+                <PlaceholderPage
+                  title="Gestión de gastos"
+                  description="Aprobación y seguimiento de solicitudes de gastos."
+                />
+              }
+            />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
