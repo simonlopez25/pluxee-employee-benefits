@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 from fastapi.testclient import TestClient
 from sqlalchemy import delete, func, select
 
@@ -217,3 +218,30 @@ def test_list_filters_by_department() -> None:
     packages = response.json()
     assert all(package["department_id"] == department_id for package in packages)
     assert created["id"] in [package["id"] for package in packages]
+
+def test_database_rejects_same_name_with_different_case() -> None:
+
+        # Prepara: un paquete creado por la API
+        department_id = _active_department_id()
+        response = client.post(
+            "/api/packages",
+            json={
+                "name": f"{TEST_NAME_PREFIX} Mayusculas",
+                "default_amount": "10.00",
+                "department_id": department_id,
+                "benefit_ids": _active_benefit_ids(1),
+            },
+        )
+        assert response.status_code == 201, response.text
+
+        # Actúa + comprueba: el mismo nombre en mayúsculas, directo a la BD
+        with SessionLocal() as db:
+            db.add(
+                Package(
+                    name=f"{TEST_NAME_PREFIX} Mayusculas".upper(),
+                    default_amount=10,
+                    department_id=department_id,
+                )
+            )
+            with pytest.raises(IntegrityError):
+                db.commit()

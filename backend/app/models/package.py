@@ -11,7 +11,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
-    UniqueConstraint,
+    text,
     true,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -35,7 +35,12 @@ class Package(Base):
             ondelete="RESTRICT",
         ),
         CheckConstraint("default_amount >= 0", name="ck_packages_default_amount"),
-        UniqueConstraint("name", "department_id", name="uq_package_name_department"),
+        Index(
+            "uq_package_name_department",
+            "department_id",
+            text("lower(name)"),
+            unique=True,
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
