@@ -45,13 +45,13 @@ describe('Login', () => {
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument()
   })
 
-  it('si ya hay sesión de admin redirige a /admin', () => {
+  it('si ya hay sesión de admin redirige a /dashboard', () => {
     setupAuth({ user: { role: 'ADMIN' }, isAuthenticated: true })
     render(<Login />)
 
-    expect(navigateMock).toHaveBeenCalledWith('/admin', { replace: true })
+    expect(navigateMock).toHaveBeenCalledWith('/dashboard', { replace: true })
   })
-
+  
   it('si ya hay sesión de empleado redirige a /empleado', () => {
     setupAuth({ user: { role: 'EMPLOYEE' }, isAuthenticated: true })
     render(<Login />)

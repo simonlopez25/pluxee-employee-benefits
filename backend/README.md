@@ -122,19 +122,23 @@ revision --autogenerate` contra una BD al día debe quedar **vacío**.
 
 ## Endpoints
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/health` | Estado del servidor y de PostgreSQL |
-| GET | `/api/benefits` | Lista los beneficios (con filtros) |
-| GET | `/api/benefits/{id}` | Obtiene un beneficio |
-| POST | `/api/benefits` | Crea un beneficio (409 si nombre duplicado) |
-| PUT | `/api/benefits/{id}` | Actualiza un beneficio (409 si nombre duplicado) |
-| PATCH | `/api/benefits/{id}` | Activa/desactiva un beneficio (baja lógica) |
-| GET | `/api/budgets` | Resumen de presupuestos de un mes (`?period=YYYY-MM-01`) |
-| PUT | `/api/budgets/global` | Crea/actualiza el presupuesto mensual global (409 si reduce por debajo de lo repartido) |
-| PUT | `/api/budgets/departments/{id}` | Fija/actualiza el presupuesto de un departamento en un mes (409 si excede el techo global) |
-| PUT | `/api/budgets/departments/{id}/references` | Guarda/actualiza referencias orientativas por beneficio (solo informativo) |
-| GET | `/docs` | Documentación OpenAPI (Swagger) |
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/api/health` | — | Estado del servidor y de PostgreSQL |
+| GET | `/api/benefits` | Usuario | Lista los beneficios (con filtros) |
+| GET | `/api/benefits/{id}` | Usuario | Obtiene un beneficio |
+| POST | `/api/benefits` | Admin | Crea un beneficio (409 si nombre duplicado) |
+| PUT | `/api/benefits/{id}` | Admin | Actualiza un beneficio (409 si nombre duplicado) |
+| PATCH | `/api/benefits/{id}` | Admin | Activa/desactiva un beneficio (baja lógica) |
+| GET | `/api/budgets` | Admin | Resumen de presupuestos de un mes (`?period=YYYY-MM-01`) |
+| PUT | `/api/budgets/global` | Admin | Crea/actualiza el presupuesto mensual global (409 si reduce por debajo de lo repartido) |
+| PUT | `/api/budgets/departments/{id}` | Admin | Fija/actualiza el presupuesto de un departamento en un mes (409 si excede el techo global) |
+| PUT | `/api/budgets/departments/{id}/references` | Admin | Guarda/actualiza referencias orientativas por beneficio (solo informativo) |
+| GET | `/api/departments` | Usuario | Lista los departamentos (con filtros) |
+| GET | `/docs` | — | Documentación OpenAPI (Swagger) |
+
+Auth: `—` = sin token · `Usuario` = cualquier usuario logueado · `Admin` = solo rol ADMIN.
+
 
 ### Presupuestos en 2 niveles (HU-11 / PEB-19)
 
