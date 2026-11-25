@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { Icon } from '../../atoms/Icon'
 import { useAuth } from '../../../context/AuthContext'
-import '../AdminSidebar/AdminSidebar.css'
+import './EmployeeSidebar.css'
 
 export function EmployeeSidebar() {
   const { user, logout } = useAuth()
@@ -19,49 +19,49 @@ export function EmployeeSidebar() {
     .toUpperCase() || 'U'
 
   return (
-    <aside className="sidebarContainer">
-      <div className="sidebarHeader">
-        <div className="sidebarBrand">
-          <div className="sidebarBrandBadge">P</div>
-          <div className="sidebarBrandTitle">
-            <span className="sidebarBrandBold">pluxee</span>
-            <span className="sidebarBrandDot">.</span>
-            <span className="sidebarBrandRegular">benefits</span>
+    <aside className="employee-sidebar">
+      <div className="employee-sidebar__header">
+        <div className="employee-sidebar__brand">
+          <div className="employee-sidebar__brand-badge">P</div>
+          <div className="employee-sidebar__brand-title">
+            <span className="employee-sidebar__brand-bold">pluxee</span>
+            <span className="employee-sidebar__brand-dot">.</span>
+            <span className="employee-sidebar__brand-regular">benefits</span>
           </div>
         </div>
       </div>
 
-      <div className="sidebarSectionLabel">MI ESPACIO</div>
+      <div className="employee-sidebar__section-label">MI ESPACIO</div>
 
-      <nav className="sidebarNav">
+      <nav className="employee-sidebar__nav">
         {menuItems.map((item) => (
           <NavLink
             key={item.key}
             to={item.path}
             end
             className={({ isActive }) =>
-              `sidebarNavItemBase ${isActive ? 'sidebarNavItemActive' : 'sidebarNavItem'}`
+              `employee-sidebar__item-base ${isActive ? 'employee-sidebar__item--active' : 'employee-sidebar__item'}`
             }
           >
-            <span className="sidebarNavIcon">
+            <span className="employee-sidebar__icon">
               <Icon name={item.icon} size={18} />
             </span>
-            <span className="sidebarNavLabel">{item.label}</span>
+            <span className="employee-sidebar__label">{item.label}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div className="sidebarFooter">
-        <button type="button" className="sidebarSwitchButton" onClick={logout}>
+      <div className="employee-sidebar__footer">
+        <button type="button" className="employee-sidebar__logout" onClick={logout}>
           <Icon name="close" size={16} />
           <span>Cerrar sesión</span>
         </button>
 
-        <div className="sidebarUserProfile">
-          <div className="sidebarUserAvatar">{initials}</div>
-          <div className="sidebarUserInfo">
-            <span className="sidebarUserName">{user?.full_name ?? 'Empleado'}</span>
-            <span className="sidebarUserRole">Empleado</span>
+        <div className="employee-sidebar__profile">
+          <div className="employee-sidebar__avatar">{initials}</div>
+          <div className="employee-sidebar__user">
+            <span className="employee-sidebar__user-name">{user?.full_name ?? 'Empleado'}</span>
+            <span className="employee-sidebar__user-role">Empleado</span>
           </div>
         </div>
       </div>
