@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     db_user: str = "postgres"
     db_password: str = ""
     db_name: str = "pluxee"
+    
+    # Almacenamiento de justificantes
+    uploads_dir: Path = BACKEND_ROOT / "uploads"
+    upload_max_bytes: int = 5 * 1024 * 1024
+    upload_max_files: int = 3
 
     @staticmethod
     def _neon_env_value(key: str) -> str:

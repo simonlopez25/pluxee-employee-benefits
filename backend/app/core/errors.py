@@ -30,3 +30,11 @@ class ConflictError(AppError):
 
     def __init__(self, message: str = "resource conflict") -> None:
         super().__init__(message, status_code=409, code="conflict")
+        
+
+
+class ValidationError(AppError):
+    """Datos de entrada inválidos (400)."""
+
+    def __init__(self, message: str = "Datos de entrada inválidos") -> None:
+        super().__init__(message, status_code=400, code="validation_error")        
