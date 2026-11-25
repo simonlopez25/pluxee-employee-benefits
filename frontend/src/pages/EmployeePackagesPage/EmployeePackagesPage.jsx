@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { BenefitTotalsSummary } from '../../components/organisms/BenefitTotalsSummary'
 import { PackageBalanceCard } from '../../components/organisms/PackageBalanceCard'
 import { getMyBalance } from '../../services/balanceService'
 import './EmployeePackagesPage.css'
@@ -43,6 +44,8 @@ export function EmployeePackagesPage() {
       </header>
 
       <div className="employee-packages__list">
+        <BenefitTotalsSummary benefits={balance.by_benefit} />
+
         {sortedPackages.length === 0 ? (
           <p className="employee-packages__state">No tienes paquetes asignados.</p>
         ) : (
