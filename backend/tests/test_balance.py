@@ -26,6 +26,7 @@ from app.models import (
 )
 
 client = TestClient(app)
+pytestmark = pytest.mark.usefixtures("real_auth")
 
 TEST_NAME_PREFIX = "Test Balance HU13"
 TEST_PERIOD = date.today().replace(day=1)
