@@ -553,14 +553,12 @@ def test_balance_ignores_inactive_assignments() -> None:
     assert body["packages"][0]["package_name"] == f"{TEST_NAME_PREFIX} Comida activa"
 
 
-
-
 # ---------------------------------------------------------------------
-# 10. Un paquete no se muestra si su departamento no tiene presupuesto
-#     en el mes (regla pendiente de confirmar con el PO; este test fija
-#     el comportamiento actual)
+# 10. Los paquetes son fijos cada mes (cliente, confirmado con el PO):
+#     se muestran siempre, pero su saldo sale a 0 mientras el
+#     departamento no tenga presupuesto fijado ese mes
 # ---------------------------------------------------------------------
-def test_balance_hides_packages_when_department_has_no_budget() -> None:
+def test_balance_shows_packages_with_zero_until_department_budget_is_set() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "SinPresupuesto")
         user = _create_employee(db, dep, "SinPresupuesto")
@@ -578,16 +576,20 @@ def test_balance_hides_packages_when_department_has_no_budget() -> None:
         department_id = dep.id
         global_budget_id = gb.id
 
+    # Sin presupuesto de departamento: el paquete se ve, pero su saldo es 0
     response = client.get("/api/balance/me", headers=_auth_header(user_id))
     assert response.status_code == 200
     body = response.json()
     assert body["period"] == TEST_PERIOD.isoformat()
     assert body["assigned_total"] == "0.00"
     assert body["available_total"] == "0.00"
-    assert body["by_benefit"] == []
-    assert body["packages"] == []
+    assert [p["package_name"] for p in body["packages"]] == [
+        f"{TEST_NAME_PREFIX} Comida sin presupuesto"
+    ]
+    assert body["packages"][0]["assigned"] == "0.00"
+    assert body["packages"][0]["available"] == "0.00"
 
-    # Al fijar el presupuesto del departamento, el paquete aparece
+    # Al fijar el presupuesto del departamento, el paquete muestra su saldo real
     with SessionLocal() as db:
         db.add(
             DepartmentBudget(
@@ -601,6 +603,7 @@ def test_balance_hides_packages_when_department_has_no_budget() -> None:
     response = client.get("/api/balance/me", headers=_auth_header(user_id))
     body = response.json()
     assert body["assigned_total"] == "60.00"
+    assert body["available_total"] == "60.00"
     assert [p["package_name"] for p in body["packages"]] == [
         f"{TEST_NAME_PREFIX} Comida sin presupuesto"
     ]
