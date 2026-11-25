@@ -233,6 +233,8 @@ def get_balance(db: Session, user_id: int) -> EmployeeBalanceResponse:
     first_day, next_first_day = current
 
     assignments = _load_assignments(db, user_id)
+    visible = _visible_package_ids(db, assignments, first_day)
+    assignments = [a for a in assignments if a.package_id in visible]
     if not assignments:
         return _empty_response(period=first_day)
 
