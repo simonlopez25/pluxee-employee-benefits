@@ -553,14 +553,11 @@ def test_balance_ignores_inactive_assignments() -> None:
     assert body["packages"][0]["package_name"] == f"{TEST_NAME_PREFIX} Comida activa"
 
 
-
-
 # ---------------------------------------------------------------------
-# 10. Un paquete no se muestra si su departamento no tiene presupuesto
-#     en el mes (regla pendiente de confirmar con el PO; este test fija
-#     el comportamiento actual)
+# 10. Los paquetes son fijos cada mes (cliente): se muestran aunque el
+#     departamento no tenga presupuesto fijado en el mes
 # ---------------------------------------------------------------------
-def test_balance_hides_packages_when_department_has_no_budget() -> None:
+def test_balance_shows_packages_without_department_budget() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "SinPresupuesto")
         user = _create_employee(db, dep, "SinPresupuesto")
@@ -571,36 +568,17 @@ def test_balance_hides_packages_when_department_has_no_budget() -> None:
         db.flush()
 
         # Hay presupuesto global del mes, pero NO se crea el del departamento
-        gb = _ensure_period(db)
+        _ensure_period(db)
         _assign(db, user, pkg, "60.00")
         db.commit()
         user_id = user.id
-        department_id = dep.id
-        global_budget_id = gb.id
 
     response = client.get("/api/balance/me", headers=_auth_header(user_id))
     assert response.status_code == 200
     body = response.json()
     assert body["period"] == TEST_PERIOD.isoformat()
-    assert body["assigned_total"] == "0.00"
-    assert body["available_total"] == "0.00"
-    assert body["by_benefit"] == []
-    assert body["packages"] == []
-
-    # Al fijar el presupuesto del departamento, el paquete aparece
-    with SessionLocal() as db:
-        db.add(
-            DepartmentBudget(
-                global_budget_id=global_budget_id,
-                department_id=department_id,
-                amount=Decimal("1000.00"),
-            )
-        )
-        db.commit()
-
-    response = client.get("/api/balance/me", headers=_auth_header(user_id))
-    body = response.json()
     assert body["assigned_total"] == "60.00"
+    assert body["available_total"] == "60.00"
     assert [p["package_name"] for p in body["packages"]] == [
         f"{TEST_NAME_PREFIX} Comida sin presupuesto"
     ]
