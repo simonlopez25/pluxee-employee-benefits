@@ -9,6 +9,10 @@ Reglas (confirmadas con el cliente):
 - Solo cuentan los gastos con `expense_date` dentro del mes en curso.
 - Gastos rechazados no restan; asignaciones inactivas no cuentan.
 - Sin `GlobalBudget` del mes: `period = None`, totales a 0 y listas vacías.
+- Los paquetes son fijos cada mes (el cliente los mantiene salvo que el
+  administrador los cambie): el empleado ve siempre sus paquetes asignados,
+  pero mientras el departamento no tenga presupuesto fijado ese mes, el
+  saldo del paquete (asignado/disponible) sale a 0 hasta que se fije.
 """
 
 from __future__ import annotations
@@ -74,10 +78,14 @@ def _load_assignments(db: Session, user_id: int) -> list[EmployeeAssignment]:
     )
 
 
-def _visible_package_ids(
+def _package_ids_with_department_budget(
     db: Session, assignments: list[EmployeeAssignment], first_day: date
 ) -> set[int]:
-    """Paquetes del empleado cuyo departamento tiene presupuesto en el mes."""
+    """Paquetes del empleado cuyo departamento tiene presupuesto en el mes.
+
+    No decide qué paquetes se muestran (todos los asignados se muestran
+    siempre): solo si su saldo debe calcularse con importe real o a 0.
+    """
     if not assignments:
         return set()
     return set(
@@ -155,7 +163,32 @@ def _build_package(
     package: Package,
     benefits: list[Benefit],
     consumption: dict[str, Decimal],
+    has_department_budget: bool,
 ) -> PackageBalance:
+    if not has_department_budget:
+        # El paquete es fijo y se sigue mostrando, pero su saldo sale a 0
+        # hasta que el departamento tenga presupuesto asignado este mes.
+        benefit_items = [
+            BenefitBalance(
+                benefit_id=benefit.id,
+                benefit_name=benefit.name,
+                is_basic=benefit.is_basic,
+                consumed=_ZERO,
+                available=_ZERO,
+            )
+            for benefit in benefits
+        ]
+        return PackageBalance(
+            package_id=package.id,
+            package_name=package.name,
+            assigned=_ZERO,
+            approved=_ZERO,
+            pending=_ZERO,
+            consumed=_ZERO,
+            available=_ZERO,
+            benefits=benefit_items,
+        )
+
     assigned = _quantize(assignment.assigned_amount)
     approved = _quantize(consumption.get("approved", _ZERO))
     pending = _quantize(consumption.get("pending", _ZERO))
@@ -233,10 +266,12 @@ def get_balance(db: Session, user_id: int) -> EmployeeBalanceResponse:
     first_day, next_first_day = current
 
     assignments = _load_assignments(db, user_id)
-    visible = _visible_package_ids(db, assignments, first_day)
-    assignments = [a for a in assignments if a.package_id in visible]
     if not assignments:
         return _empty_response(period=first_day)
+
+    budgeted_package_ids = _package_ids_with_department_budget(
+        db, assignments, first_day
+    )
 
     package_ids = [a.package_id for a in assignments]
     assignment_ids = [a.id for a in assignments]
@@ -261,6 +296,7 @@ def get_balance(db: Session, user_id: int) -> EmployeeBalanceResponse:
                 package,
                 benefits_by_package.get(package.id, []),
                 consumption_by_assignment.get(assignment.id, {}),
+                has_department_budget=package.id in budgeted_package_ids,
             )
         )
 
