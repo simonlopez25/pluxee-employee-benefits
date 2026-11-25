@@ -1,6 +1,6 @@
 .employee-packages {
   padding: 24px;
-  background: #f7f7fb;
+  background: var(--colorBg);
   min-height: 100%;
   display: flex;
   flex-direction: column;

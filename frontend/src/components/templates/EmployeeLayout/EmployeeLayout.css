@@ -1,7 +1,7 @@
 .employeeLayout {
   display: flex;
   min-height: 100vh;
-  background-color: #f7f7fb;
+  background-color: var(--colorBg);
 }
 
 .employeeLayoutContent {
