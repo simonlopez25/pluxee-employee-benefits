@@ -39,7 +39,7 @@ export function EmployeePackagesPage() {
       <header className="employee-packages__header">
         <div>
           <h1>Beneficios y paquetes</h1>
-          <p className="employee-packages__subtitle">Lo que tienes a tu disposición este año.</p>
+          <p className="employee-packages__subtitle">Lo que tienes a tu disposición este mes.</p>
         </div>
       </header>
 
