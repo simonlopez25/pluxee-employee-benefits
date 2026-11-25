@@ -1,5 +1,4 @@
 import { BenefitBalanceRow } from '../../molecules/BenefitBalanceRow'
-import { Badge } from '../../atoms/Badge'
 import './PackageBalanceCard.css'
 
 export function PackageBalanceCard({ packageBalance }) {
@@ -9,7 +8,6 @@ export function PackageBalanceCard({ packageBalance }) {
     <section className="package-balance-card">
       <header className="package-balance-card__header">
         <div>
-          <Badge variant="active">Activo</Badge>
           <h2 className="package-balance-card__title">{packageBalance.package_name}</h2>
           <p className="package-balance-card__subtitle">Paquete asignado</p>
         </div>
