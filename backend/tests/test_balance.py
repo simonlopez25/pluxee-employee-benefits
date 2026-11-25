@@ -411,3 +411,142 @@ def test_balance_seed_example() -> None:
     by_benefit = {item["benefit_name"]: item for item in body["by_benefit"]}
     assert by_benefit[f"{TEST_NAME_PREFIX} Comida seed"]["available"] == "70.00"
     assert by_benefit[f"{TEST_NAME_PREFIX} Transporte seed"]["available"] == "10.00"
+
+# ---------------------------------------------------------------------
+# 7. Gastos pendientes: descuentan saldo igual que los aprobados
+#    Restante = Asignado - Aprobado - Pendiente
+# ---------------------------------------------------------------------
+def test_balance_pending_expenses_reduce_available() -> None:
+    with SessionLocal() as db:
+        dep = _create_department(db, "Pendiente")
+        user = _create_employee(db, dep, "Pendiente")
+        food = _create_benefit(db, "Comida pendiente")
+
+        pkg = _create_package(db, dep, "Comida pendiente", "100.00")
+        db.add(PackageBenefit(package_id=pkg.id, benefit_id=food.id))
+        db.flush()
+
+        gb = _ensure_period(db)
+        db.add(
+            DepartmentBudget(
+                global_budget_id=gb.id,
+                department_id=dep.id,
+                amount=Decimal("1000.00"),
+            )
+        )
+        db.flush()
+
+        assignment = _assign(db, user, pkg, "100.00")
+        _expense(db, user, food, assignment, "20.00", "APPROVED", TEST_PERIOD)
+        _expense(db, user, food, assignment, "30.00", "PENDING", TEST_PERIOD)
+        db.commit()
+        user_id = user.id
+
+    response = client.get("/api/balance/me", headers=_auth_header(user_id))
+    assert response.status_code == 200
+    body = response.json()
+
+    # 100 - 20 aprobado - 30 pendiente = 50
+    assert body["assigned_total"] == "100.00"
+    assert body["approved_total"] == "20.00"
+    assert body["pending_total"] == "30.00"
+    assert body["consumed_total"] == "50.00"
+    assert body["available_total"] == "50.00"
+
+    package = body["packages"][0]
+    assert package["approved"] == "20.00"
+    assert package["pending"] == "30.00"
+    assert package["available"] == "50.00"
+
+    by_benefit = {item["benefit_name"]: item for item in body["by_benefit"]}
+    assert by_benefit[f"{TEST_NAME_PREFIX} Comida pendiente"]["available"] == "50.00"
+
+
+# ---------------------------------------------------------------------
+# 8. Un gasto pendiente en un paquete multibeneficio reduce todos sus
+#    beneficios (saldo compartido)
+# ---------------------------------------------------------------------
+def test_balance_pending_in_shared_package_reduces_all_benefits() -> None:
+    with SessionLocal() as db:
+        dep = _create_department(db, "PendienteCompartido")
+        user = _create_employee(db, dep, "PendienteCompartido")
+        food = _create_benefit(db, "Comida pendiente compartida")
+        transport = _create_benefit(db, "Transporte pendiente compartido")
+
+        combo = _create_package(db, dep, "Combo pendiente", "100.00")
+        db.add_all(
+            [
+                PackageBenefit(package_id=combo.id, benefit_id=food.id),
+                PackageBenefit(package_id=combo.id, benefit_id=transport.id),
+            ]
+        )
+        db.flush()
+
+        gb = _ensure_period(db)
+        db.add(
+            DepartmentBudget(
+                global_budget_id=gb.id,
+                department_id=dep.id,
+                amount=Decimal("1000.00"),
+            )
+        )
+        db.flush()
+
+        assignment = _assign(db, user, combo, "100.00")
+        _expense(
+            db, user, transport, assignment, "40.00", "PENDING", TEST_PERIOD
+        )
+        db.commit()
+        user_id = user.id
+
+    response = client.get("/api/balance/me", headers=_auth_header(user_id))
+    body = response.json()
+
+    by_benefit = {item["benefit_name"]: item for item in body["by_benefit"]}
+    assert by_benefit[f"{TEST_NAME_PREFIX} Comida pendiente compartida"]["available"] == "60.00"
+    assert by_benefit[f"{TEST_NAME_PREFIX} Transporte pendiente compartido"]["available"] == "60.00"
+    assert body["available_total"] == "60.00"
+
+
+# ---------------------------------------------------------------------
+# 9. Una asignación inactiva no cuenta en el saldo
+# ---------------------------------------------------------------------
+def test_balance_ignores_inactive_assignments() -> None:
+    with SessionLocal() as db:
+        dep = _create_department(db, "Inactiva")
+        user = _create_employee(db, dep, "Inactiva")
+        food = _create_benefit(db, "Comida inactiva")
+
+        active_pkg = _create_package(db, dep, "Comida activa", "50.00")
+        inactive_pkg = _create_package(db, dep, "Comida inactiva", "80.00")
+        db.add_all(
+            [
+                PackageBenefit(package_id=active_pkg.id, benefit_id=food.id),
+                PackageBenefit(package_id=inactive_pkg.id, benefit_id=food.id),
+            ]
+        )
+        db.flush()
+
+        gb = _ensure_period(db)
+        db.add(
+            DepartmentBudget(
+                global_budget_id=gb.id,
+                department_id=dep.id,
+                amount=Decimal("1000.00"),
+            )
+        )
+        db.flush()
+
+        _assign(db, user, active_pkg, "50.00")
+        inactive_assignment = _assign(db, user, inactive_pkg, "80.00")
+        inactive_assignment.is_active = False
+        db.commit()
+        user_id = user.id
+
+    response = client.get("/api/balance/me", headers=_auth_header(user_id))
+    body = response.json()
+
+    assert body["assigned_total"] == "50.00"
+    assert body["available_total"] == "50.00"
+    assert len(body["packages"]) == 1
+    assert body["packages"][0]["package_name"] == f"{TEST_NAME_PREFIX} Comida activa"
