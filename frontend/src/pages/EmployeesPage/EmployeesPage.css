@@ -19,6 +19,12 @@
   gap: 6px;
 }
 
+.employeesHeaderActions {
+  display: flex;
+  align-items: center;
+  padding-top: 4px;
+}
+
 .employeesTitle {
   margin: 0;
   font-size: 24px;

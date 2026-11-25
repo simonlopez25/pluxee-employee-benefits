@@ -1,4 +1,4 @@
-import { patchJson, request } from './http'
+import { patchJson, postJson, request } from './http'
 
 const mapUserFromApi = (item) => ({
   id: item.id,
@@ -31,6 +31,16 @@ const mapUserToApi = (userData) => {
 export const getUsers = async () => {
   const data = await request('/users')
   return Array.isArray(data) ? data.map(mapUserFromApi) : []
+}
+
+export const createUser = async (userData) => {
+  const data = await postJson('/users', {
+    full_name: userData.fullName.trim(),
+    email: userData.email.trim().toLowerCase(),
+    temporary_password: userData.temporaryPassword,
+    department_id: Number(userData.departmentId),
+  })
+  return mapUserFromApi(data)
 }
 
 export const updateUser = async (userId, userData) => {
