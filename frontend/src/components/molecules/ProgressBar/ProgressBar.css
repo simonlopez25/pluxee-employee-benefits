@@ -1,0 +1,61 @@
+.progressBarContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 120px;
+}
+
+.progressBarTrack {
+  flex: 1;
+  height: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.progressBarSvg {
+  width: 100%;
+  height: 6px;
+  display: block;
+  overflow: hidden;
+}
+
+.progressSvgBg {
+  fill: #eef0f4;
+}
+
+.progressSvgFill {
+  transition: width 0.3s ease;
+}
+
+.progressSvgFill.progressNormal {
+  fill: #221c46;
+}
+
+.progressSvgFill.progressWarning {
+  fill: #f59e0b;
+}
+
+.progressSvgFill.progressDanger {
+  fill: #dc2626;
+}
+
+.progressLabel {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 44px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.progressLabel.progressNormal {
+  color: #4b5563;
+}
+
+.progressLabel.progressWarning {
+  color: #d97706;
+}
+
+.progressLabel.progressDanger {
+  color: #dc2626;
+}

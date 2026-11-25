@@ -1,0 +1,187 @@
+.departmentModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(34, 28, 70, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  animation: departmentModalBackdropFadeIn 0.2s ease-out;
+}
+
+.departmentModalContainer {
+  background-color: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 40px rgba(34, 28, 70, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: departmentModalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.departmentModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.departmentModalHeaderInfo {
+  flex: 1;
+}
+
+.departmentModalTitle {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #221c46;
+  letter-spacing: -0.01em;
+}
+
+.departmentModalSubtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.departmentModalCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f4f5f8;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.departmentModalCloseButton:hover {
+  background-color: #e5e7eb;
+  color: #1e1b3a;
+}
+
+.departmentModalForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.departmentModalBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: calc(85vh - 150px);
+  overflow-y: auto;
+}
+
+.departmentModalAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.departmentModalAlertIcon {
+  display: inline-flex;
+  margin-top: 1px;
+}
+
+.departmentModalAlertText {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.departmentModalField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.departmentModalLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.departmentModalRequiredMark {
+  color: #dc2626;
+}
+
+.departmentModalInput {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1e1b3a;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.departmentModalInput:focus {
+  border-color: #221c46;
+  box-shadow: 0 0 0 3px rgba(34, 28, 70, 0.1);
+}
+
+.departmentModalInputError {
+  border-color: #dc2626;
+}
+
+.departmentModalInputError:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.departmentModalErrorMessage {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.departmentModalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #fcfdfe;
+  border-top: 1px solid #f1f3f7;
+}
+
+@keyframes departmentModalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes departmentModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -1,0 +1,146 @@
+.deactivateModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(34, 28, 70, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  animation: deactivateModalBackdropFadeIn 0.2s ease-out;
+}
+
+.deactivateModalContainer {
+  background-color: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 40px rgba(34, 28, 70, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: deactivateModalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.deactivateModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.deactivateModalHeaderInfo {
+  flex: 1;
+}
+
+.deactivateModalTitle {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #221c46;
+  letter-spacing: -0.01em;
+}
+
+.deactivateModalSubtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.deactivateModalCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f4f5f8;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.deactivateModalCloseButton:hover {
+  background-color: #e5e7eb;
+  color: #1e1b3a;
+}
+
+.deactivateModalBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deactivateModalAlert {
+  display: flex;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background-color: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.deactivateModalAlertIcon {
+  display: inline-flex;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.deactivateModalAlertContent {
+  flex: 1;
+}
+
+.deactivateModalAlertText {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #92400e;
+}
+
+.deactivateModalAlertList {
+  margin: 0;
+  padding-left: 18px;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.deactivateModalAlertList li {
+  margin-bottom: 6px;
+}
+
+.deactivateModalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #fcfdfe;
+  border-top: 1px solid #f1f3f7;
+}
+
+@keyframes deactivateModalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes deactivateModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

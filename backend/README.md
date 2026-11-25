@@ -16,15 +16,15 @@ backend/
 │   ├── routes/                ← definición de endpoints (/api/...)
 │   ├── schemas/               ← validación de entrada/salida (Pydantic)
 │   ├── services/              ← lógica de negocio
-│   └── models/                ← 14 modelos SQLAlchemy (una tabla por archivo)
-│       ├── __init__.py            ← importa los 14 (requisito del autogenerate)
+│   └── models/                ← 13 modelos SQLAlchemy (una tabla por archivo)
+│       ├── __init__.py            ← importa los 13 (requisito del autogenerate)
 │       ├── department.py          ├── global_budget.py
 │       ├── user.py                ├── benefit.py
 │       ├── package.py             ├── package_benefit.py
-│       ├── department_budget.py   ├── department_assignment.py
-│       ├── employee_assignment.py ├── expense.py
-│       ├── expense_allocation.py  ├── attachment.py
+│       ├── department_budget.py   ├── employee_assignment.py
+│       ├── expense.py             ├── expense_allocation.py
 │       ├── expense_history.py     └── audit_log.py
+│       └── attachment.py
 ├── alembic/                   ← migraciones (Alembic)
 │   ├── env.py                     ← conecta Alembic con .env y Base.metadata
 │   └── versions/                  ← archivos de migración generados
@@ -98,27 +98,55 @@ cd backend
 
 ## Tablas (esquema)
 
-14 tablas (ver el DDL completo en la migración baseline `alembic/versions/*_initial_schema.py`):
+15 tablas (el DDL completo está en `alembic/versions/`: baseline
+`4957b7117a5c` + `5f2c8a91e4d7` + `b4a7f2c9d1e5`):
 
 | Grupo | Tablas |
 |-------|--------|
 | Estructura | `departments`, `users` |
 | Catálogos | `benefits`, `packages`, `package_benefits` |
-| Presupuestos | `global_budgets`, `department_budgets` |
-| Asignaciones | `department_assignments`, `employee_assignments` |
+| Presupuestos | `global_budgets`, `department_budgets`, `benefit_budget_references` |
+| Asignaciones | `employee_assignments` |
 | Transaccional | `expenses`, `expense_allocations`, `attachments` |
 | Auditoría | `expense_history`, `audit_logs` |
 
-Los constraints (CHECK, FK compuestas, UNIQUE) están declarados **con sus nombres
-exactos** en los modelos (`app/models/`) y en la migración baseline — `alembic
+Relación paquete ↔ grupo de empleados (departamento): **N paquetes por
+grupo, un grupo por paquete** — `packages.department_id NOT NULL`. Si dos
+grupos necesitan la misma asignación, se crean dos paquetes distintos. El
+presupuesto con el que se cruzan se deriva:
+`departments → department_budgets(department_id) → global_budgets(period)`.
+
+Los constraints (CHECK, FK, UNIQUE) están declarados **con sus nombres
+exactos** en los modelos (`app/models/`) y en las migraciones — `alembic
 revision --autogenerate` contra una BD al día debe quedar **vacío**.
 
 ## Endpoints
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/health` | Estado del servidor y de PostgreSQL |
-| GET | `/docs` | Documentación OpenAPI (Swagger) |
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/api/health` | — | Estado del servidor y de PostgreSQL |
+| GET | `/api/benefits` | Usuario | Lista los beneficios (con filtros) |
+| GET | `/api/benefits/{id}` | Usuario | Obtiene un beneficio |
+| POST | `/api/benefits` | Admin | Crea un beneficio (409 si nombre duplicado) |
+| PUT | `/api/benefits/{id}` | Admin | Actualiza un beneficio (409 si nombre duplicado) |
+| PATCH | `/api/benefits/{id}` | Admin | Activa/desactiva un beneficio (baja lógica) |
+| GET | `/api/budgets` | Admin | Resumen de presupuestos de un mes (`?period=YYYY-MM-01`) |
+| PUT | `/api/budgets/global` | Admin | Crea/actualiza el presupuesto mensual global (409 si reduce por debajo de lo repartido) |
+| PUT | `/api/budgets/departments/{id}` | Admin | Fija/actualiza el presupuesto de un departamento en un mes (409 si excede el techo global) |
+| PUT | `/api/budgets/departments/{id}/references` | Admin | Guarda/actualiza referencias orientativas por beneficio (solo informativo) |
+| GET | `/api/departments` | Usuario | Lista los departamentos (con filtros) |
+| GET | `/docs` | — | Documentación OpenAPI (Swagger) |
+
+Auth: `—` = sin token · `Usuario` = cualquier usuario logueado · `Admin` = solo rol ADMIN.
+
+
+### Presupuestos en 2 niveles (HU-11 / PEB-19)
+
+- **Presupuesto global mensual** (`global_budgets`): un `period` (día 1 del mes) y un `total_amount`. Cada mes es independiente; el saldo no gastado no se traslada al mes siguiente.
+- **Presupuesto por departamento** (`department_budgets`): requiere que exista el global del mes. La suma de todos los departamentos de un mes no puede superar el `total_amount` global (regla de techo). Al reducir el global, no puede bajar de lo ya repartido (regla de suelo).
+- **Referencia informativa por beneficio** (`benefit_budget_references`): `indicative_amount` puramente orientativo; no suma al presupuesto del departamento ni bloquea nada.
+
+Las fechas de `period` se normalizan automáticamente al día 1 del mes (ej. `2026-11-15` → `2026-11-01`).
 
 ## Datos de prueba (seed)
 
@@ -130,7 +158,7 @@ noviembre de 2026, gastos y justificantes de ejemplo) para desarrollo y demo —
 ```bash
 # Desde la raíz del repo — usa la conexión de la app (Neon o local)
 npm run seed              # si la BD está vacía
-npm run seed -- --reset   # TRUNCATE de las 14 tablas y vuelve a sembrar
+npm run seed -- --reset   # TRUNCATE de las 13 tablas y vuelve a sembrar
 ```
 
 En **pgAdmin** (Postgres local migrada con `alembic upgrade head`): pega

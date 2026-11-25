@@ -1,0 +1,59 @@
+.monthSelectorContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.monthSelectorControls {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.monthNavButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  color: #4b5563;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.monthNavButton:hover {
+  background-color: #f3f4f6;
+  color: #1e1b3a;
+}
+
+.monthDisplay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.monthCalendarIcon {
+  color: #221c46;
+}
+
+.monthLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e1b3a;
+  white-space: nowrap;
+}
+
+.monthTodayButton {
+  font-size: 12px;
+  height: 34px;
+}
