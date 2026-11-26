@@ -1,0 +1,10 @@
+.employeeLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--colorBg);
+}
+
+.employeeLayoutContent {
+  flex: 1;
+  overflow-y: auto;
+}

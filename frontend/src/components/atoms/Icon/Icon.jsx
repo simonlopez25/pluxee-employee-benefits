@@ -211,6 +211,31 @@ export function Icon({ name, size = 20, className = '' }) {
           <path d="M12 17h.01" />
         </svg>
       )
+      case 'gift':
+        return (
+          <svg {...iconProps}>
+            <rect x="3" y="8" width="18" height="4" rx="1" />
+            <path d="M12 8v13" />
+            <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+            <path d="M7.5 8a2.5 2.5 0 0 1 0-5C9 3 12 5.5 12 8" />
+            <path d="M16.5 8a2.5 2.5 0 0 0 0-5C15 3 12 5.5 12 8" />
+          </svg>
+      )
+      case 'home':
+      return (
+        <svg {...iconProps}>
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+          <path d="M9 22V12h6v10" />
+        </svg>
+      )
+    case 'history':
+      return (
+        <svg {...iconProps}>
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+          <path d="M12 7v5l4 2" />
+        </svg>
+      )
     case 'spinner':
       return (
         <svg {...iconProps} className={`iconSvg iconSpin ${className}`.trim()}>

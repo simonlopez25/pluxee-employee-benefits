@@ -1,0 +1,51 @@
+.benefit-totals {
+  background: #ffffff;
+  border: 1px solid #eef0f4;
+  border-radius: 20px;
+  padding: 24px 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.benefit-totals__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #221c46;
+}
+
+.benefit-totals__note {
+  margin: 4px 0 16px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.benefit-totals__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.benefit-totals__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.benefit-totals__item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.benefit-totals__name {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e1b3a;
+}
+
+.benefit-totals__amount {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e1b3a;
+}

@@ -1,0 +1,91 @@
+.employee-home {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--colorBg);
+  min-height: 100%;
+}
+
+.employee-home__header h1 {
+  margin: 0;
+  color: #221c46;
+  font-size: 1.75rem;
+}
+
+.employee-home__subtitle {
+  margin: 4px 0 0;
+  color: #6b6b80;
+}
+
+.employee-home__state {
+  padding: 24px;
+  color: #6b6b80;
+}
+
+.employee-home__state--error {
+  color: #b42318;
+}
+
+.employee-home__content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start; /* Importante: alinea las tarjetas arriba */
+}
+
+@media (max-width: 960px) {
+  .employee-home__content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.employee-home__main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.employee-home__side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 320px; /* Limita el ancho de la columna derecha */
+}
+
+.employee-home__action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  color: #221c46;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 72px; /* Le da una altura similar a la referencia */
+}
+
+.employee-home__action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(34, 28, 70, 0.08);
+}
+
+.employee-home__action-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f4f5f8;
+  color: #221c46;
+  flex-shrink: 0;
+}
+
+.employee-home__action-card-label {
+  flex: 1;
+}

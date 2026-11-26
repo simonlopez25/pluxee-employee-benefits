@@ -1,0 +1,44 @@
+.employee-packages {
+  padding: 24px;
+  background: var(--colorBg);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.employee-packages__header {
+  max-width: 900px; /* Alinea el título con el ancho de las tarjetas */
+  margin: 0 auto;
+  width: 100%;
+}
+
+.employee-packages__header h1 {
+  margin: 0;
+  color: #221c46;
+  font-size: 1.75rem;
+}
+
+.employee-packages__subtitle {
+  margin: 4px 0 0;
+  color: #6b6b80;
+}
+
+.employee-packages__list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 900px; /* Aquí está el truco: limitamos el ancho */
+  margin: 0 auto;   /* Centramos las tarjetas */
+  width: 100%;
+}
+
+.employee-packages__state {
+  color: #6b6b80;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.employee-packages__state--error {
+  color: #b42318;
+}

@@ -1,0 +1,49 @@
+.employee-balance-summary__hero {
+  background: #221c46;
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.employee-balance-summary__label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #c9c6e2;
+}
+
+.employee-balance-summary__amount {
+  font-size: 2.25rem;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.employee-balance-summary__progress-wrapper {
+  min-height: 6px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.employee-balance-summary__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.employee-balance-summary__metric-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #c9c6e2;
+}
+
+.employee-balance-summary__metric-value {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+}

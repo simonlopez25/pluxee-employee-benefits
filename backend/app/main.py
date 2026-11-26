@@ -20,6 +20,10 @@ def create_app() -> FastAPI:
         description="API del catálogo de beneficios para empleados (HU-09).",
         openapi_tags=[
             {
+                "name": "balance",
+                "description": "Saldo disponible del empleado.",
+            },
+            {
                 "name": "benefits",
                 "description": "Catálogo de beneficios.",
             },
