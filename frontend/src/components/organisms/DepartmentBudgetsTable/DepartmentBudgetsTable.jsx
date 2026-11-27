@@ -1,4 +1,4 @@
-import { Badge } from '../../atoms/Badge'
+import { Badge } from '../../atoms/Badge/Badge'
 import { Button } from '../../atoms/Button'
 import { Icon } from '../../atoms/Icon'
 import { ProgressBar } from '../../molecules/ProgressBar'
