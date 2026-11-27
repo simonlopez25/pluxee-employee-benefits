@@ -186,3 +186,7 @@ a Lucía **Comida = 70,00** y **Transporte = 10,00** (el runner imprime
 > `../.env.local` en la raíz y la app la detecta sin tocar `backend/.env`
 > (ver [README principal](../README.md#base-de-datos-compartida-neon)).
 > Si no hay ninguna `DATABASE_URL`, se usa la Postgres local (`DB_*`).
+
+No hay rate limit: valorado y descartado, porque la API es interna del equipo y
+los tests disparan cientos de peticiones. El acceso lo delimitan `CORS_ORIGINS`
+y la autenticación JWT.
