@@ -1,5 +1,3 @@
-"""Fixtures compartidas de los tests."""
-
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -30,7 +28,6 @@ def _seed_user(role: str) -> User:
 
 @pytest.fixture(autouse=True)
 def _act_as_admin_by_default(request):
-    """Por defecto, todos los tests pasan como ADMIN salvo los que crean sus propios usuarios"""
     excluded = {
         "test_users.py",
         "test_users_password.py",
@@ -49,7 +46,6 @@ def _act_as_admin_by_default(request):
 
 @pytest.fixture()
 def real_auth():
-    """Limpia los overrides para tests que necesitan autenticación real"""
     saved = dict(app.dependency_overrides)
     app.dependency_overrides.clear()
     yield

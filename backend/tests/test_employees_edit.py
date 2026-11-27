@@ -1,5 +1,3 @@
-"""Tests de PATCH /api/users/{user_id}: edición de empleados (PEB-16 / HU-08)."""
-
 from __future__ import annotations
 
 import pytest
