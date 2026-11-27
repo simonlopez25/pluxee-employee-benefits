@@ -243,12 +243,12 @@ La vista de control presupuestario (`/budgets`) permite gestionar techos de gast
 1. **Selector de Período y Resumen Global (`GlobalBudgetSummary`):**
    * Navegación por mes (`YYYY-MM-01`) que carga por defecto en el mes actual.
    * Aviso explicativo sobre la naturaleza no acumulativa del saldo mensual.
-   * Cuatro métricas consolidadas: Presupuesto Global, Repartido a Grupos, Sin Repartir (Disponible) y Porcentaje Consolidado Repartido.
+   * Cuatro métricas consolidadas: Presupuesto Global, Repartido a departamentos, Sin Repartir (Disponible) y Porcentaje Consolidado Repartido.
    * Modal (`GlobalBudgetModal`) para ajustar el techo global, impidiendo reducciones por debajo de lo ya asignado (`409 Conflict`).
 
 2. **Tabla Comparativa de Departamentos (`DepartmentBudgetsTable`):**
    * Fusión reactiva de todos los departamentos activos con las asignaciones del mes.
-   * Columnas: Grupo, Asignado, Disponible, Consumido, Barra de progreso de Uso del asignado (%) y Acciones.
+   * Columnas: Departamento, Asignado, Disponible, Consumido, Barra de progreso de Uso del asignado (%) y Acciones.
    * Badges de estado (*"Sin asignar"*) para departamentos aún no dotados de presupuesto en el mes seleccionado.
    * Modal (`DepartmentBudgetModal`) para asignar o reajustar presupuesto departamental (limitado por el remanente global) y definir referencias orientativas por beneficio con validación informativa.
 

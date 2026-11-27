@@ -101,7 +101,7 @@ cd backend
 15 tablas (el DDL completo está en `alembic/versions/`: baseline
 `4957b7117a5c` + `5f2c8a91e4d7` + `b4a7f2c9d1e5`):
 
-| Grupo | Tablas |
+| Categoría | Tablas |
 |-------|--------|
 | Estructura | `departments`, `users` |
 | Catálogos | `benefits`, `packages`, `package_benefits` |
@@ -110,9 +110,9 @@ cd backend
 | Transaccional | `expenses`, `expense_allocations`, `attachments` |
 | Auditoría | `expense_history`, `audit_logs` |
 
-Relación paquete ↔ grupo de empleados (departamento): **N paquetes por
-grupo, un grupo por paquete** — `packages.department_id NOT NULL`. Si dos
-grupos necesitan la misma asignación, se crean dos paquetes distintos. El
+Relación paquete ↔ departamento: **N paquetes por departamento, un
+departamento por paquete** — `packages.department_id NOT NULL`. Si dos
+departamentos necesitan la misma asignación, se crean dos paquetes distintos. El
 presupuesto con el que se cruzan se deriva:
 `departments → department_budgets(department_id) → global_budgets(period)`.
 
