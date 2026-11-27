@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ApiError } from '../services/http'
-import { useAuth } from '../context/AuthContext'
-import '../styles/Login.css'
+import { ApiError } from '../../services/http'
+import { useAuth } from '../../context/AuthContext'
+import './Login.css'
 
 function Login() {
   const [email, setEmail] = useState('')

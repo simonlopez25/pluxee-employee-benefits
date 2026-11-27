@@ -1,30 +1,12 @@
-import { useEffect, useState } from 'react'
 import { BenefitTotalsSummary } from '../../components/organisms/BenefitTotalsSummary'
 import { PackageBalanceCard } from '../../components/organisms/PackageBalanceCard'
-import { getMyBalance } from '../../services/balanceService'
+import { useMyBalance } from '../../hooks/useMyBalance'
 import './EmployeePackagesPage.css'
 
 export function EmployeePackagesPage() {
-  const [balance, setBalance] = useState(null)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let cancelled = false
-    getMyBalance()
-      .then((data) => {
-        if (!cancelled) setBalance(data)
-      })
-      .catch(() => {
-        if (!cancelled) setError('No se pudieron cargar tus beneficios.')
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const { balance, error, loading } = useMyBalance(
+    'No se pudieron cargar tus beneficios.'
+  )
 
   if (loading) return <p className="employee-packages__state">Cargando tus beneficios…</p>
   if (error) return <p className="employee-packages__state employee-packages__state--error">{error}</p>

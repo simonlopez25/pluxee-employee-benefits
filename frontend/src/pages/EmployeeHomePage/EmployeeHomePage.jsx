@@ -1,33 +1,15 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './EmployeeHomePage.css'
 import { useAuth } from '../../context/AuthContext'
 import { EmployeeBalanceSummary } from '../../components/organisms/EmployeeBalanceSummary'
 import { Icon } from '../../components/atoms/Icon'
-import { getMyBalance } from '../../services/balanceService'
+import { useMyBalance } from '../../hooks/useMyBalance'
 
 export function EmployeeHomePage() {
   const { user } = useAuth()
-  const [balance, setBalance] = useState(null)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let cancelled = false
-    getMyBalance()
-      .then((data) => {
-        if (!cancelled) setBalance(data)
-      })
-      .catch(() => {
-        if (!cancelled) setError('No se pudo cargar tu saldo. Inténtalo de nuevo.')
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const { balance, error, loading } = useMyBalance(
+    'No se pudo cargar tu saldo. Inténtalo de nuevo.'
+  )
 
   if (loading) return <p className="employee-home__state">Cargando tu saldo…</p>
   if (error) return <p className="employee-home__state employee-home__state--error">{error}</p>
