@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import ConflictError, NotFoundError
 from app.models import Department, DepartmentBudget, GlobalBudget
-from app.schemas.budget import DepartmentBudgetResponse
+from app.schemas.budget import DepartmentBudgetResponse, GlobalBudgetResponse
 from app.services.budget_queries import (
     _department_budget_detail,
     _global_budget_response,
