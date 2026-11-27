@@ -2,13 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from dotenv import dotenv_values
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL, make_url
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
-REPO_ROOT = BACKEND_ROOT.parent
-NEON_ENV_FILES = (REPO_ROOT / ".env.local", REPO_ROOT / ".env")
 
 
 class Settings(BaseSettings):
@@ -37,15 +34,6 @@ class Settings(BaseSettings):
     db_name: str = "pluxee"
 
     @staticmethod
-    def _neon_env_value(key: str) -> str:
-        for path in NEON_ENV_FILES:
-            if path.is_file():
-                value = (dotenv_values(path).get(key) or "").strip()
-                if value:
-                    return value
-        return ""
-
-    @staticmethod
     def _to_engine_url(raw: str) -> URL:
         url = make_url(raw)
         if url.drivername in {"postgresql", "postgres"}:
@@ -56,7 +44,7 @@ class Settings(BaseSettings):
 
     @property
     def app_database_url(self) -> URL:
-        raw = self.database_url.strip() or self._neon_env_value("DATABASE_URL")
+        raw = self.database_url.strip()
         if not raw:
             return URL.create(
                 "postgresql+psycopg",
@@ -72,9 +60,7 @@ class Settings(BaseSettings):
     def migration_database_url(self) -> URL:
         raw = (
             self.database_url_unpooled.strip()
-            or self._neon_env_value("DATABASE_URL_UNPOOLED")
             or self.database_url.strip()
-            or self._neon_env_value("DATABASE_URL")
         )
         if not raw:
             return self.app_database_url
