@@ -45,7 +45,7 @@ export const validateCreateForm = ({
     }
   }
   if (!departmentId) {
-    return { field: 'department', message: 'Debe seleccionar un grupo para el empleado' }
+    return { field: 'department', message: 'Debe seleccionar un departamento para el empleado' }
   }
 
   return null
@@ -61,10 +61,10 @@ export const validateEditForm = ({
   if (nameEmailError) return nameEmailError
 
   if (departmentRequired && !departmentId) {
-    return { field: 'department', message: 'Debe seleccionar un grupo para el empleado' }
+    return { field: 'department', message: 'Debe seleccionar un departamento para el empleado' }
   }
   if (!departmentRequired && departmentId) {
-    return { field: 'department', message: 'Un administrador no puede tener grupo asignado' }
+    return { field: 'department', message: 'Un administrador no puede tener departamento asignado' }
   }
 
   return null

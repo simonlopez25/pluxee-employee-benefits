@@ -5,7 +5,7 @@ import './AdminSidebar.css'
 
 const ADMIN_MENU = [
   { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-  { key: 'groups', label: 'Grupos', path: '/groups', icon: 'groups' },
+  { key: 'groups', label: 'Departamentos', path: '/groups', icon: 'groups' },
   { key: 'employees', label: 'Empleados', path: '/employees', icon: 'employee' },
   { key: 'budgets', label: 'Presupuestos', path: '/budgets', icon: 'budget' },
   { key: 'catalog', label: 'Catálogo', path: '/catalog', icon: 'catalog' },

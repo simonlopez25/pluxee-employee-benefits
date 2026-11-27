@@ -68,7 +68,7 @@ export function GlobalBudgetSummary({
 
         <article className="budgetMetricCard">
           <div className="budgetMetricHeader">
-            <span className="budgetMetricLabel">Repartido a grupos</span>
+            <span className="budgetMetricLabel">Repartido a departamentos</span>
             <div className="budgetMetricIconWrapper">
               <Icon name="groups" size={20} />
             </div>
@@ -96,7 +96,7 @@ export function GlobalBudgetSummary({
             {formatCurrency(unallocatedAmount)}
           </div>
           <span className="budgetMetricHint">
-            Margen libre para nuevos grupos
+            Margen libre para nuevos departamentos
           </span>
         </article>
 

@@ -12,7 +12,7 @@ export function EmployeesEmptyState({ onCreate }) {
       </h3>
       <p className="employeesEmptySubtitle">
         La plantilla está vacía. Da de alta al primer empleado para
-        asignarle su grupo y sus beneficios.
+        asignarle su departamento y sus beneficios.
       </p>
       <Button
         variant="secondary"

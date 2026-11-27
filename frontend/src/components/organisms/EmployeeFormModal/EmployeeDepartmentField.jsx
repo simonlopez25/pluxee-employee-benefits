@@ -11,7 +11,7 @@ export function EmployeeDepartmentField({
   return (
     <div className="employeeModalField">
       <label htmlFor="employeeDepartment" className="employeeModalLabel">
-        Grupo {departmentRequired && (
+        Departamento {departmentRequired && (
           <span className="employeeModalRequiredMark">*</span>
         )}
       </label>
@@ -25,7 +25,7 @@ export function EmployeeDepartmentField({
         className={`employeeModalInput ${errorField === 'department' ? 'employeeModalInputError' : ''}`}
         disabled={isSubmitting || !departmentRequired}
       >
-        <option value="">Seleccionar grupo</option>
+        <option value="">Seleccionar departamento</option>
         {groupOptions.map((department) => (
           <option key={department.id} value={department.id}>
             {department.name}
@@ -34,7 +34,7 @@ export function EmployeeDepartmentField({
       </select>
       {!departmentRequired && (
         <p className="employeeModalFieldNote">
-          Los administradores no tienen grupo asignado.
+          Los administradores no tienen departamento asignado.
         </p>
       )}
       {errorField === 'department' && (
