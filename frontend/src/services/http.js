@@ -66,9 +66,14 @@ export async function request(path, options = {}) {
 
   if (!response.ok) {
     const error = body?.error
+    const detail = body?.detail
+    const message =
+      error?.message ||
+      (Array.isArray(detail) ? detail.map((d) => d.msg).join(', ') : detail) ||
+      'Error inesperado'
     throw new ApiError(
       error?.code || 'unknown_error',
-      error?.message || 'Error inesperado',
+      message,
       response.status,
     )
   }

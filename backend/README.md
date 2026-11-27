@@ -158,7 +158,7 @@ noviembre de 2026, gastos y justificantes de ejemplo) para desarrollo y demo —
 ```bash
 # Desde la raíz del repo — usa la conexión de la app (Neon o local)
 npm run seed              # si la BD está vacía
-npm run seed -- --reset   # TRUNCATE de las 13 tablas y vuelve a sembrar
+npm run seed -- --reset   # TRUNCATE de las 14 tablas y vuelve a sembrar
 ```
 
 En **pgAdmin** (Postgres local migrada con `alembic upgrade head`): pega
