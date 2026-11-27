@@ -1,5 +1,3 @@
-"""Modelo de la tabla audit_logs (histórico de cambios, solo inserciones)."""
-
 from __future__ import annotations
 
 from datetime import datetime

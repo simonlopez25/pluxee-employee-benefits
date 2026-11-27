@@ -1,5 +1,3 @@
-"""Modelo de la tabla department_budgets (presupuesto por departamento y mes)."""
-
 from __future__ import annotations
 
 from decimal import Decimal

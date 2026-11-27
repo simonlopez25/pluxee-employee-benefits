@@ -1,5 +1,3 @@
-"""Schemas para el presupuesto departamental mensual."""
-
 from __future__ import annotations
 
 from datetime import date
@@ -11,8 +9,6 @@ from app.schemas.budget_common import first_day, validate_non_negative
 
 
 class DepartmentBudgetUpsert(BaseModel):
-    """Payload de PUT /api/budgets/departments/{department_id}."""
-
     period: date = Field(description="Mes del presupuesto (cualquier día del mes se normaliza al día 1)")
     allocated_amount: Decimal = Field(
         ge=0, description="Importe asignado al departamento en ese mes (>= 0)"
@@ -21,7 +17,6 @@ class DepartmentBudgetUpsert(BaseModel):
     @field_validator("period", mode="after")
     @classmethod
     def period_must_be_first_day(cls, value: date) -> date:
-        """Normaliza el periodo al día 1 del mes."""
         return first_day(value)
 
     @field_validator("allocated_amount", mode="after")
@@ -31,8 +26,6 @@ class DepartmentBudgetUpsert(BaseModel):
 
 
 class DepartmentBudgetResponse(BaseModel):
-    """Respuesta del presupuesto de un departamento en un mes."""
-
     id: int = Field(description="Identificador del presupuesto departamental")
     department_id: int = Field(description="Identificador del departamento")
     department_name: str = Field(description="Nombre del departamento")

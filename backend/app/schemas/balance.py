@@ -1,5 +1,3 @@
-"""Schemas del saldo del empleado (HU-13 / PEB-55)."""
-
 from __future__ import annotations
 
 from datetime import date
@@ -9,13 +7,6 @@ from pydantic import BaseModel, ConfigDict
 
 
 class BenefitBalance(BaseModel):
-    """Saldo agregado de un beneficio para el empleado.
-
-    `available` es la suma del disponible de todos los paquetes que cubren
-    el beneficio: si un paquete multibeneficio comparte saldo, un gasto en
-    uno de sus beneficios reduce el disponible de todos ellos.
-    """
-
     model_config = ConfigDict(from_attributes=True)
 
     benefit_id: int
@@ -26,8 +17,6 @@ class BenefitBalance(BaseModel):
 
 
 class PackageBalance(BaseModel):
-    """Paquete asignado al empleado con su desglose por beneficio."""
-
     model_config = ConfigDict(from_attributes=True)
 
     package_id: int
@@ -41,13 +30,6 @@ class PackageBalance(BaseModel):
 
 
 class EmployeeBalanceResponse(BaseModel):
-    """Resumen agregado + detalle de paquetes del empleado.
-
-    `assigned_total` es la suma de `assigned_amount` de los paquetes del
-    empleado, no la suma de los disponibles por beneficio (que se solapan
-    cuando un paquete multibeneficio cubre varios).
-    """
-
     period: date | None
     assigned_total: Decimal
     approved_total: Decimal

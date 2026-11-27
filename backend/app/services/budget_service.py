@@ -1,11 +1,3 @@
-"""Lógica de negocio de presupuestos (HU-11 / PEB-19).
-
-Orquestador principal que delega en módulos especializados:
-- budget_queries: consultas y helpers
-- budget_allocation: asignación global/departamental/beneficios
-- budget_overview: vistas mensuales
-"""
-
 from __future__ import annotations
 
 from datetime import date
@@ -20,7 +12,6 @@ from app.schemas.budget import (
     MonthlyBudgetOverview,
 )
 
-# Re-export all public functions from submodules
 from app.services.budget_allocation import (
     get_department_budget,
     get_global_budget_response,
@@ -35,7 +26,6 @@ from app.services.budget_queries import (
     first_day,
 )
 
-# Re-export internal functions used by routes
 __all__ = [
     "first_day",
     "upsert_global_budget",

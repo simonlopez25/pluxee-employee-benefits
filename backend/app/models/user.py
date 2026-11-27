@@ -1,5 +1,3 @@
-"""Modelo de la tabla users (administradores y empleados)."""
-
 from __future__ import annotations
 
 from datetime import datetime

@@ -1,5 +1,3 @@
-"""Endpoints de departamentos: /api/departments."""
-
 from __future__ import annotations
 
 from typing import Annotated
@@ -33,7 +31,6 @@ def list_departments(
     db: Session = Depends(get_db),
     _= Depends(get_current_user),
 ) -> list[DepartmentListResponse]:
-    """Devuelve los departamentos ordenados por nombre."""
     return department_service.list_departments(db, is_active=is_active)
 
 
@@ -47,9 +44,8 @@ def get_department(
     db: Session = Depends(get_db),
     _= Depends(get_current_user),
 ) -> Department:
-    """Devuelve un departamento por su identificador."""
     return department_service.get_department(db, department_id)
-    
+
 
 @router.post(
     "/departments",
@@ -62,7 +58,6 @@ def create_department(
     db: Session = Depends(get_db),
     _= Depends(require_admin),
 ) -> Department:
-    """Crea un departamento con nombre único y divisa."""
     return department_service.create_department(db, data)
 
 
@@ -77,5 +72,4 @@ def update_department(
     db: Session = Depends(get_db),
     _= Depends(require_admin),
 ) -> Department:
-    """Edita el nombre y la divisa de un departamento."""
     return department_service.update_department(db, department_id, data)

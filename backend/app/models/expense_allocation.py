@@ -1,5 +1,3 @@
-"""Modelo de la tabla expense_allocations (reparto del gasto entre paquetes)."""
-
 from __future__ import annotations
 
 from decimal import Decimal
@@ -37,14 +35,12 @@ class ExpenseAllocation(Base):
             name="fk_expense_allocations_benefit",
             ondelete="RESTRICT",
         ),
-        # FK compuesta: el paquete es del empleado
         ForeignKeyConstraint(
             ["employee_assignment_id", "package_id"],
             ["employee_assignments.id", "employee_assignments.package_id"],
             name="fk_expense_allocations_assignment_package",
             ondelete="RESTRICT",
         ),
-        # FK compuesta: el paquete cubre ese beneficio
         ForeignKeyConstraint(
             ["package_id", "benefit_id"],
             ["package_benefits.package_id", "package_benefits.benefit_id"],

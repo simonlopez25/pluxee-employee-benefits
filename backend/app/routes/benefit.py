@@ -1,5 +1,3 @@
-"""Endpoints del catálogo de beneficios: /api/benefits."""
-
 from __future__ import annotations
 
 from typing import Annotated, Literal
@@ -20,56 +18,54 @@ from app.services import benefit_service
 
 router = APIRouter(tags=["benefits"])
 
-# Errores documentados en Swagger (cuerpo real de la respuesta)
 _ERROR_NOT_FOUND = {
-    "description": "404 - Beneficio no encontrado",
+    "description": "404 - Benefit not found",
     "content": {
         "application/json": {
             "example": {
-                "error": {"code": "not_found", "message": "Beneficio no encontrado"}
+                "error": {"code": "not_found", "message": "Benefit not found"}
             }
         }
     },
 }
 _ERROR_CONFLICT = {
-    "description": "409 - Nombre duplicado",
+    "description": "409 - Duplicate name",
     "content": {
         "application/json": {
             "example": {
                 "error": {
                     "code": "conflict",
-                    "message": "Ya existe un beneficio con ese nombre",
+                    "message": "A benefit with that name already exists",
                 }
             }
         }
     },
 }
 _ERROR_VALIDATION = {
-    "description": "422 - Datos no válidos",
+    "description": "422 - Invalid data",
     "content": {
         "application/json": {
-            "example": {"detail": [{"msg": "Value error, El nombre no puede estar vacío"}]}
+            "example": {"detail": [{"msg": "Value error, Name cannot be empty"}]}
         }
     },
 }
 
-BenefitIdPath = Annotated[int, Path(description="Id del beneficio")]
+BenefitIdPath = Annotated[int, Path(description="Benefit ID")]
 
 
 @router.get(
     "/benefits",
     response_model=list[BenefitResponse],
-    summary="Lista los beneficios",
+    summary="List benefits",
     responses={422: _ERROR_VALIDATION},
 )
 def list_benefits(
-    is_active: Annotated[bool | None, Query(description="Filtra por estado")] = None,
-    is_basic: Annotated[bool | None, Query(description="Filtra por tipo básico")] = None,
-    order_by: Annotated[Literal["id", "name"], Query(description="Orden: id o name")] = "id",
+    is_active: Annotated[bool | None, Query(description="Filter by status")] = None,
+    is_basic: Annotated[bool | None, Query(description="Filter by basic type")] = None,
+    order_by: Annotated[Literal["id", "name"], Query(description="Order: id or name")] = "id",
     db: Session = Depends(get_db),
     _= Depends(get_current_user),
 ) -> list[Benefit]:
-    """Devuelve la lista de beneficios."""
     return benefit_service.list_benefits(
         db,
         is_active=is_active,
@@ -81,7 +77,7 @@ def list_benefits(
 @router.get(
     "/benefits/{benefit_id}",
     response_model=BenefitResponse,
-    summary="Obtiene un beneficio",
+    summary="Get a benefit",
     responses={404: _ERROR_NOT_FOUND},
 )
 def get_benefit(
@@ -89,7 +85,6 @@ def get_benefit(
     db: Session = Depends(get_db),
     _= Depends(get_current_user),
 ) -> Benefit:
-    """Devuelve un beneficio por su id."""
     return benefit_service.get_benefit(db, benefit_id)
 
 
@@ -97,7 +92,7 @@ def get_benefit(
     "/benefits",
     response_model=BenefitResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Crea un beneficio",
+    summary="Create a benefit",
     responses={409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
 def create_benefit(
@@ -105,14 +100,13 @@ def create_benefit(
     db: Session = Depends(get_db),
     _= Depends(require_admin),
 ) -> Benefit:
-    """Crea un beneficio con nombre único."""
     return benefit_service.create_benefit(db, payload)
 
 
 @router.put(
     "/benefits/{benefit_id}",
     response_model=BenefitResponse,
-    summary="Actualiza un beneficio",
+    summary="Update a benefit",
     responses={404: _ERROR_NOT_FOUND, 409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
 def update_benefit(
@@ -121,14 +115,13 @@ def update_benefit(
     db: Session = Depends(get_db),
     _= Depends(require_admin),
 ) -> Benefit:
-    """Actualiza los campos enviados de un beneficio."""
     return benefit_service.update_benefit(db, benefit_id, payload)
 
 
 @router.patch(
     "/benefits/{benefit_id}",
     response_model=BenefitResponse,
-    summary="Activa o desactiva un beneficio",
+    summary="Enable or disable a benefit",
     responses={404: _ERROR_NOT_FOUND, 422: _ERROR_VALIDATION},
 )
 def update_benefit_status(
@@ -137,5 +130,4 @@ def update_benefit_status(
     db: Session = Depends(get_db),
     _= Depends(require_admin),
 ) -> Benefit:
-    """Cambia el estado de un beneficio sin borrarlo."""
     return benefit_service.update_benefit_status(db, benefit_id, payload)

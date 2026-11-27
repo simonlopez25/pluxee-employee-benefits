@@ -15,32 +15,30 @@ class ChangePasswordRequest(BaseModel):
     @model_validator(mode="after")
     def _validate(self) -> "ChangePasswordRequest":
         if self.new_password != self.confirm_password:
-            raise ValueError("La nueva contraseña y su confirmación no coinciden")
+            raise ValueError("New password and confirmation do not match")
         if self.new_password == self.current_password:
-            raise ValueError("La nueva contraseña debe ser diferente a la actual")
+            raise ValueError("New password must be different from current password")
         return self
 
 
 class UserCreate(BaseModel):
-    """Payload de POST /api/users: alta de empleado."""
-
     full_name: str = Field(
         min_length=2,
         max_length=120,
-        description="Nombre completo del empleado",
+        description="Employee full name",
     )
     email: str = Field(
         min_length=3,
         max_length=150,
-        description="Correo electrónico único",
+        description="Unique email address",
     )
     temporary_password: str = Field(
         min_length=10,
         max_length=128,
-        description="Contraseña temporal que el empleado debe cambiar al entrar",
+        description="Temporary password employee must change on first login",
     )
     department_id: int = Field(
-        description="Id del grupo (departamento) asignado al empleado",
+        description="Assigned department (group) ID",
     )
 
     @field_validator("email")
@@ -48,45 +46,34 @@ class UserCreate(BaseModel):
     def _normalize_email(cls, value: str) -> str:
         normalized = value.strip().lower()
         if not normalized or len(normalized) < 3:
-            raise ValueError("El correo electrónico debe tener al menos 3 caracteres")
+            raise ValueError("Email must have at least 3 characters")
         if not EMAIL_PATTERN.match(normalized):
-            raise ValueError("El correo electrónico no tiene un formato válido")
+            raise ValueError("Invalid email format")
         return normalized
 
 
 class UserUpdateRequest(BaseModel):
-    """Payload de PATCH /api/users/{user_id}: edición parcial de empleado.
-
-    Todos los campos son opcionales; solo se modifican los enviados.
-    """
-
     full_name: str | None = Field(
-        default=None, min_length=1, max_length=120, description="Nombre completo del empleado"
+        default=None, min_length=1, max_length=120, description="Employee full name"
     )
     email: str | None = Field(
-        default=None, min_length=3, max_length=150, description="Correo electrónico único"
+        default=None, min_length=3, max_length=150, description="Unique email address"
     )
     department_id: int | None = Field(
-        default=None, description="Id del departamento (requerido si rol es EMPLOYEE)"
+        default=None, description="Department ID (required if role is EMPLOYEE)"
     )
     role: str | None = Field(
         default=None,
         pattern="^(ADMIN|EMPLOYEE)$",
-        description="Rol del empleado: ADMIN o EMPLOYEE",
+        description="Employee role: ADMIN or EMPLOYEE",
     )
 
     @field_validator("email", mode="after")
     @classmethod
     def _normalize_email(cls, value: str | None) -> str | None:
-        """Normaliza el email (trim + minúsculas) antes de guardarlo.
-
-        El frontend ya lo envía normalizado; aquí se garantiza también para
-        llamadas directas a la API, de modo que la unicidad no dependa de la
-        colación y el login (que normaliza igual) siempre encuentre al usuario.
-        """
         if value is None:
             return None
         normalized = value.strip().lower()
         if not normalized or len(normalized) < 3:
-            raise ValueError("El correo electrónico debe tener al menos 3 caracteres")
+            raise ValueError("Email must have at least 3 characters")
         return normalized

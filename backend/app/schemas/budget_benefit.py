@@ -1,5 +1,3 @@
-"""Schemas para referencias orientativas por beneficio."""
-
 from __future__ import annotations
 
 from datetime import date
@@ -12,16 +10,12 @@ from app.schemas.budget_common import Money, first_day, validate_non_negative
 
 
 class BenefitReferenceItem(BaseModel):
-    """Importe orientativo de un beneficio dentro de un presupuesto departamental."""
-
     benefit_id: int = Field(description="Identificador del beneficio")
     benefit_name: str = Field(description="Nombre del beneficio")
     indicative_amount: Money = Field(description="Importe orientativo (>= 0)")
 
 
 class BenefitReferenceItemIn(BaseModel):
-    """Entrada de una referencia orientativa por beneficio."""
-
     benefit_id: int = Field(description="Identificador del beneficio")
     indicative_amount: Decimal = Field(
         ge=0, description="Importe orientativo del beneficio (>= 0)"
@@ -34,8 +28,6 @@ class BenefitReferenceItemIn(BaseModel):
 
 
 class BenefitReferenceBulkUpdate(BaseModel):
-    """Payload de PUT /api/budgets/departments/{department_id}/references."""
-
     period: date = Field(description="Mes de las referencias (se normaliza al día 1)")
     references: list[BenefitReferenceItemIn] = Field(
         default_factory=list,
@@ -45,5 +37,4 @@ class BenefitReferenceBulkUpdate(BaseModel):
     @field_validator("period", mode="after")
     @classmethod
     def period_must_be_first_day(cls, value: date) -> date:
-        """Normaliza el periodo al día 1 del mes."""
         return first_day(value)

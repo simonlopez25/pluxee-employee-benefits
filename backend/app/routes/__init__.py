@@ -1,5 +1,3 @@
-"""Montaje de todos los routers bajo el prefijo /api."""
-
 from __future__ import annotations
 
 from fastapi import APIRouter

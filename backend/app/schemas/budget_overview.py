@@ -1,5 +1,3 @@
-"""Schema para la vista general mensual de presupuestos."""
-
 from __future__ import annotations
 
 from datetime import date
@@ -13,8 +11,6 @@ from app.schemas.budget_department import DepartmentBudgetResponse
 
 
 class MonthlyBudgetOverview(BaseModel):
-    """Resumen completo de presupuestos de un mes."""
-
     period: date = Field(description="Mes consultado (día 1)")
     total_amount: Money = Field(description="Presupuesto global del mes (0 si no está configurado)")
     allocated_to_departments: Money = Field(

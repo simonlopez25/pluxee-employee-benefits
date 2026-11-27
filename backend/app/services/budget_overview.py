@@ -1,5 +1,3 @@
-"""Vista general mensual de presupuestos."""
-
 from __future__ import annotations
 
 from decimal import Decimal
@@ -19,7 +17,6 @@ ZERO = Decimal("0")
 
 
 def get_monthly_budget_overview(db: Session, period: date) -> MonthlyBudgetOverview:
-    """Resumen del mes; sin global devuelve ceros en vez de error 500."""
     period = first_day(period)
 
     global_budget = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
@@ -32,7 +29,6 @@ def get_monthly_budget_overview(db: Session, period: date) -> MonthlyBudgetOverv
             departments=[],
         )
 
-    # Presupuestos departamentales del mes, ordenados por nombre.
     department_budgets = db.execute(
         select(DepartmentBudget)
         .join(Department, Department.id == DepartmentBudget.department_id)

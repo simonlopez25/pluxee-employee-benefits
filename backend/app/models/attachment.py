@@ -1,5 +1,3 @@
-"""Modelo de la tabla attachments (justificantes de cada gasto)."""
-
 from __future__ import annotations
 
 from datetime import datetime

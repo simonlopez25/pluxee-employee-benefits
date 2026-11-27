@@ -1,5 +1,3 @@
-"""Modelo de la tabla departments (departamentos de la plantilla)."""
-
 from __future__ import annotations
 
 from datetime import datetime

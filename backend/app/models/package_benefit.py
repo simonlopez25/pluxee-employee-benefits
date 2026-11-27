@@ -1,5 +1,3 @@
-"""Modelo de la tabla package_benefits (pivote paquete ↔ beneficio)."""
-
 from __future__ import annotations
 
 from sqlalchemy import ForeignKeyConstraint, PrimaryKeyConstraint

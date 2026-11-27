@@ -1,5 +1,3 @@
-"""Modelo de la tabla benefits (catálogo de beneficios)."""
-
 from __future__ import annotations
 
 from sqlalchemy import Boolean, false, String, Text, UniqueConstraint, true

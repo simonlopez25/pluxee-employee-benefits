@@ -1,5 +1,3 @@
-"""Lógica de asignación de presupuestos global y departamentales."""
-
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
@@ -23,7 +21,6 @@ ZERO = Decimal("0")
 def upsert_global_budget(
     db: Session, period: date, total_amount: Decimal
 ) -> GlobalBudget:
-    """Crea o actualiza el global; 409 si bajaría de lo ya repartido (suelo)."""
     period = first_day(period)
     row = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
     if row is None:
@@ -57,7 +54,6 @@ def upsert_global_budget(
 
 
 def get_global_budget_response(db: Session, period: date) -> GlobalBudgetResponse | None:
-    """Obtiene la respuesta formateada del presupuesto global."""
     period = first_day(period)
     row = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
     if row is None:
@@ -71,7 +67,6 @@ def upsert_department_budget(
     period: date,
     allocated_amount: Decimal,
 ) -> DepartmentBudget:
-    """Crea o actualiza el presupuesto de un departamento; valida activo, global y techo."""
     period = first_day(period)
 
     department = db.get(Department, department_id)
@@ -127,7 +122,6 @@ def upsert_department_budget(
 
 
 def get_department_budget(db: Session, department_id: int, period: date):
-    """Obtiene el presupuesto departamental para un mes."""
     period = first_day(period)
     global_budget = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
     if global_budget is None:
@@ -146,7 +140,6 @@ def upsert_benefit_references(
     period: date,
     references: list,
 ) -> DepartmentBudgetResponse:
-    """Guarda las referencias orientativas por beneficio, sin topes."""
     from app.models import Benefit, BenefitBudgetReference
     from app.schemas.budget import BenefitReferenceItemIn
 
@@ -174,14 +167,12 @@ def upsert_benefit_references(
             f"(create it first before adding benefit references)"
         )
 
-    # Pydantic ya valida ge=0; aquí se refuerza a nivel de servicio.
     for ref in references:
         if ref.indicative_amount < 0:
             raise ConflictError(
                 f"indicative_amount for benefit {ref.benefit_id} cannot be negative"
             )
 
-    # Reemplaza todas las referencias del mes (upsert por lote).
     db.execute(
         delete(BenefitBudgetReference).where(
             BenefitBudgetReference.department_budget_id == department_budget.id

@@ -1,8 +1,3 @@
-"""Modelo de employee_assignments: paquete asignado a un empleado.
-
-Un empleado tiene como mucho una asignación por paquete, con importe propio.
-"""
-
 from __future__ import annotations
 
 from decimal import Decimal
@@ -40,7 +35,6 @@ class EmployeeAssignment(Base):
             "user_id",
             name="uq_employee_assignments_package_user",
         ),
-        # La usan las FK compuestas de expense_allocations
         UniqueConstraint("id", "package_id", name="uq_employee_assignments_id_package"),
         CheckConstraint("assigned_amount >= 0", name="ck_employee_assignments_amount"),
     )

@@ -19,7 +19,7 @@ def change_password(
 ) -> UserPublic:
     if not verify_password(data.current_password, user.password_hash):
         raise AppError(
-            "La contraseña actual no es correcta",
+            "Current password is incorrect",
             status_code=400,
             code="invalid_current_password",
         )
@@ -32,15 +32,14 @@ def change_password(
 
 
 def create_employee(db: Session, payload: UserCreate) -> UserPublic:
-    """Da de alta a un empleado: grupo obligatorio, contraseña temporal y cambio forzado."""
     if (
         db.scalar(select(User.id).where(User.email == payload.email)) is not None
     ):
-        raise ConflictError("Ya existe un usuario con ese correo electrónico")
+        raise ConflictError("A user with that email already exists")
 
     department = db.get(Department, payload.department_id)
     if department is None or not department.is_active:
-        raise NotFoundError("El departamento no existe o está inactivo")
+        raise NotFoundError("Department does not exist or is inactive")
 
     user = User(
         email=payload.email,
@@ -57,7 +56,7 @@ def create_employee(db: Session, payload: UserCreate) -> UserPublic:
     except IntegrityError as exc:
         db.rollback()
         raise ConflictError(
-            "Ya existe un usuario con ese correo electrónico"
+            "A user with that email already exists"
         ) from exc
     db.refresh(user)
     return UserPublic.model_validate(user)
@@ -69,12 +68,11 @@ def update_employee(
     current_user: User,
     payload: UserUpdateRequest,
 ) -> UserPublic:
-    """Edita parcialmente un empleado (solo administrador)."""
     user = _get_user_or_404(db, user_id)
 
     if not user.is_active:
         raise AppError(
-            "No se puede editar un empleado dado de baja",
+            "Cannot edit a deactivated employee",
             status_code=400,
             code="employee_inactive",
         )
@@ -105,19 +103,18 @@ def deactivate_employee(
     user_id: int,
     current_user: User,
 ) -> UserPublic:
-    """Da de baja lógica a un empleado (solo administrador)."""
     user = _get_user_or_404(db, user_id)
 
     if current_user.id == user_id:
         raise AppError(
-            "No puedes darte de baja a ti mismo",
+            "You cannot deactivate yourself",
             status_code=400,
             code="self_deactivation",
         )
 
     if not user.is_active:
         raise AppError(
-            "El empleado ya está dado de baja",
+            "Employee is already deactivated",
             status_code=400,
             code="already_deactivated",
         )
@@ -130,7 +127,6 @@ def deactivate_employee(
 
 
 def list_users(db: Session) -> list[UserPublic]:
-    """Lista todos los usuarios (administradores y empleados) ordenados por identificador."""
     statement = select(User).order_by(User.id)
     users = list(db.scalars(statement).all())
     return [UserPublic.model_validate(user) for user in users]
@@ -139,7 +135,7 @@ def list_users(db: Session) -> list[UserPublic]:
 def _get_user_or_404(db: Session, user_id: int) -> User:
     user = db.get(User, user_id)
     if user is None:
-        raise NotFoundError("El empleado no existe")
+        raise NotFoundError("Employee does not exist")
     return user
 
 
@@ -148,7 +144,7 @@ def _validate_role_change(
 ) -> None:
     if current_user.id == user_id and new_role != "ADMIN":
         raise AppError(
-            "Un administrador no puede rebajar su propio rol",
+            "An admin cannot downgrade their own role",
             status_code=400,
             code="self_role_downgrade",
         )
@@ -157,13 +153,12 @@ def _validate_role_change(
 def _validate_and_normalize_role_department(
     update_data: dict, user: User
 ) -> dict:
-    """Valida y normaliza la combinación final rol/departamento."""
     final_role = update_data.get("role", user.role)
 
     if final_role == "ADMIN":
         if "department_id" in update_data and update_data["department_id"] is not None:
             raise AppError(
-                "Un administrador no puede tener un departamento asignado",
+                "An admin cannot have a department assigned",
                 status_code=400,
                 code="admin_department_not_allowed",
             )
@@ -172,7 +167,7 @@ def _validate_and_normalize_role_department(
 
     if update_data.get("department_id", user.department_id) is None:
         raise AppError(
-            "Un empleado debe tener un departamento asignado",
+            "An employee must have a department assigned",
             status_code=400,
             code="department_required",
         )
@@ -187,10 +182,10 @@ def _ensure_email_is_available(
         User.id != exclude_id,
     )
     if db.scalar(statement) is not None:
-        raise ConflictError("Ya existe un usuario con ese correo electrónico")
+        raise ConflictError("A user with that email already exists")
 
 
 def _ensure_department_exists(db: Session, department_id: int) -> None:
     department = db.get(Department, department_id)
     if department is None:
-        raise NotFoundError("El departamento no existe")
+        raise NotFoundError("Department does not exist")

@@ -1,5 +1,3 @@
-"""Arranque del servidor con uvicorn."""
-
 from __future__ import annotations
 
 import uvicorn
@@ -8,7 +6,6 @@ from app.core.config import settings
 
 
 def main() -> None:
-    """Levanta el servidor en el puerto configurado en .env."""
     uvicorn.run(
         "app.main:app",
         host=settings.host,

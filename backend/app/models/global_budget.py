@@ -1,5 +1,3 @@
-"""Modelo de la tabla global_budgets (presupuesto global por mes)."""
-
 from __future__ import annotations
 
 from datetime import date, datetime

@@ -1,5 +1,3 @@
-"""Pool de conexión a PostgreSQL con SQLAlchemy 2.0."""
-
 from __future__ import annotations
 
 from collections.abc import Generator
@@ -12,8 +10,6 @@ from app.core.config import settings
 engine = create_engine(
     settings.app_database_url,
     pool_pre_ping=True,
-    # PgBouncer de Neon trabaja en modo transacción y no soporta prepared
-    # statements: psycopg3 los desactiva para no romper consultas repetidas
     connect_args={"prepare_threshold": 0},
 )
 
@@ -21,11 +17,9 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False
 
 
 class Base(DeclarativeBase):
-    """Base para los modelos ORM (models/)."""
-
+    pass
 
 def get_db() -> Generator[Session, None, None]:
-    """Dependencia de FastAPI: inyecta una sesión y la cierra al terminar."""
     db = SessionLocal()
     try:
         yield db
