@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     )
 
     app_env: str = "development"
+    host: str = "127.0.0.1"
     port: int = 4000
     cors_origins: str = "http://localhost:5173"
     

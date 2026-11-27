@@ -11,7 +11,7 @@ def main() -> None:
     """Levanta el servidor en el puerto configurado en .env."""
     uvicorn.run(
         "app.main:app",
-        host="127.0.0.1",
+        host=settings.host,
         port=settings.port,
         reload=settings.app_env != "production",
     )

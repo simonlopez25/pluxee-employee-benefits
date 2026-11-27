@@ -172,6 +172,7 @@ a Lucía **Comida = 70,00** y **Transporte = 10,00** (el runner imprime
 |----------|-------------|---------|
 | `PORT` | Puerto del servidor | `4000` |
 | `APP_ENV` | Entorno (`development` \| `production` \| `test`) | `development` |
+| `HOST` | Interfaz de escucha del servidor | `127.0.0.1` |
 | `CORS_ORIGINS` | Orígenes CORS permitidos (separados por coma) | `http://localhost:5173` |
 | `DB_HOST` | Host de PostgreSQL (fallback local) | `localhost` |
 | `DB_PORT` | Puerto de PostgreSQL (fallback local) | `5432` |
