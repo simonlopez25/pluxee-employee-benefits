@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button } from '../../atoms/Button'
+import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon'
 import './DepartmentFormModal.css'
 

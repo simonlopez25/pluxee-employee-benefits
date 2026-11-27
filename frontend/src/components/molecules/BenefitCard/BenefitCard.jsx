@@ -1,5 +1,5 @@
 import { Badge } from '../../atoms/Badge/Badge'
-import { Button } from '../../atoms/Button'
+import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon'
 import './BenefitCard.css'
 

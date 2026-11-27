@@ -1,6 +1,6 @@
 import { formatDate, STATUS_LABELS } from './EmployeesPage.utils'
 import { Badge } from '../../components/atoms/Badge/Badge'
-import { Button } from '../../components/atoms/Button'
+import { Button } from '../../components/atoms/Button/Button'
 import { Icon } from '../../components/atoms/Icon'
 
 export function EmployeeTable({

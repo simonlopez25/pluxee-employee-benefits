@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '../../atoms/Button'
+import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon'
 // Reutilizamos los estilos del modal de beneficios para que se vean iguales
 import '../BenefitFormModal/BenefitFormModal.css'

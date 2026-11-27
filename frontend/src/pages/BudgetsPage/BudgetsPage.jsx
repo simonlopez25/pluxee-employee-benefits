@@ -5,7 +5,7 @@ import { GlobalBudgetModal } from '../../components/organisms/GlobalBudgetModal'
 import { DepartmentBudgetsTable } from '../../components/organisms/DepartmentBudgetsTable'
 import { DepartmentBudgetModal } from '../../components/organisms/DepartmentBudgetModal'
 import { Icon } from '../../components/atoms/Icon'
-import { Button } from '../../components/atoms/Button'
+import { Button } from '../../components/atoms/Button/Button'
 import { firstDayOfMonth } from '../../utils/dates'
 import {
   getActiveBenefits,

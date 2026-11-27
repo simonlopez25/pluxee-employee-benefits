@@ -1,4 +1,4 @@
-import { Button } from '../../atoms/Button'
+import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon'
 import { MonthSelector } from '../../molecules/MonthSelector'
 import { ProgressBar } from '../../molecules/ProgressBar'
