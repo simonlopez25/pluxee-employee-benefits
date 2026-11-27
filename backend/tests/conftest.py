@@ -6,12 +6,18 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
-from app.core.database import SessionLocal
+from app.core.database import SessionLocal, engine
 from app.core.security import create_access_token, get_current_user, hash_password
 from app.main import app
 from app.models.user import User
 
 TEST_PASSWORD = "Prueba123!"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _dispose_engine():
+    yield
+    engine.dispose()
 
 
 def _seed_user(role: str) -> User:
