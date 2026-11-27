@@ -114,8 +114,6 @@ Comprobación: abre `http://localhost:4000/api/health` →
 - Las migraciones de **Alembic** usan la conexión directa
   (`DATABASE_URL_UNPOOLED`) automáticamente:
   `cd backend && .venv\Scripts\python -m alembic upgrade head`.
-- `neon.ts` define la política de ramas (las ramas no-default expiran a los
-  7 días); se aplica con `neon deploy`.
 
 ## Datos de prueba (seed)
 
@@ -188,8 +186,6 @@ git push
 > **¿Tocas `app/models/`?** Aplica y verifica migraciones desde `backend/`:
 > `.venv\Scripts\python -m alembic upgrade head` y después
 > `.venv\Scripts\python -m alembic check` (debe quedar sin cambios).
-> **¿Mantenedor que usa `neon deploy`?** Ejecuta también `npm install` en la
-> raíz (dependencias con las que se evalúa `neon.ts`).
 
 ## Scripts disponibles
 
