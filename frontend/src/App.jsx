@@ -90,7 +90,8 @@ function App() {
 
             <Route element={<ProtectedRoute />}>
               <Route element={<PasswordChangeGuard />}>
-                <Route path="/perfil" element={<Profile />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/perfil" element={<Navigate to="/profile" replace />} />
               </Route>
             </Route>
 
