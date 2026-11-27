@@ -15,10 +15,10 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_env: str = "development"
-    host: str = "127.0.0.1"
+    app_env: str = ""
+    host: str = "0.0.0.0"
     port: int = 4000
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = ""
 
     jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
@@ -27,11 +27,11 @@ class Settings(BaseSettings):
     database_url: str = ""
     database_url_unpooled: str = ""
 
-    db_host: str = "localhost"
+    db_host: str = ""
     db_port: int = 5432
-    db_user: str = "postgres"
+    db_user: str = ""
     db_password: str = ""
-    db_name: str = "pluxee"
+    db_name: str = ""
 
     @staticmethod
     def _to_engine_url(raw: str) -> URL:
