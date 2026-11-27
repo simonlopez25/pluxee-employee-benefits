@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button } from '../../atoms/Button/Button'
-import { Icon } from '../../atoms/Icon'
+import { Icon } from '../../atoms/Icon/Icon'
 import './DepartmentFormModal.css'
 
 const CURRENCY_OPTIONS = ['EUR', 'USD', 'GBP']

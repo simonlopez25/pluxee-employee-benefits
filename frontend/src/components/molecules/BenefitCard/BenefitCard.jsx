@@ -1,6 +1,6 @@
 import { Badge } from '../../atoms/Badge/Badge'
 import { Button } from '../../atoms/Button/Button'
-import { Icon } from '../../atoms/Icon'
+import { Icon } from '../../atoms/Icon/Icon'
 import './BenefitCard.css'
 
 const getIconNameByBenefitName = (name = '') => {

@@ -1,5 +1,5 @@
 import { Button } from '../../atoms/Button/Button'
-import { Icon } from '../../atoms/Icon'
+import { Icon } from '../../atoms/Icon/Icon'
 import { MONTH_NAMES_CAPITALIZED, firstDayOfMonth } from '../../../utils/dates'
 import './MonthSelector.css'
 

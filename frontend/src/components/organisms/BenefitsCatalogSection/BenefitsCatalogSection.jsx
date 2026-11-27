@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../atoms/Button/Button'
-import { Icon } from '../../atoms/Icon'
+import { Icon } from '../../atoms/Icon/Icon'
 import { BenefitCard } from '../../molecules/BenefitCard'
 import { FilterTabs } from '../../molecules/FilterTabs'
 import { BenefitFormModal } from '../BenefitFormModal'

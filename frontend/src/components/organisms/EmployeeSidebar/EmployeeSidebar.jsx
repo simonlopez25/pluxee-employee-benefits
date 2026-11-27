@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Icon } from '../../atoms/Icon'
+import { Icon } from '../../atoms/Icon/Icon'
 import { useAuth } from '../../../context/AuthContext'
 import './EmployeeSidebar.css'
 

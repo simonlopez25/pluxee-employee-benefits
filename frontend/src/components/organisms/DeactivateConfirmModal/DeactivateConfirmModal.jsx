@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Button } from '../../atoms/Button/Button'
-import { Icon } from '../../atoms/Icon'
+import { Icon } from '../../atoms/Icon/Icon'
 import './DeactivateConfirmModal.css'
 
 function DeactivateConfirmDialogContent({

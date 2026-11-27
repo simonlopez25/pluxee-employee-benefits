@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button } from '../../atoms/Button/Button'
-import { Icon } from '../../atoms/Icon'
+import { Icon } from '../../atoms/Icon/Icon'
 import { PackageFormModal } from '../PackageFormModal'
 import { getBenefits } from '../../../services/benefitService'
 import {

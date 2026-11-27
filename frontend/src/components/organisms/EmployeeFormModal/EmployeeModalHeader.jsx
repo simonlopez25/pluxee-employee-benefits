@@ -1,4 +1,4 @@
-import { Icon } from '../../atoms/Icon'
+import { Icon } from '../../atoms/Icon/Icon'
 
 export function EmployeeModalHeader({
   isCreate,

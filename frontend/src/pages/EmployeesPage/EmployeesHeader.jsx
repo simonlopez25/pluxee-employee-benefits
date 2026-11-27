@@ -1,5 +1,5 @@
 import { Button } from '../../components/atoms/Button/Button'
-import { Icon } from '../../components/atoms/Icon'
+import { Icon } from '../../components/atoms/Icon/Icon'
 
 export function EmployeesHeader({ onCreate }) {
   return (
