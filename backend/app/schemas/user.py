@@ -25,20 +25,20 @@ class UserCreate(BaseModel):
     full_name: str = Field(
         min_length=2,
         max_length=120,
-        description="Employee full name",
+        description="Nombre completo del empleado",
     )
     email: str = Field(
         min_length=3,
         max_length=150,
-        description="Unique email address",
+        description="Correo electrónico único",
     )
     temporary_password: str = Field(
         min_length=10,
         max_length=128,
-        description="Temporary password employee must change on first login",
+        description="Contraseña temporal que el empleado debe cambiar en el primer inicio de sesión",
     )
     department_id: int = Field(
-        description="Assigned department (group) ID",
+        description="Id del departamento (grupo) asignado",
     )
 
     @field_validator("email")
@@ -54,18 +54,18 @@ class UserCreate(BaseModel):
 
 class UserUpdateRequest(BaseModel):
     full_name: str | None = Field(
-        default=None, min_length=1, max_length=120, description="Employee full name"
+        default=None, min_length=1, max_length=120, description="Nombre completo del empleado"
     )
     email: str | None = Field(
-        default=None, min_length=3, max_length=150, description="Unique email address"
+        default=None, min_length=3, max_length=150, description="Correo electrónico único"
     )
     department_id: int | None = Field(
-        default=None, description="Department ID (required if role is EMPLOYEE)"
+        default=None, description="Id del departamento (obligatorio si el rol es EMPLOYEE)"
     )
     role: str | None = Field(
         default=None,
         pattern="^(ADMIN|EMPLOYEE)$",
-        description="Employee role: ADMIN or EMPLOYEE",
+        description="Rol del empleado: ADMIN o EMPLOYEE",
     )
 
     @field_validator("email", mode="after")

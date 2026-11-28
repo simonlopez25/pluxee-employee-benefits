@@ -12,7 +12,7 @@ from app.services import auth as auth_service
 router = APIRouter(tags=["auth"])
 
 
-@router.post("/login", response_model=LoginResponse, summary="Login")
+@router.post("/login", response_model=LoginResponse, summary="Iniciar sesión")
 def login(data: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse:
     return auth_service.login(db, data)
 

@@ -21,7 +21,7 @@ from app.services import budget_service
 router = APIRouter(tags=["budgets"])
 
 _ERROR_CONFLICT = {
-    "description": "409 - Budget conflict (ceiling/floor/global not created)",
+    "description": "409 - Conflicto de presupuesto (techo/suelo/global no creado)",
     "content": {
         "application/json": {
             "example": {
@@ -42,7 +42,7 @@ _ERROR_NOT_FOUND = {
     },
 }
 _ERROR_VALIDATION = {
-    "description": "422 - Invalid data",
+    "description": "422 - Datos no válidos",
     "content": {
         "application/json": {
             "example": {"detail": [{"msg": "Value error, amount no puede ser negativo"}]}
@@ -53,7 +53,7 @@ _ERROR_VALIDATION = {
 PeriodQuery = Annotated[
     date | None,
     Query(
-        description="Budget month (any day of the month; normalized to day 1). Defaults to first day of current month."
+        description="Mes del presupuesto (cualquier día del mes; se normaliza al día 1). Por defecto, el primer día del mes actual."
     ),
 ]
 
@@ -61,7 +61,7 @@ PeriodQuery = Annotated[
 @router.get(
     "/budgets",
     response_model=MonthlyBudgetOverview,
-    summary="Monthly budget overview",
+    summary="Resumen del presupuesto mensual",
     responses={422: _ERROR_VALIDATION},
 )
 def get_monthly_budget(
@@ -78,7 +78,7 @@ def get_monthly_budget(
     "/budgets/global",
     response_model=GlobalBudgetResponse,
     status_code=status.HTTP_200_OK,
-    summary="Create or update global monthly budget",
+    summary="Crea o actualiza el presupuesto mensual global",
     responses={409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
 def upsert_global_budget(
@@ -94,7 +94,7 @@ def upsert_global_budget(
     "/budgets/departments/{department_id}",
     response_model=DepartmentBudgetResponse,
     status_code=status.HTTP_200_OK,
-    summary="Set or update department monthly budget",
+    summary="Establece o actualiza el presupuesto mensual del departamento",
     responses={404: _ERROR_NOT_FOUND, 409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
 def upsert_department_budget(
@@ -113,7 +113,7 @@ def upsert_department_budget(
     "/budgets/departments/{department_id}/references",
     response_model=DepartmentBudgetResponse,
     status_code=status.HTTP_200_OK,
-    summary="Save or update benefit reference amounts",
+    summary="Guarda o actualiza los importes de referencia por beneficio",
     responses={404: _ERROR_NOT_FOUND, 409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
 def upsert_benefit_references(

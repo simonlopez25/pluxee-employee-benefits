@@ -21,7 +21,7 @@ _ERROR_NOT_FOUND = {
     },
 }
 _ERROR_CONFLICT = {
-    "description": "409 - Duplicate name in department",
+    "description": "409 - Nombre duplicado en el departamento",
     "content": {
         "application/json": {
             "example": {
@@ -34,17 +34,17 @@ _ERROR_CONFLICT = {
     },
 }
 
-PackageIdPath = Annotated[int, Path(description="Package ID")]
+PackageIdPath = Annotated[int, Path(description="Id del paquete")]
 
 
 @router.get(
     "/packages",
     response_model=list[PackageResponse],
-    summary="List packages",
+    summary="Lista los paquetes",
 )
 def list_packages(
-    department_id: Annotated[int | None, Query(description="Filter by department")] = None,
-    is_active: Annotated[bool | None, Query(description="Filter by status")] = None,
+    department_id: Annotated[int | None, Query(description="Filtra por departamento")] = None,
+    is_active: Annotated[bool | None, Query(description="Filtra por estado")] = None,
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[dict]:
@@ -54,7 +54,7 @@ def list_packages(
 @router.get(
     "/packages/{package_id}",
     response_model=PackageResponse,
-    summary="Get a package",
+    summary="Obtiene un paquete",
     responses={404: _ERROR_NOT_FOUND},
 )
 def get_package(package_id: PackageIdPath, user=Depends(get_current_user), db: Session = Depends(get_db)) -> dict:
@@ -65,7 +65,7 @@ def get_package(package_id: PackageIdPath, user=Depends(get_current_user), db: S
     "/packages",
     response_model=PackageResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a package",
+    summary="Crea un paquete",
     responses={404: _ERROR_NOT_FOUND, 409: _ERROR_CONFLICT},
 )
 def create_package(payload: PackageCreate, admin=Depends(require_admin), db: Session = Depends(get_db)) -> dict:

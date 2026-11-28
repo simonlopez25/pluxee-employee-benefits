@@ -15,14 +15,14 @@ def _clean_name(value: str) -> str:
 
 
 class BenefitBase(BaseModel):
-    name: str = Field(description="Unique benefit name (e.g., Meal, Transport)")
+    name: str = Field(description="Nombre único del beneficio (p. ej., Comida, Transporte)")
     description: str | None = Field(
         default=None,
-        description="Benefit description; stored empty if not provided",
+        description="Descripción del beneficio; se guarda vacía si no se proporciona",
     )
     is_basic: bool = Field(
         default=False,
-        description="Indicates if it is a basic/essential company benefit",
+        description="Indica si es un beneficio básico/esencial de la empresa",
     )
 
     @field_validator("name", mode="after")
@@ -35,10 +35,10 @@ class BenefitCreate(BenefitBase):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "name": "Meal",
+                "name": "Comida",
                 "description": (
-                    "Restaurant expenses. Employee requests reimbursement "
-                    "with a ticket or invoice and the amount spent."
+                    "Gastos en restauración. El empleado solicita el reembolso "
+                    "con un ticket o factura y el importe gastado."
                 ),
                 "is_basic": True,
                 "is_active": True,
@@ -48,7 +48,7 @@ class BenefitCreate(BenefitBase):
 
     is_active: bool = Field(
         default=True,
-        description="Enabled for new packages/expenses",
+        description="Habilitado para nuevos paquetes/gastos",
     )
 
 
@@ -56,18 +56,18 @@ class BenefitUpdate(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "name": "Meal",
-                "description": "Updated benefit description.",
+                "name": "Comida",
+                "description": "Descripción del beneficio actualizada.",
                 "is_basic": True,
                 "is_active": True,
             }
         }
     )
 
-    name: str | None = Field(default=None, description="New benefit name")
-    description: str | None = Field(default=None, description="New description")
-    is_basic: bool | None = Field(default=None, description="New is_basic value")
-    is_active: bool | None = Field(default=None, description="New is_active value")
+    name: str | None = Field(default=None, description="Nuevo nombre del beneficio")
+    description: str | None = Field(default=None, description="Nueva descripción")
+    is_basic: bool | None = Field(default=None, description="Nuevo valor de is_basic")
+    is_active: bool | None = Field(default=None, description="Nuevo valor de is_active")
 
     @field_validator("name", mode="after")
     @classmethod
@@ -80,8 +80,8 @@ class BenefitStatusUpdate(BaseModel):
         json_schema_extra={"example": {"is_active": False}}
     )
 
-    is_active: bool | None = Field(default=None, description="Enable or disable the benefit")
-    is_basic: bool | None = Field(default=None, description="Mark or unmark benefit as basic")
+    is_active: bool | None = Field(default=None, description="Activa o desactiva el beneficio")
+    is_basic: bool | None = Field(default=None, description="Marca o desmarca el beneficio como básico")
 
     @model_validator(mode="after")
     def require_at_least_one_field(self) -> BenefitStatusUpdate:
@@ -96,10 +96,10 @@ class BenefitResponse(BaseModel):
         json_schema_extra={
             "example": {
                 "id": 1,
-                "name": "Meal",
+                "name": "Comida",
                 "description": (
-                    "Restaurant expenses. The employee requests reimbursement "
-                    "with a ticket or invoice and the amount spent."
+                    "Gastos en restauración. El empleado solicita el reembolso "
+                    "con un ticket o factura y el importe gastado."
                 ),
                 "is_basic": True,
                 "is_active": True,
@@ -107,8 +107,8 @@ class BenefitResponse(BaseModel):
         },
     )
 
-    id: int = Field(description="Unique benefit identifier")
-    name: str = Field(description="Unique benefit name")
-    description: str = Field(description="Benefit description")
-    is_basic: bool = Field(description="Basic company benefit")
-    is_active: bool = Field(description="Benefit enabled for new packages/expenses")
+    id: int = Field(description="Identificador único del beneficio")
+    name: str = Field(description="Nombre único del beneficio")
+    description: str = Field(description="Descripción del beneficio")
+    is_basic: bool = Field(description="Beneficio básico de la empresa")
+    is_active: bool = Field(description="Beneficio habilitado para nuevos paquetes/gastos")

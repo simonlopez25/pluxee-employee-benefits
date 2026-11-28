@@ -7,16 +7,16 @@ NAME_MAX_LENGTH = 100
 
 
 class PackageCreate(BaseModel):
-    name: str = Field(description="Package name (unique within its department)")
-    description: str | None = Field(default=None, description="Optional description")
+    name: str = Field(description="Nombre del paquete (único dentro de su departamento)")
+    description: str | None = Field(default=None, description="Descripción opcional")
     default_amount: Decimal = Field(
         ge=0, max_digits=12, decimal_places=2,
-        description="Monthly amount per employee",
+        description="Importe mensual por empleado",
     )
-    department_id: int = Field(gt=0, description="Department it belongs to")
+    department_id: int = Field(gt=0, description="Departamento al que pertenece")
     benefit_ids: list[int] = Field(
         min_length=1,
-        description="Benefits covered: 1 = single benefit, 2+ = multi-benefit",
+        description="Beneficios cubiertos: 1 = un solo beneficio, 2+ = multibeneficio",
     )
 
     @field_validator("name", mode="after")
@@ -37,17 +37,17 @@ class PackageCreate(BaseModel):
         return value
 
 class PackageBenefitItem(BaseModel):
-        id: int = Field(description="Benefit ID")
-        name: str = Field(description="Benefit name")
+        id: int = Field(description="Id del beneficio")
+        name: str = Field(description="Nombre del beneficio")
 
 class PackageResponse(BaseModel):
-        id: int = Field(description="Package identifier")
-        name: str = Field(description="Package name")
-        description: str | None = Field(description="Package description")
-        default_amount: Decimal = Field(description="Monthly amount per employee")
-        department_id: int = Field(description="Department it belongs to")
-        is_active: bool = Field(description="Active package")
-        benefits: list[PackageBenefitItem] = Field(description="Covered benefits")
+        id: int = Field(description="Identificador del paquete")
+        name: str = Field(description="Nombre del paquete")
+        description: str | None = Field(description="Descripción del paquete")
+        default_amount: Decimal = Field(description="Importe mensual por empleado")
+        department_id: int = Field(description="Departamento al que pertenece")
+        is_active: bool = Field(description="Paquete activo")
+        benefits: list[PackageBenefitItem] = Field(description="Beneficios cubiertos")
 
         @computed_field
         @property

@@ -29,7 +29,7 @@ _ERROR_NOT_FOUND = {
     },
 }
 _ERROR_CONFLICT = {
-    "description": "409 - Duplicate name",
+    "description": "409 - Nombre duplicado",
     "content": {
         "application/json": {
             "example": {
@@ -42,7 +42,7 @@ _ERROR_CONFLICT = {
     },
 }
 _ERROR_VALIDATION = {
-    "description": "422 - Invalid data",
+    "description": "422 - Datos no válidos",
     "content": {
         "application/json": {
             "example": {"detail": [{"msg": "Value error, El nombre no puede estar vacío"}]}
@@ -50,19 +50,19 @@ _ERROR_VALIDATION = {
     },
 }
 
-BenefitIdPath = Annotated[int, Path(description="Benefit ID")]
+BenefitIdPath = Annotated[int, Path(description="Id del beneficio")]
 
 
 @router.get(
     "/benefits",
     response_model=list[BenefitResponse],
-    summary="List benefits",
+    summary="Lista los beneficios",
     responses={422: _ERROR_VALIDATION},
 )
 def list_benefits(
-    is_active: Annotated[bool | None, Query(description="Filter by status")] = None,
-    is_basic: Annotated[bool | None, Query(description="Filter by basic type")] = None,
-    order_by: Annotated[Literal["id", "name"], Query(description="Order: id or name")] = "id",
+    is_active: Annotated[bool | None, Query(description="Filtra por estado")] = None,
+    is_basic: Annotated[bool | None, Query(description="Filtra por tipo básico")] = None,
+    order_by: Annotated[Literal["id", "name"], Query(description="Orden: id o name")] = "id",
     db: Session = Depends(get_db),
     _= Depends(get_current_user),
 ) -> list[Benefit]:
@@ -77,7 +77,7 @@ def list_benefits(
 @router.get(
     "/benefits/{benefit_id}",
     response_model=BenefitResponse,
-    summary="Get a benefit",
+    summary="Obtiene un beneficio",
     responses={404: _ERROR_NOT_FOUND},
 )
 def get_benefit(
@@ -92,7 +92,7 @@ def get_benefit(
     "/benefits",
     response_model=BenefitResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a benefit",
+    summary="Crea un beneficio",
     responses={409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
 def create_benefit(
@@ -106,7 +106,7 @@ def create_benefit(
 @router.put(
     "/benefits/{benefit_id}",
     response_model=BenefitResponse,
-    summary="Update a benefit",
+    summary="Actualiza un beneficio",
     responses={404: _ERROR_NOT_FOUND, 409: _ERROR_CONFLICT, 422: _ERROR_VALIDATION},
 )
 def update_benefit(
@@ -121,7 +121,7 @@ def update_benefit(
 @router.patch(
     "/benefits/{benefit_id}",
     response_model=BenefitResponse,
-    summary="Enable or disable a benefit",
+    summary="Activa o desactiva un beneficio",
     responses={404: _ERROR_NOT_FOUND, 422: _ERROR_VALIDATION},
 )
 def update_benefit_status(
