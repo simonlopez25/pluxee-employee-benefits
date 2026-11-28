@@ -53,7 +53,7 @@ GROUP BY b.name
 ORDER BY b.name
 """
 
-EXPECTED_LUCIA = {"Meal": Decimal("70"), "Transport": Decimal("10")}
+EXPECTED_LUCIA = {"Comida": Decimal("70"), "Transporte": Decimal("10")}
 
 
 def split_seed(sql_text: str) -> tuple[str, str]:
