@@ -1,5 +1,5 @@
 import { AdminLayout } from '../../components/templates/AdminLayout'
-import { GroupsSection } from '../../components/organisms/GroupsSection'
+import { GroupsSection } from '../../components/organisms/GroupsSection/GroupsSection'
 import './GroupsPage.css'
 
 export function GroupsPage() {

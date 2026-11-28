@@ -1,4 +1,4 @@
-import { AdminSidebar } from '../../organisms/AdminSidebar'
+import { AdminSidebar } from '../../organisms/AdminSidebar/AdminSidebar'
 import './AdminLayout.css'
 
 export function AdminLayout({ children }) {

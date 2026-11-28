@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './EmployeeHomePage.css'
 import { useAuth } from '../../context/AuthContext'
-import { EmployeeBalanceSummary } from '../../components/organisms/EmployeeBalanceSummary'
+import { EmployeeBalanceSummary } from '../../components/organisms/EmployeeBalanceSummary/EmployeeBalanceSummary'
 import { Icon } from '../../components/atoms/Icon/Icon'
 import { getMyBalance } from '../../services/balanceService'
 

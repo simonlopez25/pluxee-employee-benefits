@@ -1,1 +1,0 @@
-export { DepartmentBudgetsTable } from './DepartmentBudgetsTable'

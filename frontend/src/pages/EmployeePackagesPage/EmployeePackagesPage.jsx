@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { BenefitTotalsSummary } from '../../components/organisms/BenefitTotalsSummary'
-import { PackageBalanceCard } from '../../components/organisms/PackageBalanceCard'
+import { BenefitTotalsSummary } from '../../components/organisms/BenefitTotalsSummary/BenefitTotalsSummary'
+import { PackageBalanceCard } from '../../components/organisms/PackageBalanceCard/PackageBalanceCard'
 import { getMyBalance } from '../../services/balanceService'
 import './EmployeePackagesPage.css'
 

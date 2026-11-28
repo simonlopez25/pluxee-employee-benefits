@@ -3,7 +3,7 @@ import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon/Icon'
 import { BenefitCard } from '../../molecules/BenefitCard/BenefitCard'
 import { FilterTabs } from '../../molecules/FilterTabs/FilterTabs'
-import { BenefitFormModal } from '../BenefitFormModal'
+import { BenefitFormModal } from '../BenefitFormModal/BenefitFormModal'
 import {
   createBenefit,
   getBenefits,

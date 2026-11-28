@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon/Icon'
 import { DepartmentCard } from '../../molecules/DepartmentCard/DepartmentCard'
-import { DepartmentFormModal } from '../DepartmentFormModal'
+import { DepartmentFormModal } from '../DepartmentFormModal/DepartmentFormModal'
 import {
   createDepartment,
   getDepartments,
