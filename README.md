@@ -59,6 +59,7 @@ cd backend
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt   # Linux/macOS: .venv/bin/pip install -r requirements.txt
 copy .env.example .env                          # Linux/macOS: cp .env.example .env
+python -c "import secrets; print(secrets.token_hex(32))"   # pega el valor en JWT_SECRET
 cd ..
 
 # 3. Arrancar (cada servicio en su terminal)
@@ -72,8 +73,8 @@ El frontend tiene configurado un **proxy** en `vite.config.js`: las llamadas a `
 
 La BD es **Postgres 18 en la nube (Neon)**: todos los compañeros trabajan
 contra los mismos datos desde su máquina local. La CLI de Neon escribe las
-credenciales en `.env.local` (raíz del repo) y `backend/app/core/config.py` la
-detecta automáticamente — no hay que copiar nada a mano.
+credenciales en `backend/.env` y solo toca las variables de Neon: el resto de
+líneas (`PORT`, `JWT_SECRET`, …) se conservan.
 
 **Proyecto**: `pluxee` (`fancy-glitter-51900277`) · **rama**: `production` ·
 **región**: `aws-us-east-2` (Ohio, EE. UU.)
@@ -87,8 +88,8 @@ npm i -g neon@latest
 # 2. Login en el navegador (sesión propia: nunca compartas la cuenta)
 neon login
 
-# 3. Desde la raíz del repo: baja DATABASE_URL a .env.local
-neon env pull --project-id fancy-glitter-51900277 --branch production
+# 3. Desde la raíz del repo: baja DATABASE_URL a backend/.env
+neon env pull --project-id fancy-glitter-51900277 --branch production --file backend/.env
 
 # 4. Arrancar como siempre
 npm run dev        # frontend → http://localhost:5173
@@ -100,7 +101,7 @@ Comprobación: abre `http://localhost:4000/api/health` →
 
 ### Seguridad de las claves
 
-- `.env.local` (raíz) y `backend/.env` están en `.gitignore`: **nunca se suben**
+- `backend/.env` y `backend/.env.test` están en `.gitignore`: **nunca se suben**
   al repo. No pegues credenciales en código, commits ni chats.
 - Cada persona usa su propia sesión (`neon login`). Si prefieres una API key:
   `neon profile create work --api-key <KEY>` — guárdala fuera del repo.
@@ -109,11 +110,30 @@ Comprobación: abre `http://localhost:4000/api/health` →
 
 ### Comportamiento
 
-- Sin `.env.local`, el backend cae a la Postgres local (`DB_*` en
-  `backend/.env`) como fallback.
+- Sin `DATABASE_URL` en `backend/.env`, el backend cae a la Postgres local
+  (`DB_*` en `backend/.env`) como fallback.
 - Las migraciones de **Alembic** usan la conexión directa
   (`DATABASE_URL_UNPOOLED`) automáticamente:
   `cd backend && .venv\Scripts\python -m alembic upgrade head`.
+
+### Base de datos de tests
+
+Los tests **nunca** tocan la BD compartida: corren contra la rama `tests` de
+Neon, una copia aislada de `production`.
+
+```bash
+# 1. Credenciales de la rama de tests (solo la primera vez)
+neon env pull --project-id fancy-glitter-51900277 --branch tests --file backend/.env.test
+
+# 2. Tests del backend
+npm run test:api
+
+# 3. Restaurar los datos de la rama de tests
+npm run seed:test
+```
+
+Si `backend/.env.test` no existe o apunta a la misma BD que `backend/.env`,
+pytest se niega a arrancar.
 
 ## Datos de prueba (seed)
 
@@ -125,6 +145,7 @@ de todos los usuarios: `Prueba123!`.
 ```bash
 npm run seed              # si la BD está vacía
 npm run seed -- --reset   # borra los datos (TRUNCATE) y vuelve a sembrar
+npm run seed:test         # TRUNCATE + seed sobre la BD de tests
 ```
 
 El runner (`backend/scripts/seed.py`) usa la misma conexión que la app, así
@@ -152,12 +173,13 @@ cd backend
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 copy .env.example .env
+python -c "import secrets; print(secrets.token_hex(32))"   # pega el valor en JWT_SECRET
 cd ..
 
 # 4. BD compartida en Neon — pide acceso antes por Neon Console → Members
 npm i -g neon@latest
 neon login
-neon env pull --project-id fancy-glitter-51900277 --branch production   # en la raíz
+neon env pull --project-id fancy-glitter-51900277 --branch production --file backend/.env
 
 # 5. Arrancar (cada servicio en su terminal)
 npm run dev        # frontend → http://localhost:5173
@@ -166,10 +188,9 @@ npm run dev:api    # backend  → http://localhost:4000
 # 6. Verificar: abre http://localhost:4000/api/health
 #    → {"status":"ok","database":"up"}
 
-# 7. Tests (Linux/macOS: .venv/bin/python)
-cd backend
-.venv\Scripts\python -m pytest
-cd ..
+# 7. Tests (BD aislada: nunca tocan la compartida)
+neon env pull --project-id fancy-glitter-51900277 --branch tests --file backend/.env.test
+npm run test:api
 
 # 8. Guardian de commits — ANTES de tu primer commit (no viaja con el repo)
 pip install pre-commit
@@ -181,7 +202,7 @@ git commit -m "feat(scope): describe your change"
 git push
 ```
 
-> ⚠️ **Nunca subas** `.env.local` ni `backend/.env` (ya están en `.gitignore`)
+> ⚠️ **Nunca subas** `backend/.env` ni `backend/.env.test` (ya están en `.gitignore`)
 > ni pegues claves en el código, los commits ni los chats.
 > **¿Tocas `app/models/`?** Aplica y verifica migraciones desde `backend/`:
 > `.venv\Scripts\python -m alembic upgrade head` y después
@@ -196,13 +217,9 @@ git push
 | `npm run build` | Build de producción del frontend |
 | `npm run lint` | Lint del frontend (ESLint) |
 | `npm run start:api` | Arranca el backend en producción |
-
-Tests del backend:
-
-```bash
-cd backend
-.venv\Scripts\python -m pytest   # Linux/macOS: .venv/bin/python -m pytest
-```
+| `npm run test:api` | Tests del backend (pytest contra la BD de tests) |
+| `npm run seed` | Ejecuta `backend/seed.sql` contra la BD configurada |
+| `npm run seed:test` | Restaura la BD de tests (TRUNCATE + seed) |
 
 Al agregar una dependencia nueva al backend:
 
