@@ -1,4 +1,4 @@
-import { AdminLayout } from '../../components/templates/AdminLayout'
+import { AdminLayout } from '../../components/templates/AdminLayout/AdminLayout'
 import { GroupsSection } from '../../components/organisms/GroupsSection/GroupsSection'
 import './GroupsPage.css'
 

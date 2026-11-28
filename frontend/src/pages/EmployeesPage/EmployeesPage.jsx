@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AdminLayout } from '../../components/templates/AdminLayout'
+import { AdminLayout } from '../../components/templates/AdminLayout/AdminLayout'
 import { useAuth } from '../../context/AuthContext'
 import { EmployeeFormModal } from '../../components/organisms/EmployeeFormModal/EmployeeFormModal'
 import { DeactivateConfirmModal } from '../../components/organisms/DeactivateConfirmModal/DeactivateConfirmModal'

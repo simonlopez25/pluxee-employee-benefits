@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AdminLayout } from '../../components/templates/AdminLayout'
+import { AdminLayout } from '../../components/templates/AdminLayout/AdminLayout'
 import { GlobalBudgetSummary } from '../../components/organisms/GlobalBudgetSummary/GlobalBudgetSummary'
 import { GlobalBudgetModal } from '../../components/organisms/GlobalBudgetModal/GlobalBudgetModal'
 import { DepartmentBudgetsTable } from '../../components/organisms/DepartmentBudgetsTable/DepartmentBudgetsTable'

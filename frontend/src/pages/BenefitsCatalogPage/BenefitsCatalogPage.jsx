@@ -1,4 +1,4 @@
-import { AdminLayout } from '../../components/templates/AdminLayout'
+import { AdminLayout } from '../../components/templates/AdminLayout/AdminLayout'
 import { BenefitsCatalogSection } from '../../components/organisms/BenefitsCatalogSection/BenefitsCatalogSection'
 import { PackagesSection } from '../../components/organisms/PackagesSection/PackagesSection'
 import './BenefitsCatalogPage.css'
