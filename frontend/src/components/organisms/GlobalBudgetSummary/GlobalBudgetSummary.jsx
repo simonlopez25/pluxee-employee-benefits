@@ -1,7 +1,7 @@
 import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon/Icon'
-import { MonthSelector } from '../../molecules/MonthSelector'
-import { ProgressBar } from '../../molecules/ProgressBar'
+import { MonthSelector } from '../../molecules/MonthSelector/MonthSelector'
+import { ProgressBar } from '../../molecules/ProgressBar/ProgressBar'
 import { formatCurrency } from '../../../utils/format'
 import './GlobalBudgetSummary.css'
 

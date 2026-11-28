@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon/Icon'
-import { BenefitCard } from '../../molecules/BenefitCard'
-import { FilterTabs } from '../../molecules/FilterTabs'
+import { BenefitCard } from '../../molecules/BenefitCard/BenefitCard'
+import { FilterTabs } from '../../molecules/FilterTabs/FilterTabs'
 import { BenefitFormModal } from '../BenefitFormModal'
 import {
   createBenefit,

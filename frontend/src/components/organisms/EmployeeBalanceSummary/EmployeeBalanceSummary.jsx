@@ -1,4 +1,4 @@
-import { ProgressBar } from '../../molecules/ProgressBar'
+import { ProgressBar } from '../../molecules/ProgressBar/ProgressBar'
 import './EmployeeBalanceSummary.css'
 
 export function EmployeeBalanceSummary({ balance }) {

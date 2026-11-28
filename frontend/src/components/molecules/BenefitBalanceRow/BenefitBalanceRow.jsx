@@ -1,5 +1,5 @@
 import { Icon } from '../../atoms/Icon/Icon'
-import { ProgressBar } from '../ProgressBar'
+import { ProgressBar } from '../ProgressBar/ProgressBar'
 import './BenefitBalanceRow.css'
 
 const getIconNameByBenefitName = (name = '') => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon/Icon'
-import { DepartmentCard } from '../../molecules/DepartmentCard'
+import { DepartmentCard } from '../../molecules/DepartmentCard/DepartmentCard'
 import { DepartmentFormModal } from '../DepartmentFormModal'
 import {
   createDepartment,

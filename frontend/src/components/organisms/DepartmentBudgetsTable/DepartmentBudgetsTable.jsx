@@ -1,7 +1,7 @@
 import { Badge } from '../../atoms/Badge/Badge'
 import { Button } from '../../atoms/Button/Button'
 import { Icon } from '../../atoms/Icon/Icon'
-import { ProgressBar } from '../../molecules/ProgressBar'
+import { ProgressBar } from '../../molecules/ProgressBar/ProgressBar'
 import { formatCurrency } from '../../../utils/format'
 import './DepartmentBudgetsTable.css'
 

@@ -1,4 +1,4 @@
-import { BenefitBalanceRow } from '../../molecules/BenefitBalanceRow'
+import { BenefitBalanceRow } from '../../molecules/BenefitBalanceRow/BenefitBalanceRow'
 import './PackageBalanceCard.css'
 
 export function PackageBalanceCard({ packageBalance }) {
