@@ -13,10 +13,10 @@ from app.services import package_service
 router = APIRouter(tags=["packages"])
 
 _ERROR_NOT_FOUND = {
-    "description": "404 - Package, department, or benefit not found",
+    "description": "404 - Paquete, departamento o beneficio no encontrado",
     "content": {
         "application/json": {
-            "example": {"error": {"code": "not_found", "message": "Package not found"}}
+            "example": {"error": {"code": "not_found", "message": "Paquete no encontrado"}}
         }
     },
 }
@@ -27,7 +27,7 @@ _ERROR_CONFLICT = {
             "example": {
                 "error": {
                     "code": "conflict",
-                    "message": "A package with that name already exists in this department",
+                    "message": "Ya existe un paquete con ese nombre en este departamento",
                 }
             }
         }

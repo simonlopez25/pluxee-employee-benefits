@@ -11,10 +11,10 @@ from app.models.package import Package
 from app.models.package_benefit import PackageBenefit
 from app.schemas.package import PackageCreate
 
-PACKAGE_NOT_FOUND = "Package not found"
-DEPARTMENT_NOT_FOUND = "Department not found or inactive"
-BENEFIT_NOT_FOUND = "One or more benefits do not exist or are inactive"
-NAME_ALREADY_EXISTS = "A package with that name already exists in this department"
+PACKAGE_NOT_FOUND = "Paquete no encontrado"
+DEPARTMENT_NOT_FOUND = "Departamento no encontrado o inactivo"
+BENEFIT_NOT_FOUND = "Uno o más beneficios no existen o están inactivos"
+NAME_ALREADY_EXISTS = "Ya existe un paquete con ese nombre en este departamento"
 
 
 def _get_active_department_or_404(db: Session, department_id: int) -> Department:

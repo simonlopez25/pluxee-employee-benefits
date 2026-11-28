@@ -78,7 +78,7 @@ def test_change_password_with_wrong_current_password_returns_400(
     assert response.status_code == 400
     body = response.json()
     assert body["error"]["code"] == "invalid_current_password"
-    assert "current password" in body["error"]["message"].lower()
+    assert "contraseña actual" in body["error"]["message"].lower()
 
 
 def test_change_password_with_short_new_password_returns_422(

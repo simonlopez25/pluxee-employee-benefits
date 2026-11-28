@@ -15,9 +15,9 @@ class ChangePasswordRequest(BaseModel):
     @model_validator(mode="after")
     def _validate(self) -> "ChangePasswordRequest":
         if self.new_password != self.confirm_password:
-            raise ValueError("New password and confirmation do not match")
+            raise ValueError("La nueva contraseña y la confirmación no coinciden")
         if self.new_password == self.current_password:
-            raise ValueError("New password must be different from current password")
+            raise ValueError("La nueva contraseña debe ser distinta de la actual")
         return self
 
 
@@ -46,9 +46,9 @@ class UserCreate(BaseModel):
     def _normalize_email(cls, value: str) -> str:
         normalized = value.strip().lower()
         if not normalized or len(normalized) < 3:
-            raise ValueError("Email must have at least 3 characters")
+            raise ValueError("El correo debe tener al menos 3 caracteres")
         if not EMAIL_PATTERN.match(normalized):
-            raise ValueError("Invalid email format")
+            raise ValueError("Formato de correo no válido")
         return normalized
 
 
@@ -75,5 +75,5 @@ class UserUpdateRequest(BaseModel):
             return None
         normalized = value.strip().lower()
         if not normalized or len(normalized) < 3:
-            raise ValueError("Email must have at least 3 characters")
+            raise ValueError("El correo debe tener al menos 3 caracteres")
         return normalized

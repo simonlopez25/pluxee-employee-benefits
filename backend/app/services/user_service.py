@@ -19,7 +19,7 @@ def change_password(
 ) -> UserPublic:
     if not verify_password(data.current_password, user.password_hash):
         raise AppError(
-            "Current password is incorrect",
+            "La contraseña actual no es correcta",
             status_code=400,
             code="invalid_current_password",
         )
@@ -35,11 +35,11 @@ def create_employee(db: Session, payload: UserCreate) -> UserPublic:
     if (
         db.scalar(select(User.id).where(User.email == payload.email)) is not None
     ):
-        raise ConflictError("A user with that email already exists")
+        raise ConflictError("Ya existe un usuario con ese correo electrónico")
 
     department = db.get(Department, payload.department_id)
     if department is None or not department.is_active:
-        raise NotFoundError("Department does not exist or is inactive")
+        raise NotFoundError("El departamento no existe o está inactivo")
 
     user = User(
         email=payload.email,
@@ -56,7 +56,7 @@ def create_employee(db: Session, payload: UserCreate) -> UserPublic:
     except IntegrityError as exc:
         db.rollback()
         raise ConflictError(
-            "A user with that email already exists"
+            "Ya existe un usuario con ese correo electrónico"
         ) from exc
     db.refresh(user)
     return UserPublic.model_validate(user)
@@ -72,7 +72,7 @@ def update_employee(
 
     if not user.is_active:
         raise AppError(
-            "Cannot edit a deactivated employee",
+            "No se puede editar un empleado desactivado",
             status_code=400,
             code="employee_inactive",
         )
@@ -107,14 +107,14 @@ def deactivate_employee(
 
     if current_user.id == user_id:
         raise AppError(
-            "You cannot deactivate yourself",
+            "No puedes desactivarte a ti mismo",
             status_code=400,
             code="self_deactivation",
         )
 
     if not user.is_active:
         raise AppError(
-            "Employee is already deactivated",
+            "El empleado ya está desactivado",
             status_code=400,
             code="already_deactivated",
         )
@@ -135,7 +135,7 @@ def list_users(db: Session) -> list[UserPublic]:
 def _get_user_or_404(db: Session, user_id: int) -> User:
     user = db.get(User, user_id)
     if user is None:
-        raise NotFoundError("Employee does not exist")
+        raise NotFoundError("El empleado no existe")
     return user
 
 
@@ -144,7 +144,7 @@ def _validate_role_change(
 ) -> None:
     if current_user.id == user_id and new_role != "ADMIN":
         raise AppError(
-            "An admin cannot downgrade their own role",
+            "Un administrador no puede degradar su propio rol",
             status_code=400,
             code="self_role_downgrade",
         )
@@ -158,7 +158,7 @@ def _validate_and_normalize_role_department(
     if final_role == "ADMIN":
         if "department_id" in update_data and update_data["department_id"] is not None:
             raise AppError(
-                "An admin cannot have a department assigned",
+                "Un administrador no puede tener un departamento asignado",
                 status_code=400,
                 code="admin_department_not_allowed",
             )
@@ -167,7 +167,7 @@ def _validate_and_normalize_role_department(
 
     if update_data.get("department_id", user.department_id) is None:
         raise AppError(
-            "An employee must have a department assigned",
+            "Un empleado debe tener un departamento asignado",
             status_code=400,
             code="department_required",
         )
@@ -182,10 +182,10 @@ def _ensure_email_is_available(
         User.id != exclude_id,
     )
     if db.scalar(statement) is not None:
-        raise ConflictError("A user with that email already exists")
+        raise ConflictError("Ya existe un usuario con ese correo electrónico")
 
 
 def _ensure_department_exists(db: Session, department_id: int) -> None:
     department = db.get(Department, department_id)
     if department is None:
-        raise NotFoundError("Department does not exist")
+        raise NotFoundError("El departamento no existe")

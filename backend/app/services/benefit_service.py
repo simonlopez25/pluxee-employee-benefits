@@ -10,8 +10,8 @@ from app.core.errors import ConflictError, NotFoundError
 from app.models.benefit import Benefit
 from app.schemas.benefit import BenefitCreate, BenefitStatusUpdate, BenefitUpdate
 
-BENEFIT_NOT_FOUND = "Benefit not found"
-NAME_ALREADY_EXISTS = "A benefit with that name already exists"
+BENEFIT_NOT_FOUND = "Beneficio no encontrado"
+NAME_ALREADY_EXISTS = "Ya existe un beneficio con ese nombre"
 
 
 def list_benefits(

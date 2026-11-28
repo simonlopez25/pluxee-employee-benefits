@@ -8,9 +8,9 @@ NAME_MAX_LENGTH = 80
 def _clean_name(value: str) -> str:
     name = value.strip()
     if not name:
-        raise ValueError("Name cannot be empty")
+        raise ValueError("El nombre no puede estar vacío")
     if len(name) > NAME_MAX_LENGTH:
-        raise ValueError(f"Name cannot exceed {NAME_MAX_LENGTH} characters")
+        raise ValueError(f"El nombre no puede superar los {NAME_MAX_LENGTH} caracteres")
     return name
 
 
@@ -86,7 +86,7 @@ class BenefitStatusUpdate(BaseModel):
     @model_validator(mode="after")
     def require_at_least_one_field(self) -> BenefitStatusUpdate:
         if self.is_active is None and self.is_basic is None:
-            raise ValueError("At least one field must be provided")
+            raise ValueError("Se debe proporcionar al menos un campo")
         return self
 
 

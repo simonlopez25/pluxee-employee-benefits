@@ -71,14 +71,14 @@ def upsert_department_budget(
 
     department = db.get(Department, department_id)
     if department is None:
-        raise NotFoundError(f"Department {department_id} not found")
+        raise NotFoundError(f"Departamento {department_id} no encontrado")
     if not department.is_active:
-        raise ConflictError(f"Department {department_id} ({department.name}) is not active")
+        raise ConflictError(f"El departamento {department_id} ({department.name}) no está activo")
 
     global_budget = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
     if global_budget is None:
         raise ConflictError(
-            f"No global budget for period {period} (create it first before assigning department budgets)"
+            f"No hay presupuesto global para el periodo {period} (créalo primero antes de asignar presupuestos de departamento)"
         )
 
     allocated_by_others = db.scalar(
@@ -93,9 +93,9 @@ def upsert_department_budget(
     if new_total > global_budget.amount:
         available = global_budget.amount - allocated_by_others
         raise ConflictError(
-            f"Department budget of {allocated_amount} would exceed the global budget "
-            f"({global_budget.amount}) for {period}. "
-            f"Amount available to distribute: {available}."
+            f"El presupuesto de departamento de {allocated_amount} superaría el presupuesto global "
+            f"({global_budget.amount}) para {period}. "
+            f"Importe disponible para repartir: {available}."
         )
 
     existing = db.scalar(
@@ -147,12 +147,12 @@ def upsert_benefit_references(
 
     department = db.get(Department, department_id)
     if department is None:
-        raise NotFoundError(f"Department {department_id} not found")
+        raise NotFoundError(f"Departamento {department_id} no encontrado")
 
     global_budget = db.scalar(select(GlobalBudget).where(GlobalBudget.period == period))
     if global_budget is None:
         raise ConflictError(
-            f"No global budget for period {period} (create it first before adding benefit references)"
+            f"No hay presupuesto global para el periodo {period} (créalo primero antes de añadir referencias de beneficios)"
         )
 
     department_budget = db.scalar(
@@ -163,14 +163,14 @@ def upsert_benefit_references(
     )
     if department_budget is None:
         raise ConflictError(
-            f"No department budget for department {department_id} in period {period} "
-            f"(create it first before adding benefit references)"
+            f"No hay presupuesto de departamento para el departamento {department_id} en el periodo {period} "
+            f"(créalo primero antes de añadir referencias de beneficios)"
         )
 
     for ref in references:
         if ref.indicative_amount < 0:
             raise ConflictError(
-                f"indicative_amount for benefit {ref.benefit_id} cannot be negative"
+                f"El indicative_amount del beneficio {ref.benefit_id} no puede ser negativo"
             )
 
     db.execute(
@@ -182,7 +182,7 @@ def upsert_benefit_references(
     for ref in references:
         benefit = db.get(Benefit, ref.benefit_id)
         if benefit is None:
-            raise NotFoundError(f"Benefit {ref.benefit_id} not found")
+            raise NotFoundError(f"Beneficio {ref.benefit_id} no encontrado")
         row = BenefitBudgetReference(
             department_budget_id=department_budget.id,
             benefit_id=ref.benefit_id,

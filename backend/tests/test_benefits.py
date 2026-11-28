@@ -85,14 +85,14 @@ def test_create_duplicate_name_returns_409_including_case_variants() -> None:
 
     for response in (exact, different_case):
         assert response.status_code == 409
-        assert response.json()["error"]["message"] == "A benefit with that name already exists"
+        assert response.json()["error"]["message"] == "Ya existe un beneficio con ese nombre"
 
 
 def test_create_blank_name_returns_422() -> None:
     response = client.post("/api/benefits", json={"name": "   "})
 
     assert response.status_code == 422
-    assert "Name cannot be empty" in response.text
+    assert "El nombre no puede estar vacío" in response.text
 
 
 def test_list_benefits_and_filters() -> None:
@@ -140,7 +140,7 @@ def test_update_benefit_with_put_and_rejects_duplicate_name() -> None:
         json={"name": f"{TEST_NAME_PREFIX.lower()} PUT A"},
     )
     assert duplicated.status_code == 409
-    assert duplicated.json()["error"]["message"] == "A benefit with that name already exists"
+    assert duplicated.json()["error"]["message"] == "Ya existe un beneficio con ese nombre"
 
     response = client.put(
         f"/api/benefits/{second['id']}",
@@ -195,7 +195,7 @@ def test_patch_without_fields_returns_422() -> None:
     response = client.patch(f"/api/benefits/{created['id']}", json={})
 
     assert response.status_code == 422
-    assert "At least one field must be provided" in response.text
+    assert "Se debe proporcionar al menos un campo" in response.text
 
 
 def test_missing_benefit_returns_404() -> None:
@@ -210,4 +210,4 @@ def test_missing_benefit_returns_404() -> None:
 
     for response in (detail, updated, patched):
         assert response.status_code == 404
-        assert response.json()["error"]["message"] == "Benefit not found"
+        assert response.json()["error"]["message"] == "Beneficio no encontrado"

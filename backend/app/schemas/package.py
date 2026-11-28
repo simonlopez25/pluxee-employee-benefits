@@ -24,16 +24,16 @@ class PackageCreate(BaseModel):
     def name_must_be_valid(cls, value: str) -> str:
         name = value.strip()
         if not name:
-            raise ValueError("Name cannot be empty")
+            raise ValueError("El nombre no puede estar vacío")
         if len(name) > NAME_MAX_LENGTH:
-            raise ValueError(f"Name cannot exceed {NAME_MAX_LENGTH} characters")
+            raise ValueError(f"El nombre no puede superar los {NAME_MAX_LENGTH} caracteres")
         return name
 
     @field_validator("benefit_ids", mode="after")
     @classmethod
     def benefits_must_not_repeat(cls, value: list[int]) -> list[int]:
         if len(value) != len(set(value)):
-            raise ValueError("A benefit cannot be repeated in the same package")
+            raise ValueError("Un beneficio no puede repetirse en el mismo paquete")
         return value
 
 class PackageBenefitItem(BaseModel):

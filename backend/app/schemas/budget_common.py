@@ -18,5 +18,5 @@ def first_day(value: date) -> date:
 
 def validate_non_negative(value: Decimal, field_name: str) -> Decimal:
     if value < 0:
-        raise ValueError(f"{field_name} cannot be negative")
+        raise ValueError(f"{field_name} no puede ser negativo")
     return value

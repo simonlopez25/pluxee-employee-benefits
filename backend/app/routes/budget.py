@@ -27,17 +27,17 @@ _ERROR_CONFLICT = {
             "example": {
                 "error": {
                     "code": "conflict",
-                    "message": "Cannot reduce global budget to 5000.00: 8000.00 already allocated across departments for 2026-11-01. Minimum valid amount: 8000.00.",
+                    "message": "No se puede reducir el presupuesto global a 5000.00: ya se repartieron 8000.00 entre los departamentos de 2026-11-01. Importe mínimo válido: 8000.00.",
                 }
             }
         }
     },
 }
 _ERROR_NOT_FOUND = {
-    "description": "404 - Resource not found",
+    "description": "404 - Recurso no encontrado",
     "content": {
         "application/json": {
-            "example": {"error": {"code": "not_found", "message": "Department 42 not found"}}
+            "example": {"error": {"code": "not_found", "message": "Departamento 42 no encontrado"}}
         }
     },
 }
@@ -45,7 +45,7 @@ _ERROR_VALIDATION = {
     "description": "422 - Invalid data",
     "content": {
         "application/json": {
-            "example": {"detail": [{"msg": "Value error, Amount cannot be negative"}]}
+            "example": {"detail": [{"msg": "Value error, amount no puede ser negativo"}]}
         }
     },
 }

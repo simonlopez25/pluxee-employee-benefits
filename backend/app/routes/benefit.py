@@ -19,11 +19,11 @@ from app.services import benefit_service
 router = APIRouter(tags=["benefits"])
 
 _ERROR_NOT_FOUND = {
-    "description": "404 - Benefit not found",
+    "description": "404 - Beneficio no encontrado",
     "content": {
         "application/json": {
             "example": {
-                "error": {"code": "not_found", "message": "Benefit not found"}
+                "error": {"code": "not_found", "message": "Beneficio no encontrado"}
             }
         }
     },
@@ -35,7 +35,7 @@ _ERROR_CONFLICT = {
             "example": {
                 "error": {
                     "code": "conflict",
-                    "message": "A benefit with that name already exists",
+                    "message": "Ya existe un beneficio con ese nombre",
                 }
             }
         }
@@ -45,7 +45,7 @@ _ERROR_VALIDATION = {
     "description": "422 - Invalid data",
     "content": {
         "application/json": {
-            "example": {"detail": [{"msg": "Value error, Name cannot be empty"}]}
+            "example": {"detail": [{"msg": "Value error, El nombre no puede estar vacío"}]}
         }
     },
 }

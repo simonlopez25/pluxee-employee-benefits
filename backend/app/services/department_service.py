@@ -15,7 +15,7 @@ from app.schemas.department import (
     DepartmentUpdate,
 )
 
-NAME_TAKEN_MESSAGE = "A department with that name already exists."
+NAME_TAKEN_MESSAGE = "Ya existe un departamento con ese nombre."
 
 
 def list_departments(
@@ -80,7 +80,7 @@ def list_departments(
 def get_department(db: Session, department_id: int) -> Department:
     department = db.get(Department, department_id)
     if department is None:
-        raise NotFoundError("Department does not exist.")
+        raise NotFoundError("El departamento no existe.")
     return department
 
 

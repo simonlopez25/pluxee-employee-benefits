@@ -125,7 +125,8 @@ def test_department_budget_exceeds_global_returns_409():
     response = _put_department(DEPT_MARKETING, period, "3000.00")
     assert response.status_code == 409, response.text
     assert response.json()["error"]["code"] == "conflict"
-    assert "available" in response.json()["error"]["message"].lower() or "exceed" in response.json()["error"]["message"].lower()
+    message = response.json()["error"]["message"].lower()
+    assert "disponible" in message or "superaría" in message
 
 
 def test_reduce_global_budget_below_allocated_returns_409():
