@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL, make_url
 
@@ -15,23 +16,31 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_env: str = ""
-    host: str = "0.0.0.0"
-    port: int = 4000
-    cors_origins: str = ""
+    app_env: str
+    host: str
+    port: int
+    cors_origins: str
 
-    jwt_secret: str = ""
-    jwt_algorithm: str = "HS256"
-    jwt_expires_minutes: int = 480
+    jwt_secret: str
+    jwt_algorithm: str
+    jwt_expires_minutes: int
 
     database_url: str = ""
     database_url_unpooled: str = ""
 
-    db_host: str = ""
-    db_port: int = 5432
-    db_user: str = ""
-    db_password: str = ""
-    db_name: str = ""
+    db_host: str
+    db_port: int
+    db_user: str
+    db_password: str
+    db_name: str
+
+    @model_validator(mode="after")
+    def validate_settings(self) -> Settings:
+        if len(self.jwt_secret) < 32:
+            raise ValueError("JWT_SECRET must be at least 32 characters long")
+        if self.jwt_expires_minutes < 1:
+            raise ValueError("JWT_EXPIRES_MINUTES must be a positive number")
+        return self
 
     @staticmethod
     def _to_engine_url(raw: str) -> URL:
