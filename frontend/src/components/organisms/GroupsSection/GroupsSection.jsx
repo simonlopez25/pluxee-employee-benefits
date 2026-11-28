@@ -11,7 +11,7 @@ import {
 import { getMonthlyBudgets } from '../../../services/budgetService'
 import './GroupsSection.css'
 
-const NAME_TAKEN_MESSAGE = 'Ya existe un grupo con ese nombre.'
+const NAME_TAKEN_MESSAGE = 'Ya existe un departamento con ese nombre.'
 
 const getCurrentMonthFirstDay = () => {
   const now = new Date()
@@ -70,7 +70,7 @@ export function GroupsSection() {
         }
       } catch (error) {
         if (!isCancelled) {
-          setErrorMessage(error.message || 'Error al cargar los grupos')
+          setErrorMessage(error.message || 'Error al cargar los departamentos')
         }
       } finally {
         if (!isCancelled) {
@@ -121,10 +121,10 @@ export function GroupsSection() {
     try {
       if (editingDepartment) {
         await updateDepartment(editingDepartment.id, formData)
-        setSuccessMessage('Grupo actualizado correctamente')
+        setSuccessMessage('Departamento actualizado correctamente')
       } else {
         await createDepartment(formData)
-        setSuccessMessage('Grupo creado con éxito')
+        setSuccessMessage('Departamento creado con éxito')
       }
       setIsModalOpen(false)
       setEditingDepartment(null)
@@ -134,7 +134,7 @@ export function GroupsSection() {
       setModalApiError(
         error.status === 409
           ? NAME_TAKEN_MESSAGE
-          : error.message || 'Error al guardar el grupo',
+          : error.message || 'Error al guardar el departamento',
       )
     } finally {
       setIsSubmitting(false)
@@ -150,9 +150,9 @@ export function GroupsSection() {
     <section className="groupsSection">
       <header className="groupsHeader">
         <div className="groupsHeaderContent">
-          <h1 className="groupsTitle">Grupos</h1>
+          <h1 className="groupsTitle">Departamentos</h1>
           <p className="groupsSubtitle">
-            Organiza a la plantilla por equipos para asignar paquetes y presupuestos.
+            Organiza la plantilla por departamentos para asignar paquetes y presupuestos.
           </p>
         </div>
 
@@ -163,7 +163,7 @@ export function GroupsSection() {
             onClick={handleOpenCreateModal}
             icon={<Icon name="plus" size={18} />}
           >
-            Nuevo grupo
+            Nuevo departamento
           </Button>
         </div>
       </header>
@@ -204,7 +204,7 @@ export function GroupsSection() {
       {!isLoading && departments.length > 0 && (
         <div className="groupsListHeader">
           <span className="groupsCountBadge">
-            {departments.length} {departments.length === 1 ? 'grupo' : 'grupos'}
+            {departments.length} {departments.length === 1 ? 'departamento' : 'departamentos'}
           </span>
         </div>
       )}
@@ -235,9 +235,9 @@ export function GroupsSection() {
           <div className="groupsEmptyIconWrapper">
             <Icon name="groups" size={32} />
           </div>
-          <h3 className="groupsEmptyTitle">No hay grupos registrados</h3>
+          <h3 className="groupsEmptyTitle">No hay departamentos registrados</h3>
           <p className="groupsEmptySubtitle">
-            Empieza creando el primer grupo para estructurar la plantilla.
+            Empieza creando el primer departamento para estructurar la plantilla.
           </p>
           <Button
             variant="secondary"
@@ -245,7 +245,7 @@ export function GroupsSection() {
             onClick={handleOpenCreateModal}
             icon={<Icon name="plus" size={16} />}
           >
-            Nuevo grupo
+            Nuevo departamento
           </Button>
         </div>
       )}

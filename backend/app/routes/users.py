@@ -1,5 +1,3 @@
-"""Endpoints de gestión de usuarios: alta, edición y baja lógica."""
-
 from __future__ import annotations
 
 from typing import Annotated
@@ -26,7 +24,6 @@ def list_users(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> list[UserPublic]:
-    """Devuelve la lista de usuarios (administradores y empleados) con su estado de activación."""
     return user_service.list_users(db)
 
 
@@ -41,7 +38,6 @@ def register_employee(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> UserPublic:
-    """Crea una cuenta de empleado con grupo, contraseña temporal y cambio obligatorio."""
     return user_service.create_employee(db, payload)
 
 
@@ -71,7 +67,6 @@ def update_employee(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> UserPublic:
-    """Actualiza parcialmente los datos de un empleado."""
     return user_service.update_employee(db, user_id, admin, payload)
 
 
@@ -86,5 +81,4 @@ def deactivate_employee(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> UserPublic:
-    """Marca a un empleado como inactivo (is_active=False) con fecha de baja."""
     return user_service.deactivate_employee(db, user_id, admin)

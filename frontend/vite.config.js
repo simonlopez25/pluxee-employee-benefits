@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import { defineConfig } from 'vitest/config'
@@ -12,7 +13,7 @@ export default defineConfig({
     proxy: {
       // Redirige las llamadas al backend (ver /backend)
       '/api': {
-        target: 'http://localhost:4000',
+        target: process.env.VITE_API_TARGET || 'http://localhost:4000',
         changeOrigin: true,
       },
     },

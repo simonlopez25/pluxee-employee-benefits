@@ -1,15 +1,11 @@
-"""Esquemas de entrada y salida del catálogo de beneficios."""
-
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-# La columna benefits.name es VARCHAR(80) en la BD aprobada.
 NAME_MAX_LENGTH = 80
 
 
 def _clean_name(value: str) -> str:
-    """Recorta el nombre y rechaza valores vacíos o demasiado largos."""
     name = value.strip()
     if not name:
         raise ValueError("El nombre no puede estar vacío")
@@ -19,12 +15,10 @@ def _clean_name(value: str) -> str:
 
 
 class BenefitBase(BaseModel):
-    """Campos comunes de un beneficio."""
-
-    name: str = Field(description="Nombre único del beneficio (ej. Comida, Transporte)")
+    name: str = Field(description="Nombre único del beneficio (p. ej., Comida, Transporte)")
     description: str | None = Field(
         default=None,
-        description="Descripción del beneficio; se guarda vacía si no se envía",
+        description="Descripción del beneficio; se guarda vacía si no se proporciona",
     )
     is_basic: bool = Field(
         default=False,
@@ -34,19 +28,16 @@ class BenefitBase(BaseModel):
     @field_validator("name", mode="after")
     @classmethod
     def name_must_be_valid(cls, value: str) -> str:
-        """Aplica trim y valida que el nombre no esté vacío."""
         return _clean_name(value)
 
 
 class BenefitCreate(BenefitBase):
-    """Payload de POST /api/benefits."""
-
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "name": "Comida",
                 "description": (
-                    "Gastos en restauración. El empleado pide el reembolso "
+                    "Gastos en restauración. El empleado solicita el reembolso "
                     "con un ticket o factura y el importe gastado."
                 ),
                 "is_basic": True,
@@ -62,16 +53,11 @@ class BenefitCreate(BenefitBase):
 
 
 class BenefitUpdate(BaseModel):
-    """Payload de PUT /api/benefits/{benefit_id}: campos completos o parciales.
-
-    Los campos con null se ignoran (no se modifican).
-    """
-
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "name": "Comida",
-                "description": "Descripción actualizada del beneficio.",
+                "description": "Descripción del beneficio actualizada.",
                 "is_basic": True,
                 "is_active": True,
             }
@@ -86,13 +72,10 @@ class BenefitUpdate(BaseModel):
     @field_validator("name", mode="after")
     @classmethod
     def name_must_be_valid(cls, value: str | None) -> str | None:
-        """None significa 'no modificar'; si se envía, aplica las mismas reglas."""
         return _clean_name(value) if value is not None else None
 
 
 class BenefitStatusUpdate(BaseModel):
-    """Payload de PATCH /api/benefits/{benefit_id}: solo estado (baja lógica)."""
-
     model_config = ConfigDict(
         json_schema_extra={"example": {"is_active": False}}
     )
@@ -102,15 +85,12 @@ class BenefitStatusUpdate(BaseModel):
 
     @model_validator(mode="after")
     def require_at_least_one_field(self) -> BenefitStatusUpdate:
-        """Exige al menos un campo para evitar actualizaciones vacías."""
         if self.is_active is None and self.is_basic is None:
-            raise ValueError("Debe indicar al menos un campo para actualizar")
+            raise ValueError("Se debe proporcionar al menos un campo")
         return self
 
 
 class BenefitResponse(BaseModel):
-    """Respuesta de los endpoints de beneficios."""
-
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
@@ -118,7 +98,7 @@ class BenefitResponse(BaseModel):
                 "id": 1,
                 "name": "Comida",
                 "description": (
-                    "Gastos en restauración. El empleado pide el reembolso "
+                    "Gastos en restauración. El empleado solicita el reembolso "
                     "con un ticket o factura y el importe gastado."
                 ),
                 "is_basic": True,

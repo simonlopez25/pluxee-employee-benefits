@@ -1,5 +1,3 @@
-"""Lógica de negocio de departamentos."""
-
 from __future__ import annotations
 
 from sqlalchemy import func, select
@@ -23,7 +21,6 @@ NAME_TAKEN_MESSAGE = "Ya existe un departamento con ese nombre."
 def list_departments(
     db: Session, *, is_active: bool | None = None
 ) -> list[DepartmentListResponse]:
-    """Devuelve los departamentos ordenados por nombre, con empleados y paquetes activos."""
     statement = select(Department).order_by(Department.name)
     if is_active is not None:
         statement = statement.where(Department.is_active == is_active)
@@ -34,7 +31,6 @@ def list_departments(
 
     dept_ids = [dept.id for dept in departments]
 
-    # Empleados activos agrupados por departamento
     employee_counts_rows = db.execute(
         select(User.department_id, func.count(User.id))
         .where(
@@ -50,7 +46,6 @@ def list_departments(
         if dept_id is not None
     }
 
-    # Paquetes activos agrupados por departamento en Python
     active_package_rows = db.execute(
         select(Package.id, Package.name, Package.department_id)
         .where(
@@ -83,7 +78,6 @@ def list_departments(
 
 
 def get_department(db: Session, department_id: int) -> Department:
-    """Devuelve un departamento o lanza 404 si no existe."""
     department = db.get(Department, department_id)
     if department is None:
         raise NotFoundError("El departamento no existe.")
@@ -91,7 +85,6 @@ def get_department(db: Session, department_id: int) -> Department:
 
 
 def create_department(db: Session, data: DepartmentCreate) -> Department:
-    """Crea un departamento con nombre único."""
     _ensure_name_is_available(db, data.name)
     department = Department(name=data.name, currency=data.currency)
     return _save(db, department)
@@ -100,7 +93,6 @@ def create_department(db: Session, data: DepartmentCreate) -> Department:
 def update_department(
     db: Session, department_id: int, data: DepartmentUpdate
 ) -> Department:
-    """Edita el nombre y la divisa de un departamento."""
     department = get_department(db, department_id)
     _ensure_name_is_available(db, data.name, ignored_id=department_id)
     department.name = data.name
@@ -111,7 +103,6 @@ def update_department(
 def _ensure_name_is_available(
     db: Session, name: str, ignored_id: int | None = None
 ) -> None:
-    """Lanza 409 si otro departamento ya usa ese nombre, sin distinguir mayúsculas."""
     statement = select(Department.id).where(func.lower(Department.name) == name.lower())
     existing_id = db.scalars(statement).first()
     if existing_id is not None and existing_id != ignored_id:
@@ -119,7 +110,6 @@ def _ensure_name_is_available(
 
 
 def _save(db: Session, department: Department) -> Department:
-    """Guarda el departamento; la restricción única de la BD es la última defensa."""
     try:
         db.add(department)
         db.commit()

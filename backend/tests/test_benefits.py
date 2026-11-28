@@ -1,5 +1,3 @@
-"""Tests del CRUD de beneficios (HU-09 / PEB-47)."""
-
 from __future__ import annotations
 
 import pytest
@@ -12,13 +10,10 @@ from app.models.benefit import Benefit
 
 client = TestClient(app)
 
-# Solo los beneficios con este prefijo son datos de prueba:
-# se borran antes y después de cada test para que las corridas sean repetibles.
 TEST_NAME_PREFIX = "Test CRUD"
 
 
 def _delete_test_benefits() -> None:
-    """Borra los benefits de pruebas (aún sin referencias en otras tablas)."""
     with SessionLocal() as db:
         statement = delete(Benefit).where(
             func.lower(Benefit.name).startswith(TEST_NAME_PREFIX.lower())
@@ -29,14 +24,12 @@ def _delete_test_benefits() -> None:
 
 @pytest.fixture(autouse=True)
 def clean_test_benefits():
-    """Limpia los benefits de pruebas antes y después de cada test."""
     _delete_test_benefits()
     yield
     _delete_test_benefits()
 
 
 def _create_benefit(**overrides) -> dict:
-    """Crea un beneficio de prueba y devuelve su respuesta."""
     payload = {"name": f"{TEST_NAME_PREFIX} Base", **overrides}
     response = client.post("/api/benefits", json=payload)
     assert response.status_code == 201, response.text
@@ -44,15 +37,11 @@ def _create_benefit(**overrides) -> dict:
 
 
 def _nonexistent_benefit_id() -> int:
-    """Id que con toda seguridad no existe en la BD."""
     with SessionLocal() as db:
         max_id = db.scalar(select(func.max(Benefit.id)))
     return (max_id or 0) + 1000
 
 
-# ---------------------------------------------------------------------
-# 1. Creación
-# ---------------------------------------------------------------------
 def test_create_benefit_returns_201() -> None:
     response = client.post(
         "/api/benefits",
@@ -69,11 +58,10 @@ def test_create_benefit_returns_201() -> None:
     assert body["name"] == f"{TEST_NAME_PREFIX} Creación"
     assert body["description"] == "Beneficio de prueba"
     assert body["is_basic"] is True
-    assert body["is_active"] is True  # valor por defecto
+    assert body["is_active"] is True
 
 
 def test_create_benefit_without_description_stores_empty_string() -> None:
-    # description es NOT NULL en la BD: el service normaliza None -> ""
     response = client.post(
         "/api/benefits",
         json={"name": f"{TEST_NAME_PREFIX} Sin descripción"},
@@ -83,9 +71,6 @@ def test_create_benefit_without_description_stores_empty_string() -> None:
     assert response.json()["description"] == ""
 
 
-# ---------------------------------------------------------------------
-# 2. Unicidad de nombre (409)
-# ---------------------------------------------------------------------
 def test_create_duplicate_name_returns_409_including_case_variants() -> None:
     _create_benefit(name=f"{TEST_NAME_PREFIX} Duplicado")
 
@@ -110,9 +95,6 @@ def test_create_blank_name_returns_422() -> None:
     assert "El nombre no puede estar vacío" in response.text
 
 
-# ---------------------------------------------------------------------
-# 3. Listado y filtros
-# ---------------------------------------------------------------------
 def test_list_benefits_and_filters() -> None:
     _create_benefit(name=f"{TEST_NAME_PREFIX} List Activo", is_basic=True)
     _create_benefit(name=f"{TEST_NAME_PREFIX} List Inactivo", is_active=False)
@@ -123,7 +105,7 @@ def test_list_benefits_and_filters() -> None:
     all_names = {benefit["name"] for benefit in all_benefits}
     assert {f"{TEST_NAME_PREFIX} List Activo", f"{TEST_NAME_PREFIX} List Inactivo"} <= all_names
     ids = [benefit["id"] for benefit in all_benefits]
-    assert ids == sorted(ids)  # orden por defecto: id
+    assert ids == sorted(ids)
 
     active_response = client.get("/api/benefits", params={"is_active": True})
     assert active_response.status_code == 200
@@ -141,8 +123,6 @@ def test_list_benefits_and_filters() -> None:
 
     by_name = client.get("/api/benefits", params={"order_by": "name"})
     assert by_name.status_code == 200
-    # Se comprueba el orden solo sobre los nombres de prueba para que la
-    # aserción no depende de la colación de la BD para el resto de filas.
     test_names = [
         benefit["name"]
         for benefit in by_name.json()
@@ -151,9 +131,6 @@ def test_list_benefits_and_filters() -> None:
     assert test_names == sorted(test_names)
 
 
-# ---------------------------------------------------------------------
-# 4. PUT: actualización y duplicados
-# ---------------------------------------------------------------------
 def test_update_benefit_with_put_and_rejects_duplicate_name() -> None:
     _create_benefit(name=f"{TEST_NAME_PREFIX} PUT A")
     second = _create_benefit(name=f"{TEST_NAME_PREFIX} PUT B")
@@ -180,7 +157,6 @@ def test_update_benefit_with_put_and_rejects_duplicate_name() -> None:
     assert body["is_basic"] is True
     assert body["is_active"] is False
 
-    # PUT parcial: solo cambia lo enviado, el resto se conserva
     partial = client.put(
         f"/api/benefits/{second['id']}",
         json={"name": f"{TEST_NAME_PREFIX} PUT B2"},
@@ -190,9 +166,6 @@ def test_update_benefit_with_put_and_rejects_duplicate_name() -> None:
     assert partial.json()["name"] == f"{TEST_NAME_PREFIX} PUT B2"
 
 
-# ---------------------------------------------------------------------
-# 5. PATCH: baja lógica
-# ---------------------------------------------------------------------
 def test_patch_deactivates_benefit_and_keeps_it_in_database() -> None:
     created = _create_benefit(name=f"{TEST_NAME_PREFIX} Baja lógica")
 
@@ -204,15 +177,13 @@ def test_patch_deactivates_benefit_and_keeps_it_in_database() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["is_active"] is False
-    assert body["name"] == f"{TEST_NAME_PREFIX} Baja lógica"  # no se tocan otros campos
+    assert body["name"] == f"{TEST_NAME_PREFIX} Baja lógica"
 
-    # Sigue existiendo en la BD: es baja lógica, no un DELETE físico
     with SessionLocal() as db:
         stored = db.get(Benefit, created["id"])
     assert stored is not None
     assert stored.is_active is False
 
-    # Y sigue siendo consultable por GET
     detail = client.get(f"/api/benefits/{created['id']}")
     assert detail.status_code == 200
     assert detail.json()["is_active"] is False
@@ -224,12 +195,9 @@ def test_patch_without_fields_returns_422() -> None:
     response = client.patch(f"/api/benefits/{created['id']}", json={})
 
     assert response.status_code == 422
-    assert "Debe indicar al menos un campo" in response.text
+    assert "Se debe proporcionar al menos un campo" in response.text
 
 
-# ---------------------------------------------------------------------
-# 6. 404 con id inexistente
-# ---------------------------------------------------------------------
 def test_missing_benefit_returns_404() -> None:
     benefit_id = _nonexistent_benefit_id()
 

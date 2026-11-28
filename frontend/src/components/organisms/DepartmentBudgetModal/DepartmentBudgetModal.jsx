@@ -160,7 +160,7 @@ function DepartmentBudgetFormContent({
               <Icon name="info" size={18} className="deptModalNoticeIcon" />
               <p className="deptModalNoticeText">
                 Estos importes por beneficio son solo una referencia orientativa para
-                planificación; no suman ni bloquean el presupuesto del grupo ni los
+                planificación; no suman ni bloquean el presupuesto del departamento ni los
                 gastos de los empleados.
               </p>
             </div>

@@ -22,14 +22,14 @@ export function DepartmentBudgetsTable({ departments = [], onEditDepartment }) {
     <div className="deptTableCard">
       <div className="deptTableHeaderRow">
         <h2 className="deptTableTitle">Presupuestos por Departamento</h2>
-        <span className="deptTableCountBadge">{departments.length} grupos</span>
+        <span className="deptTableCountBadge">{departments.length} departamentos</span>
       </div>
 
       <div className="deptTableResponsiveWrapper">
         <table className="deptTable">
           <thead>
             <tr>
-              <th className="deptTh">Grupo</th>
+              <th className="deptTh">Departamento</th>
               <th className="deptTh">Asignado</th>
               <th className="deptTh">Disponible</th>
               <th className="deptTh">Consumido</th>

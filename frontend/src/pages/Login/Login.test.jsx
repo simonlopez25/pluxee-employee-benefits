@@ -2,8 +2,8 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Login from './Login'
-import { useAuth } from '../context/AuthContext'
-import { ApiError } from '../services/http'
+import { useAuth } from '../../context/AuthContext'
+import { ApiError } from '../../services/http'
 
 const navigateMock = vi.fn()
 
@@ -12,7 +12,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return { ...actual, useNavigate: () => navigateMock }
 })
 
-vi.mock('../context/AuthContext', () => ({ useAuth: vi.fn() }))
+vi.mock('../../context/AuthContext', () => ({ useAuth: vi.fn() }))
 
 function setupAuth(overrides = {}) {
   const loginMock = vi.fn()

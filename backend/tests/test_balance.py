@@ -1,5 +1,3 @@
-"""Tests del saldo del empleado (HU-13 / PEB-55)."""
-
 from __future__ import annotations
 
 from datetime import date
@@ -33,11 +31,6 @@ TEST_PERIOD = date.today().replace(day=1)
 
 
 def _delete_test_data() -> None:
-    """Borra solo lo que crea este módulo, respetando el orden de las FKs.
-
-    No toca `global_budgets` ni el resto del seed: reutiliza el del mes en
-    curso y solo borra el `department_budget` de los departamentos de test.
-    """
     with SessionLocal() as db:
         test_deps = select(Department.id).where(
             func.lower(Department.name).startswith(TEST_NAME_PREFIX.lower())
@@ -92,7 +85,6 @@ def _auth_header(user_id: int) -> dict[str, str]:
 
 
 def _ensure_period(db) -> GlobalBudget:
-    """Reutiliza el GlobalBudget del mes en curso; lo crea si no existe."""
     gb = db.scalar(select(GlobalBudget).where(GlobalBudget.period == TEST_PERIOD))
     if gb is None:
         gb = GlobalBudget(period=TEST_PERIOD, amount=Decimal("10000.00"))
@@ -191,20 +183,13 @@ def _expense(
     )
 
 
-# ---------------------------------------------------------------------
-# 1. Autenticación
-# ---------------------------------------------------------------------
 def test_balance_requires_auth() -> None:
     response = client.get("/api/balance/me")
     assert response.status_code == 401
 
 
-# ---------------------------------------------------------------------
-# 2. Sin GlobalBudget del mes: todo a 0, period null
-# ---------------------------------------------------------------------
 def test_balance_without_current_period_returns_empty() -> None:
     with SessionLocal() as db:
-        # Nos aseguramos de que no hay GlobalBudget del mes en curso.
         existing = db.scalar(
             select(GlobalBudget).where(GlobalBudget.period == TEST_PERIOD)
         )
@@ -226,10 +211,6 @@ def test_balance_without_current_period_returns_empty() -> None:
     assert body["packages"] == []
 
 
-# ---------------------------------------------------------------------
-# 3. Multibeneficio compartido: el gasto reduce el disponible de todos
-#    Ejemplo del cliente: 100 combo + 50 mono comida, 30 gastados en transporte
-# ---------------------------------------------------------------------
 def test_balance_shared_package_reduces_all_benefits() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "Compartido")
@@ -272,21 +253,15 @@ def test_balance_shared_package_reduces_all_benefits() -> None:
     assert response.status_code == 200
     body = response.json()
 
-    # Total asignado = 100 + 50 (suma de paquetes, no de beneficios)
     assert body["assigned_total"] == "150.00"
     assert body["consumed_total"] == "30.00"
     assert body["available_total"] == "120.00"
 
     by_benefit = {item["benefit_name"]: item for item in body["by_benefit"]}
-    # Comida: (100 − 30) + (50 − 0) = 120
     assert by_benefit[f"{TEST_NAME_PREFIX} Comida compartida"]["available"] == "120.00"
-    # Transporte: 100 − 30 = 70
     assert by_benefit[f"{TEST_NAME_PREFIX} Transporte compartido"]["available"] == "70.00"
 
 
-# ---------------------------------------------------------------------
-# 4. Gasto de un mes anterior no resta
-# ---------------------------------------------------------------------
 def test_balance_ignores_expenses_from_previous_month() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "MesAnterior")
@@ -326,9 +301,6 @@ def test_balance_ignores_expenses_from_previous_month() -> None:
     assert body["available_total"] == "80.00"
 
 
-# ---------------------------------------------------------------------
-# 5. Gasto rechazado no resta
-# ---------------------------------------------------------------------
 def test_balance_ignores_rejected_expenses() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "Rechazado")
@@ -360,11 +332,7 @@ def test_balance_ignores_rejected_expenses() -> None:
     assert body["available_total"] == "50.00"
 
 
-# ---------------------------------------------------------------------
-# 6. Ejemplo del seed: Comida 70 € y Transporte 10 €
-# ---------------------------------------------------------------------
 def test_balance_seed_example() -> None:
-    """100 combo + 60 mono, 90 gastados en transporte → Comida 70, Transporte 10."""
     with SessionLocal() as db:
         dep = _create_department(db, "Seed")
         user = _create_employee(db, dep, "Seed")
@@ -413,10 +381,6 @@ def test_balance_seed_example() -> None:
     assert by_benefit[f"{TEST_NAME_PREFIX} Comida seed"]["available"] == "70.00"
     assert by_benefit[f"{TEST_NAME_PREFIX} Transporte seed"]["available"] == "10.00"
 
-# ---------------------------------------------------------------------
-# 7. Gastos pendientes: descuentan saldo igual que los aprobados
-#    Restante = Asignado - Aprobado - Pendiente
-# ---------------------------------------------------------------------
 def test_balance_pending_expenses_reduce_available() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "Pendiente")
@@ -447,7 +411,6 @@ def test_balance_pending_expenses_reduce_available() -> None:
     assert response.status_code == 200
     body = response.json()
 
-    # 100 - 20 aprobado - 30 pendiente = 50
     assert body["assigned_total"] == "100.00"
     assert body["approved_total"] == "20.00"
     assert body["pending_total"] == "30.00"
@@ -463,10 +426,6 @@ def test_balance_pending_expenses_reduce_available() -> None:
     assert by_benefit[f"{TEST_NAME_PREFIX} Comida pendiente"]["available"] == "50.00"
 
 
-# ---------------------------------------------------------------------
-# 8. Un gasto pendiente en un paquete multibeneficio reduce todos sus
-#    beneficios (saldo compartido)
-# ---------------------------------------------------------------------
 def test_balance_pending_in_shared_package_reduces_all_benefits() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "PendienteCompartido")
@@ -509,9 +468,6 @@ def test_balance_pending_in_shared_package_reduces_all_benefits() -> None:
     assert body["available_total"] == "60.00"
 
 
-# ---------------------------------------------------------------------
-# 9. Una asignación inactiva no cuenta en el saldo
-# ---------------------------------------------------------------------
 def test_balance_ignores_inactive_assignments() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "Inactiva")
@@ -553,11 +509,6 @@ def test_balance_ignores_inactive_assignments() -> None:
     assert body["packages"][0]["package_name"] == f"{TEST_NAME_PREFIX} Comida activa"
 
 
-# ---------------------------------------------------------------------
-# 10. Los paquetes son fijos cada mes (cliente, confirmado con el PO):
-#     se muestran siempre, pero su saldo sale a 0 mientras el
-#     departamento no tenga presupuesto fijado ese mes
-# ---------------------------------------------------------------------
 def test_balance_shows_packages_with_zero_until_department_budget_is_set() -> None:
     with SessionLocal() as db:
         dep = _create_department(db, "SinPresupuesto")
@@ -568,7 +519,6 @@ def test_balance_shows_packages_with_zero_until_department_budget_is_set() -> No
         db.add(PackageBenefit(package_id=pkg.id, benefit_id=food.id))
         db.flush()
 
-        # Hay presupuesto global del mes, pero NO se crea el del departamento
         gb = _ensure_period(db)
         _assign(db, user, pkg, "60.00")
         db.commit()
@@ -576,7 +526,6 @@ def test_balance_shows_packages_with_zero_until_department_budget_is_set() -> No
         department_id = dep.id
         global_budget_id = gb.id
 
-    # Sin presupuesto de departamento: el paquete se ve, pero su saldo es 0
     response = client.get("/api/balance/me", headers=_auth_header(user_id))
     assert response.status_code == 200
     body = response.json()
@@ -589,7 +538,6 @@ def test_balance_shows_packages_with_zero_until_department_budget_is_set() -> No
     assert body["packages"][0]["assigned"] == "0.00"
     assert body["packages"][0]["available"] == "0.00"
 
-    # Al fijar el presupuesto del departamento, el paquete muestra su saldo real
     with SessionLocal() as db:
         db.add(
             DepartmentBudget(

@@ -1,11 +1,7 @@
-"""Errores centralizados de la aplicación."""
-
 from __future__ import annotations
 
 
 class AppError(Exception):
-    """Error con código HTTP y código legible; se lanza en services y se captura en main."""
-
     def __init__(
         self,
         message: str,
@@ -19,14 +15,10 @@ class AppError(Exception):
 
 
 class NotFoundError(AppError):
-    """Recurso inexistente (404)."""
-
     def __init__(self, message: str = "resource not found") -> None:
         super().__init__(message, status_code=404, code="not_found")
 
 
 class ConflictError(AppError):
-    """Conflicto con el estado actual del recurso (409)."""
-
     def __init__(self, message: str = "resource conflict") -> None:
         super().__init__(message, status_code=409, code="conflict")

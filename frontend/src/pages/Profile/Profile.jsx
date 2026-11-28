@@ -1,4 +1,4 @@
-import ChangePasswordForm from '../components/ChangePasswordForm/ChangePasswordForm'
+import ChangePasswordForm from '../../components/ChangePasswordForm/ChangePasswordForm'
 
 function Profile() {
   return (

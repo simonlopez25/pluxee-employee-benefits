@@ -113,6 +113,47 @@ describe('request', () => {
     expect(sessionStorage.getItem('pluxee_user')).toBeNull()
   })
 
+  it('ante 422 del backend informa el campo y el mensaje', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(422, {
+        detail: [
+          { type: 'string_type', loc: ['body', 'name'], msg: 'Input should be a valid string' },
+        ],
+      }),
+    )
+
+    const err = await postJson('/benefits', { name: 1 }).catch((e) => e)
+
+    expect(err).toBeInstanceOf(ApiError)
+    expect(err.status).toBe(422)
+    expect(err.code).toBe('unknown_error')
+    expect(err.message).toBe('name: Input should be a valid string')
+  })
+
+  it('ante varios errores de validación los une en un solo mensaje', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(422, {
+        detail: [
+          { type: 'missing', loc: ['body', 'name'], msg: 'Field required' },
+          { type: 'missing', loc: ['body', 'currency'], msg: 'Field required' },
+        ],
+      }),
+    )
+
+    const err = await postJson('/departments', {}).catch((e) => e)
+
+    expect(err.message).toBe('name: Field required, currency: Field required')
+  })
+
+  it('ante un 404 con detail de texto devuelve ese texto', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(404, { detail: 'Package not found' }))
+
+    const err = await getJson('/packages/999').catch((e) => e)
+
+    expect(err.status).toBe(404)
+    expect(err.message).toBe('Package not found')
+  })
+
   it('un error sin formato de error lanza unknown_error', async () => {
     fetchMock.mockResolvedValue(jsonResponse(500, null))
 

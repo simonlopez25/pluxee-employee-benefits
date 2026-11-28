@@ -1,5 +1,3 @@
-"""Tests de departamentos (/api/departments)."""
-
 from __future__ import annotations
 
 import pytest
@@ -26,7 +24,6 @@ EXPECTED_LIST_KEYS = {
 
 
 def _delete_test_departments() -> None:
-    """Borra únicamente los departamentos de prueba creados por este módulo."""
     with SessionLocal() as db:
         db.execute(
             delete(Department).where(
@@ -38,7 +35,6 @@ def _delete_test_departments() -> None:
 
 @pytest.fixture(autouse=True)
 def clean_test_departments():
-    """Limpia los departamentos de prueba antes y después de cada test."""
     _delete_test_departments()
     yield
     _delete_test_departments()

@@ -1,5 +1,3 @@
-"""Endpoints de los paquetes de beneficios: /api/packages."""
-
 from __future__ import annotations
 
 from typing import Annotated
@@ -14,7 +12,6 @@ from app.services import package_service
 
 router = APIRouter(tags=["packages"])
 
-# Errores documentados en Swagger (cuerpo real de la respuesta)
 _ERROR_NOT_FOUND = {
     "description": "404 - Paquete, departamento o beneficio no encontrado",
     "content": {
@@ -51,7 +48,6 @@ def list_packages(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[dict]:
-    """Devuelve la lista de paquetes con sus beneficios."""
     return package_service.list_packages(db, department_id=department_id, is_active=is_active)
 
 
@@ -62,7 +58,6 @@ def list_packages(
     responses={404: _ERROR_NOT_FOUND},
 )
 def get_package(package_id: PackageIdPath, user=Depends(get_current_user), db: Session = Depends(get_db)) -> dict:
-    """Devuelve un paquete por su id."""
     return package_service.get_package(db, package_id)
 
 
@@ -74,6 +69,5 @@ def get_package(package_id: PackageIdPath, user=Depends(get_current_user), db: S
     responses={404: _ERROR_NOT_FOUND, 409: _ERROR_CONFLICT},
 )
 def create_package(payload: PackageCreate, admin=Depends(require_admin), db: Session = Depends(get_db)) -> dict:
-    """Crea un paquete mono o multibeneficio para un departamento (solo ADMIN)."""
     return package_service.create_package(db, payload)
 

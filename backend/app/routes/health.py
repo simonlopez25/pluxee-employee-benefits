@@ -1,5 +1,3 @@
-"""Endpoint de salud: GET /api/health."""
-
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends
@@ -12,7 +10,10 @@ from app.services import health as health_service
 router = APIRouter(tags=["health"])
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.get(
+    "/health",
+    response_model=HealthResponse,
+    summary="Estado del servidor",
+)
 def get_health(db: Session = Depends(get_db)) -> HealthResponse:
-    """Devuelve el estado del servidor y de PostgreSQL."""
     return health_service.get_health(db)

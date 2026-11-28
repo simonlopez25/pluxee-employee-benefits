@@ -1,20 +1,3 @@
-"""Lógica de negocio del saldo del empleado (HU-13 / PEB-55).
-
-Reglas (confirmadas con el cliente):
-- Disponible de un paquete = asignado − aprobado − pendiente (todo su gasto).
-- Disponible de un beneficio = suma del disponible de los paquetes que lo
-  cubren. Un gasto en un paquete multibeneficio reduce el disponible de
-  todos sus beneficios, porque comparten saldo.
-- Asignado total del empleado = suma de `assigned_amount` de sus paquetes.
-- Solo cuentan los gastos con `expense_date` dentro del mes en curso.
-- Gastos rechazados no restan; asignaciones inactivas no cuentan.
-- Sin `GlobalBudget` del mes: `period = None`, totales a 0 y listas vacías.
-- Los paquetes son fijos cada mes (el cliente los mantiene salvo que el
-  administrador los cambie): el empleado ve siempre sus paquetes asignados,
-  pero mientras el departamento no tenga presupuesto fijado ese mes, el
-  saldo del paquete (asignado/disponible) sale a 0 hasta que se fije.
-"""
-
 from __future__ import annotations
 
 from collections import defaultdict
@@ -47,11 +30,6 @@ def _quantize(value: Decimal) -> Decimal:
 
 
 def _current_period(db: Session) -> tuple[date, date] | None:
-    """Devuelve (primer día del mes, primer día del mes siguiente) o None.
-
-    Si no hay `GlobalBudget` para el mes en curso, devuelve None: el empleado
-    no tiene saldo abierto este mes.
-    """
     today = date.today()
     first_day = date(today.year, today.month, 1)
     if today.month == 12:
@@ -81,11 +59,6 @@ def _load_assignments(db: Session, user_id: int) -> list[EmployeeAssignment]:
 def _package_ids_with_department_budget(
     db: Session, assignments: list[EmployeeAssignment], first_day: date
 ) -> set[int]:
-    """Paquetes del empleado cuyo departamento tiene presupuesto en el mes.
-
-    No decide qué paquetes se muestran (todos los asignados se muestran
-    siempre): solo si su saldo debe calcularse con importe real o a 0.
-    """
     if not assignments:
         return set()
     return set(
@@ -129,7 +102,6 @@ def _load_benefits_by_package(
 def _load_consumption(
     db: Session, assignment_ids: list[int], first_day: date, next_first_day: date
 ) -> dict[int, dict[str, Decimal]]:
-    """Consumo por asignación (aprobado y pendiente), filtrado por mes."""
     if not assignment_ids:
         return {}
     rows = db.execute(
@@ -166,8 +138,6 @@ def _build_package(
     has_department_budget: bool,
 ) -> PackageBalance:
     if not has_department_budget:
-        # El paquete es fijo y se sigue mostrando, pero su saldo sale a 0
-        # hasta que el departamento tenga presupuesto asignado este mes.
         benefit_items = [
             BenefitBalance(
                 benefit_id=benefit.id,
@@ -195,10 +165,6 @@ def _build_package(
     consumed = _quantize(approved + pending)
     available = _quantize(assigned - consumed)
 
-    # El disponible del paquete se reparte entre todos sus beneficios por
-    # igual: el cliente confirmó que un gasto en un beneficio del paquete
-    # reduce el disponible de los demás. `available` y `consumed` por
-    # beneficio reflejan ese saldo compartido.
     benefit_items = [
         BenefitBalance(
             benefit_id=benefit.id,
@@ -225,7 +191,6 @@ def _build_package(
 def _aggregate_by_benefit(
     packages: list[PackageBalance],
 ) -> list[BenefitBalance]:
-    """Suma el disponible y consumido de los paquetes que cubren cada beneficio."""
     aggregate: dict[int, BenefitBalance] = {}
     for package in packages:
         for benefit in package.benefits:
@@ -258,7 +223,6 @@ def _empty_response(period: date | None) -> EmployeeBalanceResponse:
 
 
 def get_balance(db: Session, user_id: int) -> EmployeeBalanceResponse:
-    """Calcula el saldo del empleado por beneficio y por paquete."""
     current = _current_period(db)
     if current is None:
         return _empty_response(period=None)

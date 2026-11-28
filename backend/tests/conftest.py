@@ -1,19 +1,59 @@
-"""Fixtures compartidas de los tests."""
-
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
+from pathlib import Path
 
 import pytest
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
-from app.core.database import SessionLocal
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+TEST_ENV_FILE = BACKEND_ROOT / ".env.test"
+APP_ENV_FILE = BACKEND_ROOT / ".env"
+
+
+def _env_value(path: Path, key: str) -> str:
+    if not path.is_file():
+        return ""
+    for line in path.read_text(encoding="utf-8").splitlines():
+        name, separator, value = line.partition("=")
+        if separator and name.strip() == key:
+            return value.strip()
+    return ""
+
+
+if not TEST_ENV_FILE.is_file():
+    raise pytest.UsageError(
+        "backend/.env.test not found: run 'neon env pull --project-id "
+        "fancy-glitter-51900277 --branch tests --file backend/.env.test' "
+        "from the repository root"
+    )
+
+load_dotenv(TEST_ENV_FILE, override=True)
+
+if not os.environ.get("DATABASE_URL"):
+    raise pytest.UsageError("backend/.env.test must define DATABASE_URL")
+
+if os.environ["DATABASE_URL"] == _env_value(APP_ENV_FILE, "DATABASE_URL"):
+    raise pytest.UsageError(
+        "backend/.env.test points to the same database as backend/.env: "
+        "tests must run against the Neon 'tests' branch"
+    )
+
+from app.core.database import SessionLocal, engine
 from app.core.security import create_access_token, get_current_user, hash_password
 from app.main import app
 from app.models.user import User
 
 TEST_PASSWORD = "Prueba123!"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _dispose_engine():
+    yield
+    engine.dispose()
 
 
 def _seed_user(role: str) -> User:
@@ -30,7 +70,6 @@ def _seed_user(role: str) -> User:
 
 @pytest.fixture(autouse=True)
 def _act_as_admin_by_default(request):
-    """Por defecto, todos los tests pasan como ADMIN salvo los que crean sus propios usuarios"""
     excluded = {
         "test_users.py",
         "test_users_password.py",
@@ -49,7 +88,6 @@ def _act_as_admin_by_default(request):
 
 @pytest.fixture()
 def real_auth():
-    """Limpia los overrides para tests que necesitan autenticación real"""
     saved = dict(app.dependency_overrides)
     app.dependency_overrides.clear()
     yield

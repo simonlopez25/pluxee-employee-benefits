@@ -1,5 +1,3 @@
-"""Modelo de la tabla expense_history (cambios de estado de cada gasto)."""
-
 from __future__ import annotations
 
 from datetime import datetime

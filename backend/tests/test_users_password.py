@@ -1,5 +1,3 @@
-"""Tests de PATCH /api/users/me/password y GET /api/me (HU-05 / PEB-39)."""
-
 from __future__ import annotations
 
 import pytest

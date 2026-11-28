@@ -1,5 +1,3 @@
-"""Tests de POST /api/users: alta de empleado (PEB-43 / HU-07)."""
-
 from __future__ import annotations
 
 import pytest
@@ -50,7 +48,6 @@ def _purge() -> None:
 
 @pytest.fixture(autouse=True)
 def department():
-    """Crea un departamento directamente en la BD para los tests."""
     _purge()
     with SessionLocal() as db:
         dept = Department(name=DEPARTMENT_NAME, currency="EUR", is_active=True)
@@ -149,7 +146,6 @@ def test_register_unknown_department_returns_404(
 def test_register_inactive_department_returns_404(
     client: TestClient, department, admin_headers
 ) -> None:
-    """Alta en departamento inactivo debe devolver 404 (igual que inexistente)."""
     with SessionLocal() as db:
         dept = db.get(Department, department["id"])
         dept.is_active = False

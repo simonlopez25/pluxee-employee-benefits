@@ -1,9 +1,3 @@
-"""Lógica de negocio del catálogo de beneficios.
-
-Nombre único sin distinguir mayúsculas y baja lógica (nunca DELETE), porque
-expenses y package_benefits referencian benefits con ON DELETE RESTRICT.
-"""
-
 from __future__ import annotations
 
 from typing import Literal
@@ -27,7 +21,6 @@ def list_benefits(
     is_basic: bool | None = None,
     order_by: Literal["id", "name"] = "id",
 ) -> list[Benefit]:
-    """Lista los beneficios ordenados, con filtros opcionales de estado."""
     statement = select(Benefit)
 
     if is_active is not None:
@@ -40,17 +33,14 @@ def list_benefits(
 
 
 def get_benefit(db: Session, benefit_id: int) -> Benefit:
-    """Devuelve un beneficio por id o lanza 404."""
     return _get_or_404(db, benefit_id)
 
 
 def create_benefit(db: Session, payload: BenefitCreate) -> Benefit:
-    """Crea un beneficio validando que el nombre no esté duplicado."""
     _ensure_name_is_available(db, payload.name)
 
     benefit = Benefit(
         name=payload.name,
-        # description es NOT NULL en la BD: ausente => cadena vacía
         description=payload.description or "",
         is_basic=payload.is_basic,
         is_active=payload.is_active,
@@ -59,7 +49,6 @@ def create_benefit(db: Session, payload: BenefitCreate) -> Benefit:
 
 
 def update_benefit(db: Session, benefit_id: int, payload: BenefitUpdate) -> Benefit:
-    """Actualiza los campos enviados (PUT); los campos ausentes no cambian."""
     benefit = _get_or_404(db, benefit_id)
 
     if payload.name is not None:
@@ -80,7 +69,6 @@ def update_benefit_status(
     benefit_id: int,
     payload: BenefitStatusUpdate,
 ) -> Benefit:
-    """Cambia is_active / is_basic sin tocar el resto (baja lógica, PATCH)."""
     benefit = _get_or_404(db, benefit_id)
 
     if payload.is_active is not None:
@@ -92,7 +80,6 @@ def update_benefit_status(
 
 
 def _get_or_404(db: Session, benefit_id: int) -> Benefit:
-    """Busca el beneficio o lanza el error 404 del módulo."""
     benefit = db.get(Benefit, benefit_id)
     if benefit is None:
         raise NotFoundError(BENEFIT_NOT_FOUND)
@@ -105,7 +92,6 @@ def _ensure_name_is_available(
     *,
     exclude_id: int | None = None,
 ) -> None:
-    """Lanza 409 si otro beneficio ya usa el nombre (ignorando mayúsculas)."""
     statement = select(Benefit.id).where(
         func.lower(Benefit.name) == name.strip().lower()
     )
@@ -117,8 +103,7 @@ def _ensure_name_is_available(
 
 
 def _save(db: Session, benefit: Benefit) -> Benefit:
-    """Añade, persiste y refresca; el UNIQUE de name convierte IntegrityError en 409."""
-    db.add(benefit)  # en create es un INSERT; en update es un no-op
+    db.add(benefit)
     try:
         db.commit()
     except IntegrityError:

@@ -13,7 +13,7 @@ export function EmployeeModalHeader({
         </h2>
         <p className="employeeModalSubtitle">
           {isCreate
-            ? 'Asigna un correo, una contraseña temporal y un grupo. El empleado deberá cambiar su contraseña al iniciar sesión.'
+            ? 'Asigna un correo, una contraseña temporal y un departamento. El empleado deberá cambiar su contraseña al iniciar sesión.'
             : 'Modifica los datos del empleado. Los cambios se guardan sin eliminar su registro ni sus históricos de gastos y asignaciones.'}
         </p>
       </div>

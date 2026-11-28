@@ -26,6 +26,18 @@ export class ApiError extends Error {
   }
 }
 
+function formatDetail(detail) {
+  if (!Array.isArray(detail)) {
+    return detail
+  }
+  return detail
+    .map(({ loc, msg }) => {
+      const field = Array.isArray(loc) ? loc[loc.length - 1] : undefined
+      return typeof field === 'string' && field !== 'body' ? `${field}: ${msg}` : msg
+    })
+    .join(', ')
+}
+
 export async function request(path, options = {}) {
   const token = getToken()
   const headers = new Headers(options.headers || {})
@@ -66,9 +78,10 @@ export async function request(path, options = {}) {
 
   if (!response.ok) {
     const error = body?.error
+    const message = error?.message || formatDetail(body?.detail) || 'Error inesperado'
     throw new ApiError(
       error?.code || 'unknown_error',
-      error?.message || 'Error inesperado',
+      message,
       response.status,
     )
   }

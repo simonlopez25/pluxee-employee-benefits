@@ -23,7 +23,7 @@ function DepartmentFormDialogContent({
     const trimmedName = name.trim()
 
     if (!trimmedName) {
-      setValidationError('El nombre del grupo es obligatorio')
+      setValidationError('El nombre del departamento es obligatorio')
       return
     }
 
@@ -47,12 +47,12 @@ function DepartmentFormDialogContent({
       <header className="departmentModalHeader">
         <div className="departmentModalHeaderInfo">
           <h2 id="departmentModalTitle" className="departmentModalTitle">
-            {isEditMode ? 'Editar grupo' : 'Nuevo grupo'}
+            {isEditMode ? 'Editar departamento' : 'Nuevo departamento'}
           </h2>
           <p className="departmentModalSubtitle">
             {isEditMode
-              ? 'Modifica el nombre o la divisa de este grupo.'
-              : 'Crea un grupo para estructurar la plantilla y sus presupuestos.'}
+              ? 'Modifica el nombre o la divisa de este departamento.'
+              : 'Crea un departamento para estructurar la plantilla y sus presupuestos.'}
           </p>
         </div>
         <button
@@ -79,7 +79,7 @@ function DepartmentFormDialogContent({
 
           <div className="departmentModalField">
             <label htmlFor="departmentName" className="departmentModalLabel">
-              Nombre del grupo <span className="departmentModalRequiredMark">*</span>
+              Nombre del departamento <span className="departmentModalRequiredMark">*</span>
             </label>
             <input
               id="departmentName"
@@ -141,7 +141,7 @@ function DepartmentFormDialogContent({
               ? 'Guardando...'
               : isEditMode
                 ? 'Guardar cambios'
-                : 'Crear grupo'}
+                : 'Crear departamento'}
           </Button>
         </footer>
       </form>

@@ -1,5 +1,3 @@
-"""Consultas y helpers de presupuestos (HU-11 / PEB-19)."""
-
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
@@ -29,12 +27,10 @@ ZERO = Decimal("0")
 
 
 def first_day(period: date) -> date:
-    """Normaliza cualquier fecha de un mes al día 1 de ese mes."""
     return period.replace(day=1)
 
 
 def _month_range(period: date) -> tuple[date, date]:
-    """Devuelve (primer día, primer día del mes siguiente) de la fecha dada."""
     start = period.replace(day=1)
     if start.month == 12:
         end = date(start.year + 1, 1, 1)
@@ -44,7 +40,6 @@ def _month_range(period: date) -> tuple[date, date]:
 
 
 def _consumed_amount(db: Session, department_id: int, period: date) -> Decimal:
-    """Suma de gastos aprobados del mes de los empleados del departamento."""
     start, end = _month_range(period)
     return (
         db.scalar(

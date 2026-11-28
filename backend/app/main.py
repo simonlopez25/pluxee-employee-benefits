@@ -1,5 +1,3 @@
-"""Instancia de FastAPI: middlewares, rutas y manejadores de error."""
-
 from __future__ import annotations
 
 from fastapi import FastAPI, Request
@@ -12,7 +10,6 @@ from app.routes import api_router
 
 
 def create_app() -> FastAPI:
-    """Fabrica la instancia de la aplicación."""
     app = FastAPI(
         title="Pluxee Employee Benefits API",
         version="0.1.0",
@@ -50,15 +47,14 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "PATCH"],
+        allow_headers=["Accept", "Authorization", "Content-Type"],
     )
 
     app.include_router(api_router)
 
     @app.exception_handler(AppError)
     async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
-        """Respuesta JSON consistente para errores de negocio."""
         return JSONResponse(
             status_code=exc.status_code,
             content={"error": {"code": exc.code, "message": exc.message}},

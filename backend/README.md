@@ -16,15 +16,15 @@ backend/
 │   ├── routes/                ← definición de endpoints (/api/...)
 │   ├── schemas/               ← validación de entrada/salida (Pydantic)
 │   ├── services/              ← lógica de negocio
-│   └── models/                ← 13 modelos SQLAlchemy (una tabla por archivo)
-│       ├── __init__.py            ← importa los 13 (requisito del autogenerate)
-│       ├── department.py          ├── global_budget.py
-│       ├── user.py                ├── benefit.py
-│       ├── package.py             ├── package_benefit.py
-│       ├── department_budget.py   ├── employee_assignment.py
-│       ├── expense.py             ├── expense_allocation.py
-│       ├── expense_history.py     └── audit_log.py
-│       └── attachment.py
+│   └── models/                ← 14 modelos SQLAlchemy (una tabla por archivo)
+│       ├── __init__.py                 ← importa los 14 (requisito del autogenerate)
+│       ├── department.py               ├── global_budget.py
+│       ├── user.py                     ├── benefit.py
+│       ├── package.py                  ├── package_benefit.py
+│       ├── department_budget.py        ├── benefit_budget_reference.py
+│       ├── employee_assignment.py      ├── expense.py
+│       ├── expense_allocation.py       ├── expense_history.py
+│       ├── audit_log.py                └── attachment.py
 ├── alembic/                   ← migraciones (Alembic)
 │   ├── env.py                     ← conecta Alembic con .env y Base.metadata
 │   └── versions/                  ← archivos de migración generados
@@ -59,16 +59,23 @@ cd backend
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt   # Linux/macOS: .venv/bin/pip install -r requirements.txt
 copy .env.example .env                          # Linux/macOS: cp .env.example .env
-# Edita .env con tus datos de PostgreSQL
+# Edita .env: JWT_SECRET (mínimo 32 caracteres) y tus datos de PostgreSQL
 .venv\Scripts\python -m uvicorn app.main:app --reload   # → http://localhost:4000 (docs: /docs)
 ```
 
 ## Tests
 
+Los tests corren contra la rama `tests` de Neon, una BD aislada de la
+compartida (desde la raíz del repo):
+
 ```bash
-cd backend
-.venv\Scripts\python -m pytest   # Linux/macOS: .venv/bin/python -m pytest
+neon env pull --project-id fancy-glitter-51900277 --branch tests --file backend/.env.test   # solo la primera vez
+npm run seed:test    # restaura los datos de la rama de tests
+npm run test:api     # pytest
 ```
+
+Si `backend/.env.test` no existe o apunta a la misma BD que `backend/.env`,
+pytest se niega a arrancar.
 
 ## Migraciones (Alembic)
 
@@ -98,10 +105,10 @@ cd backend
 
 ## Tablas (esquema)
 
-15 tablas (el DDL completo está en `alembic/versions/`: baseline
+14 tablas (el DDL completo está en `alembic/versions/`: baseline
 `4957b7117a5c` + `5f2c8a91e4d7` + `b4a7f2c9d1e5`):
 
-| Grupo | Tablas |
+| Categoría | Tablas |
 |-------|--------|
 | Estructura | `departments`, `users` |
 | Catálogos | `benefits`, `packages`, `package_benefits` |
@@ -110,9 +117,9 @@ cd backend
 | Transaccional | `expenses`, `expense_allocations`, `attachments` |
 | Auditoría | `expense_history`, `audit_logs` |
 
-Relación paquete ↔ grupo de empleados (departamento): **N paquetes por
-grupo, un grupo por paquete** — `packages.department_id NOT NULL`. Si dos
-grupos necesitan la misma asignación, se crean dos paquetes distintos. El
+Relación paquete ↔ departamento: **N paquetes por departamento, un
+departamento por paquete** — `packages.department_id NOT NULL`. Si dos
+departamentos necesitan la misma asignación, se crean dos paquetes distintos. El
 presupuesto con el que se cruzan se deriva:
 `departments → department_budgets(department_id) → global_budgets(period)`.
 
@@ -158,7 +165,8 @@ noviembre de 2026, gastos y justificantes de ejemplo) para desarrollo y demo —
 ```bash
 # Desde la raíz del repo — usa la conexión de la app (Neon o local)
 npm run seed              # si la BD está vacía
-npm run seed -- --reset   # TRUNCATE de las 13 tablas y vuelve a sembrar
+npm run seed -- --reset   # TRUNCATE de las 14 tablas y vuelve a sembrar
+npm run seed:test         # TRUNCATE + seed sobre la BD de tests
 ```
 
 En **pgAdmin** (Postgres local migrada con `alembic upgrade head`): pega
@@ -168,20 +176,33 @@ a Lucía **Comida = 70,00** y **Transporte = 10,00** (el runner imprime
 
 ## Variables de entorno
 
-| Variable | Descripción | Default |
-|----------|-------------|---------|
-| `PORT` | Puerto del servidor | `4000` |
-| `APP_ENV` | Entorno (`development` \| `production` \| `test`) | `development` |
-| `CORS_ORIGINS` | Orígenes CORS permitidos (separados por coma) | `http://localhost:5173` |
-| `DB_HOST` | Host de PostgreSQL (fallback local) | `localhost` |
-| `DB_PORT` | Puerto de PostgreSQL (fallback local) | `5432` |
-| `DB_USER` | Usuario de PostgreSQL (fallback local) | `postgres` |
-| `DB_PASSWORD` | Contraseña de PostgreSQL (fallback local) | `` |
-| `DB_NAME` | Base de datos (fallback local) | `pluxee` |
-| `DATABASE_URL` | URL completa de Neon para la app (pooled); si falta, se lee de `../.env.local` en la raíz | `` |
-| `DATABASE_URL_UNPOOLED` | URL directa de Neon para Alembic (sin pooler); si falta, se usa `DATABASE_URL` | `` |
+Todas se definen en `backend/.env` (plantilla: `.env.example`).
 
-> La BD compartida del equipo vive en **Neon**: `neon env pull` escribe
-> `../.env.local` en la raíz y la app la detecta sin tocar `backend/.env`
-> (ver [README principal](../README.md#base-de-datos-compartida-neon)).
+| Variable | Descripción | Obligatoria |
+|----------|-------------|-------------|
+| `APP_ENV` | Entorno (`development` \| `production` \| `test`) | Sí |
+| `HOST` | Interfaz de escucha del servidor | Sí |
+| `PORT` | Puerto del servidor | Sí |
+| `CORS_ORIGINS` | Orígenes CORS permitidos (separados por coma) | Sí |
+| `JWT_SECRET` | Secreto de firma de los tokens (mínimo 32 caracteres) | Sí |
+| `JWT_ALGORITHM` | Algoritmo de firma (por ejemplo `HS256`) | Sí |
+| `JWT_EXPIRES_MINUTES` | Caducidad del token en minutos | Sí |
+| `DATABASE_URL` | URL de Neon para la app (pooled); si falta, se usan las `DB_*` | No |
+| `DATABASE_URL_UNPOOLED` | URL de Neon para Alembic (sin pooler); si falta, se usa `DATABASE_URL` | No |
+| `DB_HOST` | Host de PostgreSQL (fallback local) | Sí |
+| `DB_PORT` | Puerto de PostgreSQL (fallback local) | Sí |
+| `DB_USER` | Usuario de PostgreSQL (fallback local) | Sí |
+| `DB_PASSWORD` | Contraseña de PostgreSQL (fallback local) | Sí |
+| `DB_NAME` | Base de datos (fallback local) | Sí |
+
+> La BD compartida del equipo vive en **Neon**:
+> `neon env pull --branch production --file backend/.env` actualiza solo
+> `DATABASE_URL` y `DATABASE_URL_UNPOOLED` (ver [README principal](../README.md#base-de-datos-compartida-neon)).
 > Si no hay ninguna `DATABASE_URL`, se usa la Postgres local (`DB_*`).
+
+El servidor no arranca si falta una variable obligatoria o si `JWT_SECRET`
+tiene menos de 32 caracteres.
+
+No hay rate limit: valorado y descartado, porque la API es interna del equipo y
+los tests disparan cientos de peticiones. El acceso lo delimitan `CORS_ORIGINS`
+y la autenticación JWT.

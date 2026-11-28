@@ -14,18 +14,14 @@ from app.models.package_benefit import PackageBenefit
 
 client = TestClient(app)
 
-# Solo los paquetes con este prefijo son datos de prueba:
-# se borran antes y después de cada test para no ensuciar la BD compartida.
 TEST_NAME_PREFIX = "Test PKG"
 
 
 def _delete_test_packages() -> None:
-    """Borra los paquetes de prueba y sus filas de package_benefits."""
     with SessionLocal() as db:
         test_ids = select(Package.id).where(
             func.lower(Package.name).startswith(TEST_NAME_PREFIX.lower())
         )
-        # Primero la tabla pivote: su FK hacia packages es ON DELETE RESTRICT
         db.execute(delete(PackageBenefit).where(PackageBenefit.package_id.in_(test_ids)))
         db.execute(delete(Package).where(Package.id.in_(test_ids)))
         db.commit()
@@ -33,13 +29,11 @@ def _delete_test_packages() -> None:
 
 @pytest.fixture(autouse=True)
 def clean_test_packages():
-    """Limpia los paquetes de prueba antes y después de cada test."""
     _delete_test_packages()
     yield
     _delete_test_packages()
 
 def _active_department_id() -> int:
-        """Id de un departamento activo que ya exista en la BD."""
         with SessionLocal() as db:
             statement = (
                 select(Department.id)
@@ -49,7 +43,6 @@ def _active_department_id() -> int:
             return db.scalar(statement)
 
 def _active_benefit_ids(count: int) -> list[int]:
-        """Ids de `count` beneficios activos que ya existan en la BD."""
         with SessionLocal() as db:
             statement = (
                 select(Benefit.id)
@@ -61,11 +54,9 @@ def _active_benefit_ids(count: int) -> list[int]:
 
 
 def test_create_mono_package_returns_201() -> None:
-        # Prepara
         department_id = _active_department_id()
         benefit_ids = _active_benefit_ids(1)
 
-        # Actúa
         response = client.post(
             "/api/packages",
             json={
@@ -86,7 +77,6 @@ def test_create_mono_package_returns_201() -> None:
         assert body["is_active"] is True
 
 def _create_package(**overrides) -> dict:
-    """Crea un paquete de prueba (mono por defecto) y devuelve su respuesta."""
     payload = {
         "name": f"{TEST_NAME_PREFIX} Base",
         "default_amount": "50.00",
@@ -111,7 +101,6 @@ def test_create_multi_package_returns_multi_type() -> None:
 def test_duplicate_name_in_same_department_returns_409() -> None:
     _create_package(name=f"{TEST_NAME_PREFIX} Repetido")
 
-    # Mismo nombre en otras mayúsculas y en el mismo departamento
     response = client.post(
         "/api/packages",
         json={
@@ -125,15 +114,11 @@ def test_duplicate_name_in_same_department_returns_409() -> None:
     assert response.status_code == 409
     assert response.json()["error"]["code"] == "conflict"
 def _nonexistent_id(model) -> int:
-    """Id que con toda seguridad no existe en la tabla del modelo."""
     with SessionLocal() as db:
         max_id = db.scalar(select(func.max(model.id)))
     return (max_id or 0) + 1000
 
 
-# ---------------------------------------------------------------------
-# 2. Errores de negocio (404)
-# ---------------------------------------------------------------------
 def test_create_with_nonexistent_department_returns_404() -> None:
     response = client.post(
         "/api/packages",
@@ -164,16 +149,13 @@ def test_create_with_nonexistent_benefit_returns_404() -> None:
     assert response.json()["error"]["code"] == "not_found"
 
 
-# ---------------------------------------------------------------------
-# 3. Datos con formato no válido (422)
-# ---------------------------------------------------------------------
 @pytest.mark.parametrize(
     "overrides",
     [
-        {"name": "   "},              # nombre vacío
-        {"default_amount": "-10.00"},  # importe negativo
-        {"benefit_ids": []},           # sin beneficios
-        {"benefit_ids": [1, 1]},       # beneficio repetido
+        {"name": "   "},
+        {"default_amount": "-10.00"},
+        {"benefit_ids": []},
+        {"benefit_ids": [1, 1]},
     ],
 )
 def test_invalid_payload_returns_422(overrides: dict) -> None:
@@ -189,9 +171,6 @@ def test_invalid_payload_returns_422(overrides: dict) -> None:
 
     assert response.status_code == 422
 
-# ---------------------------------------------------------------------
-# 4. Consultas
-# ---------------------------------------------------------------------
 def test_get_package_returns_created_package() -> None:
     created = _create_package(name=f"{TEST_NAME_PREFIX} Consulta")
 
@@ -220,8 +199,6 @@ def test_list_filters_by_department() -> None:
     assert created["id"] in [package["id"] for package in packages]
 
 def test_database_rejects_same_name_with_different_case() -> None:
-
-        # Prepara: un paquete creado por la API
         department_id = _active_department_id()
         response = client.post(
             "/api/packages",
@@ -234,7 +211,6 @@ def test_database_rejects_same_name_with_different_case() -> None:
         )
         assert response.status_code == 201, response.text
 
-        # Actúa + comprueba: el mismo nombre en mayúsculas, directo a la BD
         with SessionLocal() as db:
             db.add(
                 Package(

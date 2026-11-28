@@ -1,5 +1,3 @@
-"""Modelo de la tabla benefit_budget_references (referencia informativa por beneficio)."""
-
 from __future__ import annotations
 
 from decimal import Decimal
@@ -16,12 +14,6 @@ from app.core.database import Base
 
 
 class BenefitBudgetReference(Base):
-    """Importe orientativo de un beneficio dentro de un presupuesto departamental.
-
-    Es puramente informativo: no suma al presupuesto del departamento ni
-    limita asignaciones ni gastos reales.
-    """
-
     __tablename__ = "benefit_budget_references"
     __table_args__ = (
         ForeignKeyConstraint(

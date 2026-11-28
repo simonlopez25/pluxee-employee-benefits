@@ -1,5 +1,3 @@
-"""Modelo de la tabla packages (paquetes de beneficios)."""
-
 from __future__ import annotations
 
 from decimal import Decimal
@@ -21,12 +19,6 @@ from app.core.database import Base
 
 
 class Package(Base):
-    """Un paquete va dirigido a UN grupo de empleados (departamento).
-
-    Varios paquetes pueden compartir el mismo departamento; si dos grupos
-    necesitan la misma asignación, se crean dos paquetes distintos.
-    """
-
     __tablename__ = "packages"
     __table_args__ = (
         ForeignKeyConstraint(

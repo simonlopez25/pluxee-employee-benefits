@@ -1,5 +1,3 @@
-"""Endpoints del catálogo de beneficios: /api/benefits."""
-
 from __future__ import annotations
 
 from typing import Annotated, Literal
@@ -20,7 +18,6 @@ from app.services import benefit_service
 
 router = APIRouter(tags=["benefits"])
 
-# Errores documentados en Swagger (cuerpo real de la respuesta)
 _ERROR_NOT_FOUND = {
     "description": "404 - Beneficio no encontrado",
     "content": {
@@ -69,7 +66,6 @@ def list_benefits(
     db: Session = Depends(get_db),
     _= Depends(get_current_user),
 ) -> list[Benefit]:
-    """Devuelve la lista de beneficios."""
     return benefit_service.list_benefits(
         db,
         is_active=is_active,
@@ -89,7 +85,6 @@ def get_benefit(
     db: Session = Depends(get_db),
     _= Depends(get_current_user),
 ) -> Benefit:
-    """Devuelve un beneficio por su id."""
     return benefit_service.get_benefit(db, benefit_id)
 
 
@@ -105,7 +100,6 @@ def create_benefit(
     db: Session = Depends(get_db),
     _= Depends(require_admin),
 ) -> Benefit:
-    """Crea un beneficio con nombre único."""
     return benefit_service.create_benefit(db, payload)
 
 
@@ -121,7 +115,6 @@ def update_benefit(
     db: Session = Depends(get_db),
     _= Depends(require_admin),
 ) -> Benefit:
-    """Actualiza los campos enviados de un beneficio."""
     return benefit_service.update_benefit(db, benefit_id, payload)
 
 
@@ -137,5 +130,4 @@ def update_benefit_status(
     db: Session = Depends(get_db),
     _= Depends(require_admin),
 ) -> Benefit:
-    """Cambia el estado de un beneficio sin borrarlo."""
     return benefit_service.update_benefit_status(db, benefit_id, payload)

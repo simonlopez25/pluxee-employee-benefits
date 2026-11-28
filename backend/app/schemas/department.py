@@ -1,5 +1,3 @@
-"""Esquemas de departamentos."""
-
 from __future__ import annotations
 
 from datetime import datetime
@@ -16,23 +14,17 @@ CurrencyCode = Annotated[
 
 
 class DepartmentBase(BaseModel):
-    """Campos que comparten crear y editar."""
-
     name: DepartmentName = Field(description="Nombre del departamento")
     currency: CurrencyCode = Field(description="Divisa de 3 letras, por ejemplo EUR")
 
 
 class DepartmentCreate(DepartmentBase):
-    """Cuerpo de POST /api/departments."""
-
+    pass
 
 class DepartmentUpdate(DepartmentBase):
-    """Cuerpo de PUT /api/departments/{id}."""
-
+    pass
 
 class DepartmentResponse(DepartmentBase):
-    """Departamento tal como lo devuelve la API."""
-
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
@@ -51,12 +43,7 @@ class DepartmentResponse(DepartmentBase):
     created_at: datetime = Field(description="Fecha de creación")
 
 
-# --- Añadido para la lista de departamentos ---
-
-
 class DepartmentPackageSummary(BaseModel):
-    """Resumen de un paquete activo asociado al departamento."""
-
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(description="Identificador único del paquete")
@@ -64,8 +51,6 @@ class DepartmentPackageSummary(BaseModel):
 
 
 class DepartmentListResponse(DepartmentResponse):
-    """Elemento de la lista de departamentos con métricas y paquetes activos."""
-
     employee_count: int = Field(
         default=0,
         description="Número de empleados activos asignados al departamento",

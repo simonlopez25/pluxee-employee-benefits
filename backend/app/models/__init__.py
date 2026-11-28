@@ -1,9 +1,3 @@
-"""Modelos y acceso a datos (SQL).
-
-Importar todas las clases aquí es requisito para que `Base.metadata`
-incluya las tablas en `alembic revision --autogenerate`.
-"""
-
 from app.models.attachment import Attachment
 from app.models.audit_log import AuditLog
 from app.models.benefit import Benefit
